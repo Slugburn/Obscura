@@ -32,9 +32,9 @@ namespace Slugburn.Obscura.Lib
             };
         }
 
-        protected virtual Ship CreateInterceptor()
+        protected virtual ShipBlueprint CreateInterceptor()
         {
-            return new Ship
+            return new ShipBlueprint
                        {
                            BaseInitiative = 2,
                            Cost = 3,
@@ -48,9 +48,9 @@ namespace Slugburn.Obscura.Lib
                        };
         }
 
-        protected virtual Ship CreateCruiser()
+        protected virtual ShipBlueprint CreateCruiser()
         {
-            return new Ship
+            return new ShipBlueprint
                        {
                            BaseInitiative = 1,
                            Cost = 5,
@@ -66,9 +66,9 @@ namespace Slugburn.Obscura.Lib
                        };
         }
 
-        protected virtual Ship CreateDreadnaught()
+        protected virtual ShipBlueprint CreateDreadnaught()
         {
-            return new Ship
+            return new ShipBlueprint
                        {
                            Cost = 8,
                            PartSpaces = 8,
@@ -85,9 +85,9 @@ namespace Slugburn.Obscura.Lib
                        };
         }
 
-        protected virtual Ship CreateStarbase()
+        protected virtual ShipBlueprint CreateStarbase()
         {
-            return new Ship
+            return new ShipBlueprint
                        {
                            BaseInitiative = 4,
                            BasePower = 3,

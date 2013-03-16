@@ -10,13 +10,13 @@ namespace Slugburn.Obscura.Lib
     {
         public string Name { get; set; }
 
-        public Ship Interceptor { get; set; }
+        public ShipBlueprint Interceptor { get; set; }
 
-        public Ship Cruiser { get; set; }
+        public ShipBlueprint Cruiser { get; set; }
 
-        public Ship Dreadnaught { get; set; }
+        public ShipBlueprint Dreadnaught { get; set; }
 
-        public Ship Starbase { get; set; }
+        public ShipBlueprint Starbase { get; set; }
 
         public int Money { get; set; }
 

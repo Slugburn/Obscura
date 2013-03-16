@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Slugburn.Obscura.Lib
 {
-    public class Ship
+    public class ShipBlueprint
     {
-        public Ship()
+        public ShipBlueprint()
         {
             Parts = new List<ShipPart>();
         }
