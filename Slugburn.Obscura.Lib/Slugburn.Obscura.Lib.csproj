@@ -42,16 +42,21 @@
     <Compile Include="HumanPlayerFactory.cs" />
     <Compile Include="IPlayerFactory.cs" />
     <Compile Include="PartFactory.cs" />
+    <Compile Include="Planet.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerFactory.cs" />
+    <Compile Include="PopSpace.cs" />
+    <Compile Include="ProductionType.cs" />
+    <Compile Include="Sector.cs" />
+    <Compile Include="SectorCatalog.cs" />
     <Compile Include="ShipBlueprint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShipPart.cs" />
-    <Compile Include="Tech\Advanced\Starbase.cs" />
+    <Compile Include="Technology\PartTech.cs" />
+    <Compile Include="Technology\Tech.cs" />
+    <Compile Include="Technology\TechCat.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tech\Basic\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

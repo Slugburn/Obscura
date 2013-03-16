@@ -17,5 +17,7 @@
         public int[] Damage { get; set; }
 
         public int Move { get; set; }
+
+        public bool FirstStrike { get; set; }
     }
 }

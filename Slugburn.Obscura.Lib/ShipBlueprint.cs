@@ -47,5 +47,10 @@ namespace Slugburn.Obscura.Lib
         {
             get { return Parts.Sum(x => x.Deflection); }
         }
+
+        public int Move
+        {
+            get { return Parts.Sum(x => x.Move); }
+        }
     }
 }
