@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Factions
 {
     public interface IFaction
     {

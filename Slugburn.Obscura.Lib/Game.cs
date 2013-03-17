@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
@@ -11,6 +12,7 @@ namespace Slugburn.Obscura.Lib
         public void Setup(IList<Player> players)
         {
             Players = players.Shuffle();
+            FactionList = FactionCatalog.GetFactions();
             Round = 1;
             TechTiles = TechCatalog.GetTiles().Shuffle();
             AvailableTechTiles = TechTiles.Draw(GetStartingTechCount(Players.Count));
@@ -28,6 +30,8 @@ namespace Slugburn.Obscura.Lib
 
             players.Each(p=>p.Setup(this));
         }
+
+        protected IList<IFaction> FactionList { get; set; }
 
         private static int GetOuterSectorCount(int playerCount)
         {

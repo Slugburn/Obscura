@@ -46,5 +46,6 @@ namespace Slugburn.Obscura.Lib
             get { return Id > 300; }
         }
 
+        public MapLocation Location { get; set; }
     }
 }

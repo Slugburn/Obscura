@@ -1,19 +1,25 @@
+using System.Collections.Generic;
+
 namespace Slugburn.Obscura.Lib
 {
     public class SectorMap
     {
+        private readonly Dictionary<MapCoord, Sector> _map;
+
+        public SectorMap()
+        {
+            _map = new Dictionary<MapCoord, Sector>();
+        }
+
         public MapCoord Coord(int x, int y)
         {
-            throw new System.NotImplementedException();
+            return new MapCoord(x,y);
         }
 
         public void Place(Sector sector, MapCoord coord)
         {
-            throw new System.NotImplementedException();
+            _map[coord] = sector;
+            sector.Location = new MapLocation(this, coord);
         }
-    }
-
-    public class MapCoord
-    {
     }
 }

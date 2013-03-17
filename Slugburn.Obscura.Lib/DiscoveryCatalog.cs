@@ -45,41 +45,49 @@ namespace Slugburn.Obscura.Lib
 
         private static Discovery AncientTechnology()
         {
+            // choose lowest cost unknown tech
             return new Discovery("Ancient Technology");
         }
 
         private static Discovery AncientCruiser()
         {
+            // get free cruiser
             return new Discovery("Ancient Cruiser");
         }
 
         private static Discovery AxiomComputer()
         {
+            // +3 accuracy
             return new Discovery("Axiom Computer");
         }
 
         private static Discovery HypergridSource()
         {
+            // +11 energy
             return new Discovery("Hypergrid Source");
         }
 
         private static Discovery ShardHull()
         {
+            // 3 structure
             return new Discovery("Shard Hull");
         }
 
         private static Discovery IonTurret()
         {
+            // 2 x 1 damage, -1 energy
             return new Discovery("Ion Turret");
         }
 
         private static Discovery ConformalDrive()
         {
+            // 4 move, 2 init, -2 energy
             return new Discovery("Conformal Drive");
         }
 
         private static Discovery FluxShield()
         {
+            // -3 deflection, -2 energy
             return new Discovery("Flux Shield");
         }
 

@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using Slugburn.Obscura.Lib.Ships;
 
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Factions
 {
     public abstract class Faction : IFaction
     {

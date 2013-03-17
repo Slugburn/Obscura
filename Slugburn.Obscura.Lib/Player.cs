@@ -1,4 +1,5 @@
 ﻿using Slugburn.Obscura.Lib.Extensions;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib
@@ -53,6 +54,11 @@ namespace Slugburn.Obscura.Lib
         public Game Game { get; set; }
 
         public int Influence { get; set; }
+
+        public bool HasFaction
+        {
+            get { return _faction != null; }
+        }
     }
 
     public class ProductionQuantity
