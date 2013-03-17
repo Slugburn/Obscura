@@ -1,35 +1,41 @@
 using System.Collections.Generic;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib
 {
-    public abstract class PlayerFactory : IPlayerFactory
+    public abstract class Faction : IFaction
     {
-        private readonly string _name;
         private readonly int _startingMoney;
         private readonly int _startingScience;
         private readonly int _startingMaterials;
 
-        protected PlayerFactory(string name, int startingMoney, int startingScience, int startingMaterials)
+        protected Faction(PlayerColor color, string name, int homeSectorId, int startingMoney, int startingScience, int startingMaterials)
         {
-            _name = name;
+            Name = name;
+            Color = color;
+            HomeSectorId = homeSectorId;
             _startingMoney = startingMoney;
             _startingScience = startingScience;
             _startingMaterials = startingMaterials;
         }
 
-        public virtual Player Create()
+        public PlayerColor Color { get; private set; }
+
+        public string Name { get; private set; }
+
+        public int HomeSectorId { get; private set; }
+
+        public virtual void Setup(Player player)
         {
-            return new Player
-            {
-                Name = _name,
-                Money = _startingMoney,
-                Science = _startingScience,
-                Materials = _startingMaterials,
-                Interceptor = CreateInterceptor(),
-                Cruiser = CreateCruiser(),
-                Dreadnaught = CreateDreadnaught(),
-                Starbase = CreateStarbase()
-            };
+            player.Money = _startingMoney;
+            player.Science = _startingScience;
+            player.Materials = _startingMaterials;
+            player.Interceptor = CreateInterceptor();
+            player.Cruiser = CreateCruiser();
+            player.Dreadnaught = CreateDreadnaught();
+            player.Starbase = CreateStarbase();
+            player.ColonyShips = 3;
+            player.Influence = 13;
         }
 
         protected virtual ShipBlueprint CreateInterceptor()

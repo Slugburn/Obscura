@@ -1,4 +1,5 @@
 using System;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Technology
 {
@@ -6,7 +7,7 @@ namespace Slugburn.Obscura.Lib.Technology
     {
         private readonly Func<ShipPart> _factory;
 
-        public PartTech(string name, int cost, int minCost, TechCat category, Func<ShipPart> factory)
+        public PartTech(string name, int cost, int minCost, TechCategory category, Func<ShipPart> factory)
             : base(name,cost,minCost, category)
         {
             _factory = factory;

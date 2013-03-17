@@ -1,4 +1,4 @@
-﻿namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Ships
 {
     public class ShipPart
     {

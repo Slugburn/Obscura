@@ -1,6 +1,6 @@
 namespace Slugburn.Obscura.Lib.Technology
 {
-    public enum TechCat
+    public enum TechCategory
     {
         Military,
         Grid,

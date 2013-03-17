@@ -1,3 +1,5 @@
+using Slugburn.Obscura.Lib.Ships;
+
 namespace Slugburn.Obscura.Lib
 {
     public class PartFactory

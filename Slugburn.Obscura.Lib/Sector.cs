@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib
 {
@@ -7,8 +8,10 @@ namespace Slugburn.Obscura.Lib
     {
         public Sector()
         {
-            Planets = new List<Planet>();
+            Ships = new List<Ship>();
         }
+
+        public List<Ship> Ships { get; set; }
 
         public int Id { get; set; }
 
@@ -18,17 +21,30 @@ namespace Slugburn.Obscura.Lib
 
         public int Ancients { get; set; }
 
-        public bool Discovery { get; set; }
+        public bool HasDiscovery { get; set; }
 
-        public List<Planet> Planets { get; private set; }
-
-        public bool Artifact { get; set; }
+        public bool HasArtifact { get; set; }
 
         public int[] Wormholes { get; set; }
 
-        internal void AddPlanet(PopSpace[] populationSpaces)
+        public Discovery DiscoveryTile { get; set; }
+
+        public PopulationSquare[] Population { get; set; }
+        
+        public bool IsInner
         {
-            Planets.Add(new Planet(populationSpaces));
+            get { return Id > 100 && Id < 200; }
         }
+
+        public bool IsMiddle
+        {
+            get { return Id > 200 && Id < 221; }
+        }
+
+        public bool IsOuter
+        {
+            get { return Id > 300; }
+        }
+
     }
 }

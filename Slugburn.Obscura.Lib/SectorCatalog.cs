@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slugburn.Obscura.Lib
 {
@@ -13,95 +10,93 @@ namespace Slugburn.Obscura.Lib
             return new[]
                        {
                            Sector(1, "Galactic Center").Vp(4).Artifact().Discovery()
-                               .Planet(Science, AdvScience).Planet(Material, AdvMaterial).Planet(Any, Any).Wormholes(0, 1, 2, 3, 4, 5),
-                           Sector(101, "Castor").Vp(2).Ancients(1).Planet(Money).Planet(Material, AdvMaterial).Wormholes(1, 2, 3, 4, 5),
-                           Sector(102, "Pollux").Vp(3).Artifact().Planet(Science, AdvScience).Wormholes(0, 1, 3, 4),
-                           Sector(103, "Beta Leonis").Vp(2).Planet(AdvMoney).Planet(Any).Wormholes(0, 1, 2, 4, 5),
-                           Sector(104, "Arcturus").Vp(2).Ancients(2).Planet(Money, AdvMoney).Planet(Science, AdvScience).Wormholes(0, 1, 3, 4),
-                           Sector(105, "Zeta Hurculis").Vp(3).Artifact().Ancients(1).Planet(Money).Planet(Science).Planet(AdvMaterial).Wormholes(0, 1, 3, 4, 5),
-                           Sector(106, "Capella").Vp(2).Planet(Science).Planet(Material).Wormholes(0, 1, 2, 3),
-                           Sector(107, "Aldebaran").Vp(2).Planet(Money).Planet(AdvScience).Planet(AdvMaterial).Wormholes(0, 1, 2, 3, 5),
-                           Sector(108, "Mu Cassiopaeiae").Vp(2).Ancients(1).Planet(AdvMoney).Planet(Science).Planet(Any).Wormholes(0, 1, 3, 4),
-                           Sector(201, "Alpha Centauri").Vp(1).Planet(Money).Planet(Material).Wormholes(1, 3, 5),
-                           Sector(202, "Fomalhaut").Vp(1).Planet(Science, AdvScience).Wormholes(1, 3, 5),
-                           Sector(203, "Chi Draconis").Vp(1).Ancients(2).Planet(Money).Planet(Science).Planet(Material).Wormholes(0, 1, 3, 5),
-                           Sector(204, "Vega").Vp(2).Artifact().Ancients(1).Planet(AdvMoney).Planet(AdvMaterial).Planet(Any).Wormholes(0, 1, 3, 5),
-                           Sector(205, "Mu Herculis").Vp(1).Planet(Money, AdvMoney).Planet(Science).Wormholes(2, 3, 4),
-                           Sector(206, "Epsilon Indi").Vp(1).Discovery().Planet(Material).Wormholes(1, 2, 3, 5),
-                           Sector(207, "Zeta Reticuli").Vp(1).Discovery().Wormholes(0, 1, 3),
-                           Sector(208, "Iota Persei").Vp(1).Discovery().Wormholes(0, 2, 3, 5),
-                           Sector(209, "Delta Eridani").Vp(1).Planet(AdvMoney).Planet(Science).Wormholes(0, 1, 3, 5),
-                           Sector(210, "Psi Capricorni").Vp(1).Planet(Money).Planet(Material).Wormholes(0, 3, 5),
-                           Sector(211, "Beta Aquilae").Vp(2).Artifact().Ancients(1).Planet(Money).Planet(AdvMaterial).Planet(Any).Wormholes(0, 1, 2, 3),
-                           Sector(221, "Procyon").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(222, "Epsilon Eridani").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science, AdvScience).Wormholes(0, 1, 3, 4),
-                           Sector(223, "Altair").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(224, "Beta Hydri").Vp(3).Artifact().Planet(Money).Planet(Science, AdvScience).Planet(AdvMaterial).Wormholes(0, 1, 3, 4),
-                           Sector(225, "Eta Cassiopeiae").Vp(3).Artifact()
-                               .Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(226, "51 Cygni").Vp(3).Artifact().Planet(Money).Planet(Science).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(227, "Sirius").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(228, "Sigma Draconis").Vp(3).Artifact().Planet(Money).Planet(Science).Planet(AdvMaterial).Wormholes(0, 1, 3, 4),
-                           Sector(229, "Tau Ceti").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(230, "Lambda Aurigae").Vp(3).Artifact().Planet(Money, AdvMoney).Planet(Science).Planet(AdvMaterial).Wormholes(0, 1, 3, 4),
-                           Sector(231, "Delta Pavonis").Vp(3).Artifact()
-                               .Planet(Money, AdvMoney).Planet(Science, AdvScience).Planet(Material).Wormholes(0, 1, 3, 4),
-                           Sector(232, "Rigel").Vp(3).Artifact().Planet(AdvMoney).Planet(Science).Planet(Material, AdvMaterial).Wormholes(0, 1, 3, 4),
-                           Sector(301, "Zeta Draconis").Vp(2).Artifact().Ancients(2).Planet(Money).Planet(Science).Planet(AdvMaterial).Wormholes(0, 2, 3),
-                           Sector(302, "Gamma Serpentis").Vp(2).Artifact().Ancients(1).Planet(AdvMoney).Planet(Material).Wormholes(0, 3, 4),
-                           Sector(303, "Eta Cephei").Vp(2).Artifact().Ancients(1).Planet(Any).Wormholes(3, 5),
-                           Sector(304, "Theta Pegasi").Vp(1).Planet(AdvMoney).Planet(Material).Wormholes(0, 3),
-                           Sector(305, "Lambda Serpentis").Vp(1).Ancients(1).Planet(Science).Planet(Material).Wormholes(0, 1, 3),
-                           Sector(306, "Beta Centauri").Vp(1).Planet(Money).Planet(Material).Wormholes(1, 3),
-                           Sector(307, "Sigma Sagittarii").Vp(1).Planet(Money).Planet(AdvScience).Wormholes(0, 2, 3),
-                           Sector(308, "Kappa Scorpii").Vp(1).Planet(Science).Planet(AdvMaterial).Wormholes(2, 3, 5),
-                           Sector(309, "Phi Piscium").Vp(1).Planet(Money).Planet(AdvScience).Wormholes(0, 3, 5),
-                           Sector(310, "Nu Phoenicis").Vp(1).Planet(Science).Planet(Material).Wormholes(0, 3),
-                           Sector(311, "Canopus").Vp(1).Discovery().Planet(Material).Wormholes(0, 2, 3),
-                           Sector(312, "Antares").Vp(1).Discovery().Planet(Material).Wormholes(0, 1, 3),
-                           Sector(313, "Alpha Ursae Minoris").Vp(1).Discovery().Planet(Any).Wormholes(0, 3),
-                           Sector(314, "Spica").Vp(1).Discovery().Planet(Any).Wormholes(2, 3, 4),
-                           Sector(315, "Epsilon Aurigae").Vp(1).Discovery().Wormholes(0, 3, 5),
-                           Sector(316, "Iota Carinae").Vp(1).Discovery().Wormholes(0, 1, 3),
-                           Sector(317, "Beta Crucis").Vp(1).Planet(Money, AdvMoney).Wormholes(3, 4),
-                           Sector(318, "Gamma Veldrum").Vp(1).Planet(AdvMaterial).Planet(Any).Wormholes(2, 3),
+                               .Population(Science, AdvScience, Material, AdvMaterial, Any, Any).Wormholes(12, 2, 4, 6, 8, 10),
+                           Sector(101, "Castor").Vp(2).Ancient().Population(Money, Material, AdvMaterial).Wormholes(2, 4, 6, 8, 10),
+                           Sector(102, "Pollux").Vp(3).Artifact().Population(Science, AdvScience).Wormholes(12, 2, 6, 8),
+                           Sector(103, "Beta Leonis").Vp(2).Population(AdvMoney, Any).Wormholes(12, 2, 4, 8, 10),
+                           Sector(104, "Arcturus").Vp(2).Ancient(2).Population(Money, AdvMoney, Science, AdvScience).Wormholes(12, 2, 6, 8),
+                           Sector(105, "Zeta Hurculis").Vp(3).Artifact().Ancient().Population(Money, Science, AdvMaterial).Wormholes(12, 2, 6, 8, 10),
+                           Sector(106, "Capella").Vp(2).Population(Science, Material).Wormholes(12, 2, 4, 6),
+                           Sector(107, "Aldebaran").Vp(2).Population(Money, AdvScience, AdvMaterial).Wormholes(12, 2, 4, 6, 10),
+                           Sector(108, "Mu Cassiopaeiae").Vp(2).Ancient().Population(AdvMoney, Science, Any).Wormholes(12, 2, 6, 8),
+                           Sector(201, "Alpha Centauri").Vp(1).Population(Money, Material).Wormholes(2, 6, 10),
+                           Sector(202, "Fomalhaut").Vp(1).Population(Science, AdvScience).Wormholes(2, 6, 10),
+                           Sector(203, "Chi Draconis").Vp(1).Ancient(2).Population(Money, Science, Material).Wormholes(12, 2, 6, 10),
+                           Sector(204, "Vega").Vp(2).Artifact().Ancient().Population(AdvMoney, AdvMaterial, Any).Wormholes(12, 2, 6, 10),
+                           Sector(205, "Mu Herculis").Vp(1).Population(Money, AdvMoney, Science).Wormholes(4, 6, 8),
+                           Sector(206, "Epsilon Indi").Vp(1).Discovery().Population(Material).Wormholes(2, 4, 6, 10),
+                           Sector(207, "Zeta Reticuli").Vp(1).Discovery().Population().Wormholes(12, 2, 6),
+                           Sector(208, "Iota Persei").Vp(1).Discovery().Population().Wormholes(12, 4, 6, 10),
+                           Sector(209, "Delta Eridani").Vp(1).Population(AdvMoney, Science).Wormholes(12, 2, 6, 10),
+                           Sector(210, "Psi Capricorni").Vp(1).Population(Money, Material).Wormholes(12, 6, 10),
+                           Sector(211, "Beta Aquilae").Vp(2).Artifact().Ancient(2).Population(Money, AdvMaterial, Any).Wormholes(12, 2, 4, 6),
+                           Sector(221, "Procyon").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(222, "Epsilon Eridani").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience).Wormholes(12, 2, 6, 8),
+                           Sector(223, "Altair").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(224, "Beta Hydri").Vp(3).Artifact().Population(Money, Science, AdvScience, AdvMaterial).Wormholes(12, 2, 6, 8),
+                           Sector(225, "Eta Cassiopeiae").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(226, "51 Cygni").Vp(3).Artifact().Population(Money, Science, Material).Wormholes(12, 2, 6, 8),
+                           Sector(227, "Sirius").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(228, "Sigma Draconis").Vp(3).Artifact().Population(Money, Science, AdvMaterial).Wormholes(12, 2, 6, 8),
+                           Sector(229, "Tau Ceti").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(230, "Lambda Aurigae").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvMaterial).Wormholes(12, 2, 6, 8),
+                           Sector(231, "Delta Pavonis").Vp(3).Artifact().Population(Money, AdvMoney, Science, AdvScience, Material).Wormholes(12, 2, 6, 8),
+                           Sector(232, "Rigel").Vp(3).Artifact().Population(AdvMoney, Science, Material, AdvMaterial).Wormholes(12, 2, 6, 8),
+                           Sector(301, "Zeta Draconis").Vp(2).Artifact().Ancient(2).Population(Money, Science, AdvMaterial).Wormholes(12, 4, 6),
+                           Sector(302, "Gamma Serpentis").Vp(2).Artifact().Ancient().Population(AdvMoney, Material).Wormholes(12, 6, 8),
+                           Sector(303, "Eta Cephei").Vp(2).Artifact().Ancient().Population(Any).Wormholes(6, 10),
+                           Sector(304, "Theta Pegasi").Vp(1).Population(AdvMoney, Material).Wormholes(12, 6),
+                           Sector(305, "Lambda Serpentis").Vp(1).Ancient().Population(Science, Material).Wormholes(12, 2, 6),
+                           Sector(306, "Beta Centauri").Vp(1).Population(Money, Material).Wormholes(2, 6),
+                           Sector(307, "Sigma Sagittarii").Vp(1).Population(Money, AdvScience).Wormholes(12, 4, 6),
+                           Sector(308, "Kappa Scorpii").Vp(1).Population(Science, AdvMaterial).Wormholes(4, 6, 10),
+                           Sector(309, "Phi Piscium").Vp(1).Population(Money, AdvScience).Wormholes(12, 6, 10),
+                           Sector(310, "Nu Phoenicis").Vp(1).Population(Science, Material).Wormholes(12, 6),
+                           Sector(311, "Canopus").Vp(1).Discovery().Population(Material).Wormholes(12, 4, 6),
+                           Sector(312, "Antares").Vp(1).Discovery().Population(Material).Wormholes(12, 2, 6),
+                           Sector(313, "Alpha Ursae Minoris").Vp(1).Discovery().Population(Any).Wormholes(12, 6),
+                           Sector(314, "Spica").Vp(1).Discovery().Population(Any).Wormholes(4, 6, 8),
+                           Sector(315, "Epsilon Aurigae").Vp(1).Discovery().Population().Wormholes(12, 6, 10),
+                           Sector(316, "Iota Carinae").Vp(1).Discovery().Population().Wormholes(12, 2, 6),
+                           Sector(317, "Beta Crucis").Vp(1).Population(Money, AdvMoney).Wormholes(6, 8),
+                           Sector(318, "Gamma Veldrum").Vp(1).Population(AdvMaterial, Any).Wormholes(4, 6)
                        }
                 .ToDictionary(x => x.Id);
         }
 
-        protected static PopSpace Science
+        protected static PopulationSquare Science
         {
-            get { return new PopSpace(ProductionType.Science, false); }
+            get { return new PopulationSquare(ProductionType.Science, false); }
         }
 
-        protected static PopSpace AdvScience
+        protected static PopulationSquare AdvScience
         {
-            get { return new PopSpace(ProductionType.Science, true); }
+            get { return new PopulationSquare(ProductionType.Science, true); }
         }
 
-        protected static PopSpace Money
+        protected static PopulationSquare Money
         {
-            get { return new PopSpace(ProductionType.Money, false); }
+            get { return new PopulationSquare(ProductionType.Money, false); }
         }
 
-        protected static PopSpace AdvMoney
+        protected static PopulationSquare AdvMoney
         {
-            get { return new PopSpace(ProductionType.Money, true); }
+            get { return new PopulationSquare(ProductionType.Money, true); }
         }
 
-        protected static PopSpace Material
+        protected static PopulationSquare Material
         {
-            get {return new PopSpace(ProductionType.Material, false);}
+            get {return new PopulationSquare(ProductionType.Material, false);}
         }
 
-        protected static PopSpace AdvMaterial
+        protected static PopulationSquare AdvMaterial
         {
-            get {return new PopSpace(ProductionType.Material, true);}
+            get {return new PopulationSquare(ProductionType.Material, true);}
         }
 
-        protected static PopSpace Any
+        protected static PopulationSquare Any
         {
-            get {return new PopSpace(ProductionType.Any, false);}
+            get {return new PopulationSquare(ProductionType.Any, false);}
         }
 
         private static ISectorKey Sector(int id, string name)
@@ -124,35 +119,35 @@ namespace Slugburn.Obscura.Lib
                 return this;
             }
 
-            public ISectorVp Ancients(int count)
+            public ISectorVp Ancient(int count = 1)
             {
                 _sector.Ancients = count;
                 if (count > 0)
-                    _sector.Discovery = true;
+                    _sector.HasDiscovery = true;
                 return this;
             }
 
             public ISectorVp Discovery()
             {
-                _sector.Discovery = true;
+                _sector.HasDiscovery = true;
                 return this;
             }
 
             public ISectorVp Artifact()
             {
-                _sector.Artifact = true;
+                _sector.HasArtifact = true;
                 return this;
             }
 
-            public ISectorPlanet Planet(params PopSpace[] populationSpaces)
+            public ISectorPlanet Population(params PopulationSquare[] populationSquares)
             {
-                _sector.AddPlanet(populationSpaces);
+                _sector.Population = populationSquares;
                 return this;
             }
 
-            public Sector Wormholes(params int[] wormholes)
+            public Sector Wormholes(params int[] facings)
             {
-                _sector.Wormholes = wormholes;
+                _sector.Wormholes = facings;
                 return _sector;
             }
         }
@@ -164,19 +159,19 @@ namespace Slugburn.Obscura.Lib
 
         public interface ISectorVp : ISectorVpOrPlanet
         {
-            ISectorVp Ancients(int count);
+            ISectorVp Ancient(int count = 1);
             ISectorVp Discovery();
             ISectorVp Artifact();
+            ISectorPlanet Population(params PopulationSquare[] populationSquares);
         }
 
         public interface ISectorPlanet : ISectorVpOrPlanet
         {
+            Sector Wormholes(params int[] facings);
         }
 
         public interface ISectorVpOrPlanet
         {
-            ISectorPlanet Planet(params PopSpace[] populationSpaces);
-            Sector Wormholes(params int[] wormholes);
         }
     }
 }
