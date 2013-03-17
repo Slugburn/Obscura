@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
@@ -7,7 +8,7 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        public void Setup(List<Player> players)
+        public void Setup(IList<Player> players)
         {
             Players = players.Shuffle();
             Round = 1;
@@ -25,7 +26,7 @@ namespace Slugburn.Obscura.Lib
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
 
-            players.ForEach(p=>p.Setup(this));
+            players.Each(p=>p.Setup(this));
         }
 
         private static int GetOuterSectorCount(int playerCount)

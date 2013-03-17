@@ -1,4 +1,5 @@
-﻿using Slugburn.Obscura.Lib.Ships;
+﻿using Slugburn.Obscura.Lib.Extensions;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib
 {

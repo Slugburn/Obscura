@@ -41,6 +41,8 @@
   <ItemGroup>
     <Compile Include="Discovery.cs" />
     <Compile Include="DiscoveryCatalog.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\RandomExtensions.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="HumanFaction.cs" />
     <Compile Include="IFaction.cs" />
@@ -50,7 +52,6 @@
     <Compile Include="Faction.cs" />
     <Compile Include="PopulationSquare.cs" />
     <Compile Include="ProductionType.cs" />
-    <Compile Include="RandomExtensions.cs" />
     <Compile Include="Sector.cs" />
     <Compile Include="SectorCatalog.cs" />
     <Compile Include="SectorMap.cs" />

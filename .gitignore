@@ -43,3 +43,5 @@ _ReSharper*
 [Oo]bj
 ClientBin
 
+# NCrunch
+*.crunchsolution.cache
