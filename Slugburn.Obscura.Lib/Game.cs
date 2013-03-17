@@ -15,6 +15,7 @@ namespace Slugburn.Obscura.Lib
         public void Setup(IList<Player> players)
         {
             Players = players.Shuffle();
+            StartingPlayer = Players[0];
             _factions = FactionCatalog.GetFactions();
             Round = 1;
             TechTiles = TechCatalog.GetTiles().Shuffle();
@@ -26,7 +27,7 @@ namespace Slugburn.Obscura.Lib
             var galacticCenter = Sectors[1];
             Map.Place(galacticCenter, Map.Coord(0, 0));
             galacticCenter.DiscoveryTile = DiscoveryTiles.Draw();
-            galacticCenter.Ships.Add(new GalacticCenterDefenseSystem());
+            galacticCenter.AddShip(new GalacticCenterDefenseSystem());
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
@@ -34,6 +35,8 @@ namespace Slugburn.Obscura.Lib
 
             players.Each(p=>p.Setup(this));
         }
+
+        protected Player StartingPlayer { get; set; }
 
         protected MapLocation[] StartingLocations { get; set; }
 

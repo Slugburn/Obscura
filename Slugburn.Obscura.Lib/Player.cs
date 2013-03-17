@@ -1,4 +1,6 @@
-﻿using Slugburn.Obscura.Lib.Extensions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -9,7 +11,10 @@ namespace Slugburn.Obscura.Lib
         public Player()
         {
             IdlePopulation = new ProductionQuantity();
+            Sectors = new List<Sector>();
         }
+
+        protected List<Sector> Sectors { get; set; }
 
         private IFaction _faction;
 
@@ -45,7 +50,29 @@ namespace Slugburn.Obscura.Lib
             _faction = ChooseFaction(game);
             _faction.Setup(this);
             var startingLocation = ChooseStartingLocation();
-            startingLocation.Sector = game.Sectors[HomeSectorId];
+            Sector homeSector = game.Sectors[HomeSectorId];
+            startingLocation.Sector = homeSector;
+
+            IdlePopulation[ProductionType.Money] = 11;
+            IdlePopulation[ProductionType.Science] = 11;
+            IdlePopulation[ProductionType.Material] = 11;
+
+            homeSector.AddShip(Ship.FromBlueprint(Interceptor));
+
+            ClaimSector(homeSector);
+
+            foreach (var square in homeSector.Squares.Where(x=>!x.Advanced))
+            {
+                IdlePopulation[square.ProductionType]--;
+                square.Owner = this;
+            }
+        }
+
+        private void ClaimSector(Sector homeSector)
+        {
+            Sectors.Add(homeSector);
+            homeSector.Owner = this;
+            Influence--;
         }
 
         private IFaction ChooseFaction(Game game)
@@ -74,7 +101,7 @@ namespace Slugburn.Obscura.Lib
 
         public ProductionQuantity()
         {
-            _amount=new int[3];
+            _amount=new int[4];
         }
 
         public int this[ProductionType type]

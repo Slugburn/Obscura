@@ -104,7 +104,7 @@ namespace Slugburn.Obscura.Lib
             return new SectorCreationContext(id, name);
         }
 
-        public class SectorCreationContext : ISectorKey, ISectorVp, ISectorPlanet
+        public class SectorCreationContext : ISectorKey, ISectorVp, ISectorPopulation
         {
             private readonly Sector _sector;
 
@@ -139,9 +139,9 @@ namespace Slugburn.Obscura.Lib
                 return this;
             }
 
-            public ISectorPlanet Population(params PopulationSquare[] populationSquares)
+            public ISectorPopulation Population(params PopulationSquare[] populationSquares)
             {
-                _sector.Population = populationSquares;
+                _sector.Squares = populationSquares;
                 return this;
             }
 
@@ -157,21 +157,18 @@ namespace Slugburn.Obscura.Lib
             ISectorVp Vp(int vp);
         }
 
-        public interface ISectorVp : ISectorVpOrPlanet
+        public interface ISectorVp 
         {
             ISectorVp Ancient(int count = 1);
             ISectorVp Discovery();
             ISectorVp Artifact();
-            ISectorPlanet Population(params PopulationSquare[] populationSquares);
+            ISectorPopulation Population(params PopulationSquare[] populationSquares);
         }
 
-        public interface ISectorPlanet : ISectorVpOrPlanet
+        public interface ISectorPopulation 
         {
             Sector Wormholes(params int[] facings);
         }
 
-        public interface ISectorVpOrPlanet
-        {
-        }
     }
 }

@@ -6,12 +6,17 @@ namespace Slugburn.Obscura.Lib
 {
     public class Sector
     {
+        private readonly List<Ship> _ships;
+
         public Sector()
         {
-            Ships = new List<Ship>();
+            _ships = new List<Ship>();
         }
 
-        public List<Ship> Ships { get; set; }
+        public IEnumerable<Ship> Ships
+        {
+            get { return _ships; }
+        }
 
         public int Id { get; set; }
 
@@ -29,7 +34,7 @@ namespace Slugburn.Obscura.Lib
 
         public Discovery DiscoveryTile { get; set; }
 
-        public PopulationSquare[] Population { get; set; }
+        public PopulationSquare[] Squares { get; set; }
         
         public bool IsInner
         {
@@ -47,5 +52,12 @@ namespace Slugburn.Obscura.Lib
         }
 
         public MapLocation Location { get; set; }
+
+        public Player Owner { get; set; }
+
+        public void AddShip(Ship ship)
+        {
+            _ships.Add(ship);
+        }
     }
 }
