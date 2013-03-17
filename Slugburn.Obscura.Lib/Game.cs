@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -9,10 +10,12 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
+        private IList<IFaction> _factions;
+
         public void Setup(IList<Player> players)
         {
             Players = players.Shuffle();
-            FactionList = FactionCatalog.GetFactions();
+            _factions = FactionCatalog.GetFactions();
             Round = 1;
             TechTiles = TechCatalog.GetTiles().Shuffle();
             AvailableTechTiles = TechTiles.Draw(GetStartingTechCount(Players.Count));
@@ -27,11 +30,12 @@ namespace Slugburn.Obscura.Lib
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
+            StartingLocations = Map.GetStartingLayout(Players.Count);
 
             players.Each(p=>p.Setup(this));
         }
 
-        protected IList<IFaction> FactionList { get; set; }
+        protected MapLocation[] StartingLocations { get; set; }
 
         private static int GetOuterSectorCount(int playerCount)
         {
@@ -61,7 +65,7 @@ namespace Slugburn.Obscura.Lib
 
         protected SectorMap Map { get; set; }
 
-        protected Dictionary<int, Sector> Sectors { get; set; }
+        public Dictionary<int, Sector> Sectors { get; set; }
 
         protected List<Discovery> DiscoveryTiles { get; set; }
 
@@ -84,7 +88,13 @@ namespace Slugburn.Obscura.Lib
 
         public IEnumerable<IFaction> GetAvailableFactions()
         {
-            throw new System.NotImplementedException();
+            var takenColors = Players.Where(p=>p.HasFaction).Select(p=>p.Color);
+            return _factions.Where(f => !takenColors.Contains(f.Color));
+        }
+
+        public IEnumerable<MapLocation> GetAvailableStartingLocations()
+        {
+            return StartingLocations.Where(l => l.Sector == null);
         }
     }
 }

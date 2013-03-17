@@ -45,3 +45,4 @@ ClientBin
 
 # NCrunch
 *.crunchsolution.cache
+nCrunchTemp*

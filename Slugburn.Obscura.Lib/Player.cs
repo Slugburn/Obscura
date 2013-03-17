@@ -44,11 +44,18 @@ namespace Slugburn.Obscura.Lib
             Game = game;
             _faction = ChooseFaction(game);
             _faction.Setup(this);
+            var startingLocation = ChooseStartingLocation();
+            startingLocation.Sector = game.Sectors[HomeSectorId];
         }
 
         private IFaction ChooseFaction(Game game)
         {
             return game.GetAvailableFactions().Shuffle().Draw();
+        }
+
+        private MapLocation ChooseStartingLocation()
+        {
+            return Game.GetAvailableStartingLocations().Shuffle().Draw();
         }
 
         public Game Game { get; set; }
