@@ -59,5 +59,11 @@ namespace Slugburn.Obscura.Lib
         {
             _ships.Add(ship);
         }
+
+        public void RotateClockwise()
+        {
+            for (var i = 0; i < Wormholes.Length; i++)
+                Wormholes[i] = Facing.RotateClockwise(Wormholes[i], 2);
+        }
     }
 }

@@ -1,11 +1,15 @@
+using System.Linq;
+
 namespace Slugburn.Obscura.Lib.Ships
 {
     public class Ship
     {
+        public Sector Sector { get; set; }
 
-        public static Ship FromBlueprint(ShipBlueprint blueprint)
+        public void SetSector(Sector sector)
         {
-            return new PlayerShip(blueprint);
+            sector.AddShip(this);
+            Sector = sector;
         }
     }
 
@@ -13,9 +17,22 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         private readonly ShipBlueprint _blueprint;
 
-        public PlayerShip(ShipBlueprint blueprint)
+        public PlayerShip(Player player, ShipBlueprint blueprint)
         {
+            Player = player;
             _blueprint = blueprint;
         }
+
+        public bool IsPinned
+        {
+            get
+            {
+                var friendlyShipCount = Sector.Ships.Cast<PlayerShip>().Count(ship => ship != null && ship.Player == Player);
+                var enemyShipCount = Sector.Ships.Count() - friendlyShipCount;
+                return friendlyShipCount > enemyShipCount;
+            }
+        }
+
+        public Player Player { get; private set; }
     }
 }

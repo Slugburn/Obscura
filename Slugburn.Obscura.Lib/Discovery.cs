@@ -8,5 +8,10 @@ namespace Slugburn.Obscura.Lib
         {
             Name = name;
         }
+
+        public void Use(Player player)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

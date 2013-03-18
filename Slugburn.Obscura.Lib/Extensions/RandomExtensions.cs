@@ -33,5 +33,12 @@ namespace Slugburn.Obscura.Lib.Extensions
         {
             return Draw(source, 1).FirstOrDefault();
         }
+
+        public static T PickRandom<T>(this IEnumerable<T> items)
+        {
+            var list = items as IList<T> ?? new List<T>(items);
+            var randomIndex = Random.Next(list.Count);
+            return list[randomIndex];
+        }
     }
 }

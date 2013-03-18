@@ -27,7 +27,8 @@ namespace Slugburn.Obscura.Lib
             var galacticCenter = Sectors[1];
             Map.Place(galacticCenter, Map.Coord(0, 0));
             galacticCenter.DiscoveryTile = DiscoveryTiles.Draw();
-            galacticCenter.AddShip(new GalacticCenterDefenseSystem());
+            var gcds = new GalacticCenterDefenseSystem();
+            gcds.SetSector(galacticCenter);
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
@@ -70,7 +71,7 @@ namespace Slugburn.Obscura.Lib
 
         public Dictionary<int, Sector> Sectors { get; set; }
 
-        protected List<Discovery> DiscoveryTiles { get; set; }
+        public List<Discovery> DiscoveryTiles { get; set; }
 
         protected List<int> ReputationTiles { get; set; }
 
@@ -98,6 +99,24 @@ namespace Slugburn.Obscura.Lib
         public IEnumerable<MapLocation> GetAvailableStartingLocations()
         {
             return StartingLocations.Where(l => l.Sector == null);
+        }
+
+        public void Start()
+        {
+            StartingPlayer.TakeAction();
+        }
+
+        public Sector GetSectorFor(MapLocation location)
+        {
+            switch (location.DistanceFromCenter)
+            {
+                case 1:
+                    return InnerSectors.Draw();
+                case 2:
+                    return MiddleSectors.Draw();
+                default:
+                    return OuterSectors.Draw();
+            }
         }
     }
 }

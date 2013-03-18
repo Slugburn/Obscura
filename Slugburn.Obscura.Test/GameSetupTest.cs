@@ -24,5 +24,17 @@ namespace Slugburn.Obscura.Test
 
         }
 
+        [Test]
+        public void Start()
+        {
+            // Arrange
+            var game = new Game();
+            var players = new[] { new Player(), new Player() };
+
+            // Act
+            game.Setup(players);
+            game.Start();
+        }
+
     }
 }

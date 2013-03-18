@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Controllers;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
@@ -12,9 +14,11 @@ namespace Slugburn.Obscura.Lib
         {
             IdlePopulation = new ProductionQuantity();
             Sectors = new List<Sector>();
+            Ships = new List<PlayerShip>();
+            Controller = new RandomController();
         }
 
-        protected List<Sector> Sectors { get; set; }
+        public List<Sector> Sectors { get; set; }
 
         private IFaction _faction;
 
@@ -47,17 +51,18 @@ namespace Slugburn.Obscura.Lib
         public void Setup(Game game)
         {
             Game = game;
-            _faction = ChooseFaction(game);
+            _faction = Controller.ChooseFaction(game.GetAvailableFactions());
             _faction.Setup(this);
-            var startingLocation = ChooseStartingLocation();
-            Sector homeSector = game.Sectors[HomeSectorId];
+            var startingLocation = Controller.ChooseStartingLocation(Game.GetAvailableStartingLocations());
+            var homeSector = game.Sectors[HomeSectorId];
             startingLocation.Sector = homeSector;
 
             IdlePopulation[ProductionType.Money] = 11;
             IdlePopulation[ProductionType.Science] = 11;
             IdlePopulation[ProductionType.Material] = 11;
 
-            homeSector.AddShip(Ship.FromBlueprint(Interceptor));
+            var interceptor = CreateShip(Interceptor);
+            interceptor.SetSector(homeSector);
 
             ClaimSector(homeSector);
 
@@ -68,22 +73,34 @@ namespace Slugburn.Obscura.Lib
             }
         }
 
-        private void ClaimSector(Sector homeSector)
+        private PlayerShip CreateShip(ShipBlueprint blueprint)
         {
-            Sectors.Add(homeSector);
-            homeSector.Owner = this;
+            var ship = new PlayerShip(this, blueprint);
+            Ships.Add(ship);
+            return ship;
+        }
+
+        public void ClaimSector(Sector sector)
+        {
+            Sectors.Add(sector);
+            sector.Owner = this;
             Influence--;
+            if (sector.HasDiscovery )
+            {
+                var tile = sector.DiscoveryTile;
+                sector.DiscoveryTile = null;
+                if (Controller.ChooseToUseDiscovery(tile))
+                {
+                    tile.Use(this);
+                }
+                else
+                {
+                    this.Vp += 2;
+                }
+            }
         }
 
-        private IFaction ChooseFaction(Game game)
-        {
-            return game.GetAvailableFactions().Shuffle().Draw();
-        }
-
-        private MapLocation ChooseStartingLocation()
-        {
-            return Game.GetAvailableStartingLocations().Shuffle().Draw();
-        }
+        protected int Vp { get; set; }
 
         public Game Game { get; set; }
 
@@ -93,21 +110,16 @@ namespace Slugburn.Obscura.Lib
         {
             get { return _faction != null; }
         }
-    }
 
-    public class ProductionQuantity
-    {
-        private readonly int[] _amount;
+        public List<PlayerShip> Ships { get; set; }
 
-        public ProductionQuantity()
+        public IPlayerController Controller { get; set; }
+
+        public void TakeAction()
         {
-            _amount=new int[4];
-        }
-
-        public int this[ProductionType type]
-        {
-            get { return _amount[(int) type - 1]; }
-            set { _amount[(int) type - 1] = value; }
+            var validActions = ActionCatalog.All.Where(action => action.IsValid(this));
+            var chosenAction = Controller.ChooseAction(validActions);
+            chosenAction.Do(this);
         }
     }
 }
