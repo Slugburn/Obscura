@@ -2,7 +2,6 @@
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Controllers;
-using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -80,7 +79,7 @@ namespace Slugburn.Obscura.Lib
             return ship;
         }
 
-        public void ClaimSector(Sector sector)
+        public virtual void ClaimSector(Sector sector)
         {
             Sectors.Add(sector);
             sector.Owner = this;
@@ -113,13 +112,19 @@ namespace Slugburn.Obscura.Lib
 
         public List<PlayerShip> Ships { get; set; }
 
-        public IPlayerController Controller { get; set; }
+        public virtual IPlayerController Controller { get; set; }
 
         public void TakeAction()
         {
             var validActions = ActionCatalog.All.Where(action => action.IsValid(this));
             var chosenAction = Controller.ChooseAction(validActions);
             chosenAction.Do(this);
+        }
+
+        public virtual IEnumerable<MapLocation> GetValidExplorationLocations()
+        {
+            var sourceSectors = Sectors.Concat(Ships.Where(ship=>!ship.IsPinned).Select(ship => ship.Sector)).Distinct();
+            return sourceSectors.SelectMany(x => x.Location.AdjacentExplorable()).Distinct();
         }
     }
 }

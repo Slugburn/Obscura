@@ -12,10 +12,14 @@ namespace Slugburn.Obscura.Lib
             Coord = coord;
         }
 
+        protected MapLocation()
+        {
+        }
+
         public SectorMap Map { get; set; }
         public MapCoord Coord { get; set; }
 
-        public Sector Sector
+        public virtual Sector Sector
         {
             get { return Map.GetSector(Coord); }
             set { Map.Place(value, Coord); }
@@ -52,7 +56,7 @@ namespace Slugburn.Obscura.Lib
             return Equals((MapLocation) obj);
         }
 
-        public IEnumerable<int> AdjacentWormholesFor(Player player)
+        public virtual IEnumerable<int> AdjacentWormholesFor(Player player)
         {
             return Facing.All.Select(facing => new {facing, sector = Map.GetSector(Coord.Go(facing, 1))})
                 .Where(x => x.sector != null && x.sector.Owner == player && x.sector.Wormholes.Contains(Facing.Reverse(x.facing)))

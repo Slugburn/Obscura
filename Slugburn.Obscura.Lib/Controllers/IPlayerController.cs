@@ -11,5 +11,7 @@ namespace Slugburn.Obscura.Lib.Controllers
         IFaction ChooseFaction(IEnumerable<IFaction> availableFactions);
         MapLocation ChooseStartingLocation(IEnumerable<MapLocation> availableLocations);
         IAction ChooseAction(IEnumerable<IAction> validActions);
+        void RotateSectorWormholes(Sector sector, int[] validFacings);
+        MapLocation ChooseSectorLocation(IEnumerable<MapLocation> locations);
     }
 }

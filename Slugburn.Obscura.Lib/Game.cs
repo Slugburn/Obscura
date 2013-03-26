@@ -106,7 +106,7 @@ namespace Slugburn.Obscura.Lib
             StartingPlayer.TakeAction();
         }
 
-        public Sector GetSectorFor(MapLocation location)
+        public virtual Sector GetSectorFor(MapLocation location)
         {
             switch (location.DistanceFromCenter)
             {

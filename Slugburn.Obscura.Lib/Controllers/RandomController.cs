@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -30,6 +31,17 @@ namespace Slugburn.Obscura.Lib.Controllers
         public IAction ChooseAction(IEnumerable<IAction> validActions)
         {
             return validActions.PickRandom();
+        }
+
+        public void RotateSectorWormholes(Sector sector, int[] validFacings)
+        {
+            while (!sector.Wormholes.Intersect(validFacings).Any())
+                sector.RotateClockwise();
+        }
+
+        public MapLocation ChooseSectorLocation(IEnumerable<MapLocation> locations)
+        {
+            return locations.PickRandom();
         }
     }
 }
