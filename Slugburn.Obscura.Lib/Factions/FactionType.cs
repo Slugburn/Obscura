@@ -31,7 +31,7 @@ namespace Slugburn.Obscura.Lib.Factions
             faction.Materials = _startingMaterials;
             faction.Interceptor = CreateInterceptor();
             faction.Cruiser = CreateCruiser();
-            faction.Dreadnaught = CreateDreadnaught();
+            faction.Dreadnought = CreateDreadnaught();
             faction.Starbase = CreateStarbase();
             faction.ColonyShips = 3;
             faction.Influence = 13;

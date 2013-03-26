@@ -1,16 +1,15 @@
 using System.Linq;
+using Slugburn.Obscura.Lib.Builds;
 using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
-    public class PlayerShip : Ship
+    public class PlayerShip : Ship, IBuildable
     {
-        private readonly ShipBlueprint _blueprint;
-
         public PlayerShip(Faction faction, ShipBlueprint blueprint)
         {
             Faction = faction;
-            _blueprint = blueprint;
+            Blueprint = blueprint;
         }
 
         public bool IsPinned
@@ -24,5 +23,7 @@ namespace Slugburn.Obscura.Lib.Ships
         }
 
         public Faction Faction { get; private set; }
+
+        public ShipBlueprint Blueprint { get; private set; }
     }
 }

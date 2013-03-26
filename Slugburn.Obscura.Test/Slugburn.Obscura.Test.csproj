@@ -49,6 +49,9 @@
   <ItemGroup>
     <Compile Include="Actions\ExploreActionTest.cs" />
     <Compile Include="Actions\ResearchActionTest.cs" />
+    <Compile Include="Builders\CruiserBuilderTest.cs" />
+    <Compile Include="Builders\DreadnoughtBuilderTest.cs" />
+    <Compile Include="Builders\InterceptorBuilderTest.cs" />
     <Compile Include="Factions\Behavior\AvailableResearchTechTest.cs" />
     <Compile Include="Factions\Behavior\CostForTechTest.cs" />
     <Compile Include="GameSetupTest.cs" />

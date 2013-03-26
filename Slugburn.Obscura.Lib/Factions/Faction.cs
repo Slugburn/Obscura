@@ -29,7 +29,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public ShipBlueprint Cruiser { get; set; }
 
-        public ShipBlueprint Dreadnaught { get; set; }
+        public ShipBlueprint Dreadnought { get; set; }
 
         public ShipBlueprint Starbase { get; set; }
 
@@ -74,7 +74,7 @@ namespace Slugburn.Obscura.Lib.Factions
             }
         }
 
-        private PlayerShip CreateShip(ShipBlueprint blueprint)
+        public PlayerShip CreateShip(ShipBlueprint blueprint)
         {
             var ship = new PlayerShip(this, blueprint);
             Ships.Add(ship);

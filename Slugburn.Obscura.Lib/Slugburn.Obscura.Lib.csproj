@@ -40,9 +40,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions\ActionCatalog.cs" />
+    <Compile Include="Actions\BuildAction.cs" />
     <Compile Include="Actions\ExploreAction.cs" />
     <Compile Include="Actions\IAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
+    <Compile Include="Builds\BuilderBase.cs" />
+    <Compile Include="Builds\CruiserBuilder.cs" />
+    <Compile Include="Builds\DreadnoughtBuilder.cs" />
+    <Compile Include="Builds\IBuildable.cs" />
+    <Compile Include="Builds\IBuilder.cs" />
+    <Compile Include="Builds\InterceptorBuilder.cs" />
+    <Compile Include="Builds\ShipBuilder.cs" />
     <Compile Include="Maps\Facing.cs" />
     <Compile Include="Maps\MapCoord.cs" />
     <Compile Include="Maps\MapLocation.cs" />
