@@ -8,7 +8,8 @@ namespace Slugburn.Obscura.Lib.Actions
         {
             All = new IAction[]
                       {
-                          new ExploreAction()
+                          new ExploreAction(),
+                          new ResearchAction(), 
                       };
         }
 

@@ -1,6 +1,6 @@
-﻿namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Factions
 {
-    public enum PlayerColor
+    public enum FactionColor
     {
         Black,
         Blue,

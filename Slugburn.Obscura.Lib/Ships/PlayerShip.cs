@@ -1,4 +1,5 @@
 using System.Linq;
+using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -6,9 +7,9 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         private readonly ShipBlueprint _blueprint;
 
-        public PlayerShip(Player player, ShipBlueprint blueprint)
+        public PlayerShip(Faction faction, ShipBlueprint blueprint)
         {
-            Player = player;
+            Faction = faction;
             _blueprint = blueprint;
         }
 
@@ -16,12 +17,12 @@ namespace Slugburn.Obscura.Lib.Ships
         {
             get
             {
-                var friendlyShipCount = Sector.Ships.Cast<PlayerShip>().Count(ship => ship != null && ship.Player == Player);
+                var friendlyShipCount = Sector.Ships.Cast<PlayerShip>().Count(ship => ship != null && ship.Faction == Faction);
                 var enemyShipCount = Sector.Ships.Count() - friendlyShipCount;
                 return friendlyShipCount > enemyShipCount;
             }
         }
 
-        public Player Player { get; private set; }
+        public Faction Faction { get; private set; }
     }
 }

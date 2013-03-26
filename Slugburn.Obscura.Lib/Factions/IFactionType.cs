@@ -1,9 +1,9 @@
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public interface IFaction
+    public interface IFactionType
     {
-        void Setup(Player player);
-        PlayerColor Color { get; }
+        void Setup(Faction faction);
+        FactionColor Color { get; }
         string Name { get; }
         int HomeSectorId { get; }
     }

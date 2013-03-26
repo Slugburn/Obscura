@@ -1,3 +1,5 @@
+using Slugburn.Obscura.Lib.Factions;
+
 namespace Slugburn.Obscura.Lib
 {
     public class Discovery
@@ -9,7 +11,7 @@ namespace Slugburn.Obscura.Lib
             Name = name;
         }
 
-        public void Use(Player player)
+        public void Use(Faction faction)
         {
             throw new System.NotImplementedException();
         }

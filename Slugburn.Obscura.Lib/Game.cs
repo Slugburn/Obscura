@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
@@ -10,13 +11,13 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        private IList<IFaction> _factions;
+        private IList<IFactionType> _factions;
 
-        public void Setup(IList<Player> players)
+        public void Setup(IList<Faction> players)
         {
             Players = players.Shuffle();
-            StartingPlayer = Players[0];
-            _factions = FactionCatalog.GetFactions();
+            StartingFaction = Players[0];
+            _factions = FactionTypeCatalog.GetFactionTypes();
             Round = 1;
             TechTiles = TechCatalog.GetTiles().Shuffle();
             AvailableTechTiles = TechTiles.Draw(GetStartingTechCount(Players.Count));
@@ -28,7 +29,7 @@ namespace Slugburn.Obscura.Lib
             Map.Place(galacticCenter, Map.Coord(0, 0));
             galacticCenter.DiscoveryTile = DiscoveryTiles.Draw();
             var gcds = new GalacticCenterDefenseSystem();
-            gcds.SetSector(galacticCenter);
+            galacticCenter.AddShip(gcds);
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
@@ -37,7 +38,7 @@ namespace Slugburn.Obscura.Lib
             players.Each(p=>p.Setup(this));
         }
 
-        protected Player StartingPlayer { get; set; }
+        protected Faction StartingFaction { get; set; }
 
         protected MapLocation[] StartingLocations { get; set; }
 
@@ -59,7 +60,7 @@ namespace Slugburn.Obscura.Lib
             return 8 + playerCount * 2;
         }
 
-        protected List<Player> Players { get; set; }
+        protected List<Faction> Players { get; set; }
 
         protected List<Sector> OuterSectors { get; set; }
 
@@ -84,13 +85,13 @@ namespace Slugburn.Obscura.Lib
                 .Concat(Enumerable.Repeat(4, 4)));
         }
 
-        protected List<Tech> AvailableTechTiles { get; set; }
+        public List<Tech> AvailableTechTiles { get; set; }
 
-        protected IList<Tech> TechTiles { get; set; }
+        public IList<Tech> TechTiles { get; set; }
 
         protected int Round { get; set; }
 
-        public IEnumerable<IFaction> GetAvailableFactions()
+        public IEnumerable<IFactionType> GetAvailableFactions()
         {
             var takenColors = Players.Where(p=>p.HasFaction).Select(p=>p.Color);
             return _factions.Where(f => !takenColors.Contains(f.Color));
@@ -103,7 +104,7 @@ namespace Slugburn.Obscura.Lib
 
         public void Start()
         {
-            StartingPlayer.TakeAction();
+            StartingFaction.TakeAction();
         }
 
         public virtual Sector GetSectorFor(MapLocation location)

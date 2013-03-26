@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Slugburn.Obscura.Lib;
+using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Test
 {
@@ -16,7 +17,7 @@ namespace Slugburn.Obscura.Test
         {
             // Arrange
             var game = new Game();
-            var players = new[] {new Player(), new Player()};
+            var players = new[] {new Faction(), new Faction()};
 
             // Act
             game.Setup(players);
@@ -29,7 +30,7 @@ namespace Slugburn.Obscura.Test
         {
             // Arrange
             var game = new Game();
-            var players = new[] { new Player(), new Player() };
+            var players = new[] { new Faction(), new Faction() };
 
             // Act
             game.Setup(players);

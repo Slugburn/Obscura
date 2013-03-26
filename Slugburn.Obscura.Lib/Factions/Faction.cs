@@ -1,111 +1,146 @@
+using System.Collections.Generic;
+using System.Linq;
+using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public abstract class Faction : IFaction
+    public class Faction
     {
-        private readonly int _startingMoney;
-        private readonly int _startingScience;
-        private readonly int _startingMaterials;
-
-        protected Faction(PlayerColor color, string name, int homeSectorId, int startingMoney, int startingScience, int startingMaterials)
+        public Faction()
         {
-            Name = name;
-            Color = color;
-            HomeSectorId = homeSectorId;
-            _startingMoney = startingMoney;
-            _startingScience = startingScience;
-            _startingMaterials = startingMaterials;
+            IdlePopulation = new ProductionQuantity();
+            Sectors = new List<Sector>();
+            Ships = new List<PlayerShip>();
+            Technologies = new List<Tech>();
+            Player = new RandomPlayer();
         }
 
-        public PlayerColor Color { get; private set; }
+        public List<Sector> Sectors { get; set; }
 
-        public string Name { get; private set; }
+        private IFactionType _factionType;
 
-        public int HomeSectorId { get; private set; }
+        public string Name { get; set; }
 
-        public virtual void Setup(Player player)
+        public ShipBlueprint Interceptor { get; set; }
+
+        public ShipBlueprint Cruiser { get; set; }
+
+        public ShipBlueprint Dreadnaught { get; set; }
+
+        public ShipBlueprint Starbase { get; set; }
+
+        public int Money { get; set; }
+
+        public int Science { get; set; }
+
+        public int Materials { get; set; }
+
+        public int ColonyShips { get; set; }
+
+        public ProductionQuantity IdlePopulation { get; private set; }
+
+        public FactionColor Color { get { return _factionType.Color; } }
+
+        public string FactionName { get { return _factionType.Name; } }
+
+        public int HomeSectorId { get { return _factionType.HomeSectorId; } }
+
+        public void Setup(Game game)
         {
-            player.Money = _startingMoney;
-            player.Science = _startingScience;
-            player.Materials = _startingMaterials;
-            player.Interceptor = CreateInterceptor();
-            player.Cruiser = CreateCruiser();
-            player.Dreadnaught = CreateDreadnaught();
-            player.Starbase = CreateStarbase();
-            player.ColonyShips = 3;
-            player.Influence = 13;
+            Game = game;
+            _factionType = Player.ChooseFaction(game.GetAvailableFactions());
+            _factionType.Setup(this);
+            var startingLocation = Player.ChooseStartingLocation(Game.GetAvailableStartingLocations());
+            var homeSector = game.Sectors[HomeSectorId];
+            startingLocation.Sector = homeSector;
+
+            IdlePopulation[ProductionType.Money] = 11;
+            IdlePopulation[ProductionType.Science] = 11;
+            IdlePopulation[ProductionType.Material] = 11;
+
+            var interceptor = CreateShip(Interceptor);
+            homeSector.AddShip(interceptor);
+
+            ClaimSector(homeSector);
+
+            foreach (var square in homeSector.Squares.Where(x=>!x.Advanced))
+            {
+                IdlePopulation[square.ProductionType]--;
+                square.Owner = this;
+            }
         }
 
-        protected virtual ShipBlueprint CreateInterceptor()
+        private PlayerShip CreateShip(ShipBlueprint blueprint)
         {
-            return new ShipBlueprint
-                       {
-                           BaseInitiative = 2,
-                           Cost = 3,
-                           PartSpaces = 4,
-                           Parts =
-                               {
-                                   PartFactory.IonCannon(),
-                                   PartFactory.NuclearDrive(),
-                                   PartFactory.NuclearSource()
-                               }
-                       };
+            var ship = new PlayerShip(this, blueprint);
+            Ships.Add(ship);
+            return ship;
         }
 
-        protected virtual ShipBlueprint CreateCruiser()
+        public virtual void ClaimSector(Sector sector)
         {
-            return new ShipBlueprint
-                       {
-                           BaseInitiative = 1,
-                           Cost = 5,
-                           PartSpaces = 6,
-                           Parts =
-                               {
-                                   PartFactory.Hull(),
-                                   PartFactory.IonCannon(),
-                                   PartFactory.NuclearSource(),
-                                   PartFactory.ElectronComputer(),
-                                   PartFactory.NuclearDrive()
-                               }
-                       };
+            Sectors.Add(sector);
+            sector.Owner = this;
+            Influence--;
+            if (sector.HasDiscovery )
+            {
+                var tile = sector.DiscoveryTile;
+                sector.DiscoveryTile = null;
+                if (Player.ChooseToUseDiscovery(tile))
+                {
+                    tile.Use(this);
+                }
+                else
+                {
+                    this.Vp += 2;
+                }
+            }
         }
 
-        protected virtual ShipBlueprint CreateDreadnaught()
+        protected int Vp { get; set; }
+
+        public Game Game { get; set; }
+
+        public int Influence { get; set; }
+
+        public bool HasFaction
         {
-            return new ShipBlueprint
-                       {
-                           Cost = 8,
-                           PartSpaces = 8,
-                           Parts =
-                               {
-                                   PartFactory.Hull(),
-                                   PartFactory.Hull(),
-                                   PartFactory.IonCannon(),
-                                   PartFactory.IonCannon(),
-                                   PartFactory.NuclearSource(),
-                                   PartFactory.ElectronComputer(),
-                                   PartFactory.NuclearDrive()
-                               }
-                       };
+            get { return _factionType != null; }
         }
 
-        protected virtual ShipBlueprint CreateStarbase()
+        public List<PlayerShip> Ships { get; set; }
+
+        public virtual IPlayer Player { get; set; }
+
+        public void TakeAction()
         {
-            return new ShipBlueprint
-                       {
-                           BaseInitiative = 4,
-                           BasePower = 3,
-                           Cost = 3,
-                           PartSpaces = 5,
-                           Parts =
-                               {
-                                   PartFactory.Hull(),
-                                   PartFactory.Hull(),
-                                   PartFactory.IonCannon(),
-                                   PartFactory.ElectronComputer()
-                               }
-                       };
+            var validActions = ActionCatalog.All.Where(action => action.IsValid(this));
+            var chosenAction = Player.ChooseAction(validActions);
+            chosenAction.Do(this);
+        }
+
+        public virtual IEnumerable<MapLocation> GetValidExplorationLocations()
+        {
+            var sourceSectors = Sectors.Concat(Ships.Where(ship=>!ship.IsPinned).Select(ship => ship.Sector)).Distinct();
+            return sourceSectors.SelectMany(x => x.Location.AdjacentExplorable()).Distinct();
+        }
+
+        public virtual IEnumerable<Tech> AvailableResearchTech()
+        {
+            return Game.AvailableTechTiles.Where(tech=>CostFor(tech) <= Science && !Technologies.Contains(tech));
+        }
+
+        public IList<Tech> Technologies { get; private set; }
+
+        public virtual int CostFor(Tech tech)
+        {
+            var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8};
+            var discounted = tech.Cost + techDiscount[Technologies.Count(t => t.Category == tech.Category)];
+            return discounted > tech.MinCost ? discounted : tech.MinCost;
         }
     }
 }

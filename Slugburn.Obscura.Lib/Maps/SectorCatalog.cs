@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Maps
 {
     class SectorCatalog
     {

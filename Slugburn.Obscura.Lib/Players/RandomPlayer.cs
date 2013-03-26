@@ -3,10 +3,12 @@ using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Technology;
 
-namespace Slugburn.Obscura.Lib.Controllers
+namespace Slugburn.Obscura.Lib.Players
 {
-    public class RandomController : IPlayerController
+    public class RandomPlayer : IPlayer
     {
         public bool ChooseToClaimSector(Sector sector)
         {
@@ -18,7 +20,7 @@ namespace Slugburn.Obscura.Lib.Controllers
             return false;
         }
 
-        public IFaction ChooseFaction(IEnumerable<IFaction> availableFactions)
+        public IFactionType ChooseFaction(IEnumerable<IFactionType> availableFactions)
         {
             return availableFactions.PickRandom();
         }
@@ -39,9 +41,14 @@ namespace Slugburn.Obscura.Lib.Controllers
                 sector.RotateClockwise();
         }
 
-        public MapLocation ChooseSectorLocation(IEnumerable<MapLocation> locations)
+        public MapLocation ChooseSectorLocation(IEnumerable<MapLocation> availableLocations)
         {
-            return locations.PickRandom();
+            return availableLocations.PickRandom();
+        }
+
+        public Tech ChooseResearch(IEnumerable<Tech> availableTech)
+        {
+            return availableTech.PickRandom();
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Maps
 {
     public class MapCoord
     {

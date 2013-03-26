@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Generic;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Maps
 {
     public class Sector
     {
@@ -53,17 +53,18 @@ namespace Slugburn.Obscura.Lib
 
         public MapLocation Location { get; set; }
 
-        public Player Owner { get; set; }
-
-        public void AddShip(Ship ship)
-        {
-            _ships.Add(ship);
-        }
+        public Faction Owner { get; set; }
 
         public void RotateClockwise()
         {
             for (var i = 0; i < Wormholes.Length; i++)
                 Wormholes[i] = Facing.RotateClockwise(Wormholes[i], 2);
+        }
+
+        public void AddShip(Ship ship)
+        {
+            _ships.Add(ship);
+            ship.Sector = this;
         }
     }
 }

@@ -47,7 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actions\Exploration\ExploreActionTest.cs" />
+    <Compile Include="Actions\ExploreActionTest.cs" />
+    <Compile Include="Actions\ResearchActionTest.cs" />
+    <Compile Include="Factions\Behavior\AvailableResearchTechTest.cs" />
+    <Compile Include="Factions\Behavior\CostForTechTest.cs" />
     <Compile Include="GameSetupTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,4 +1,6 @@
-namespace Slugburn.Obscura.Lib
+using Slugburn.Obscura.Lib.Factions;
+
+namespace Slugburn.Obscura.Lib.Maps
 {
     public class PopulationSquare
     {
@@ -11,6 +13,6 @@ namespace Slugburn.Obscura.Lib
         public ProductionType ProductionType { get; set; }
         public bool Advanced { get; set; }
 
-        public Player Owner { get; set; }
+        public Faction Owner { get; set; }
     }
 }

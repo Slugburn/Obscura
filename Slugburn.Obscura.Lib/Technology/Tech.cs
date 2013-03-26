@@ -17,6 +17,13 @@ namespace Slugburn.Obscura.Lib.Technology
             Category = category;
         }
 
+        protected Tech(){}
+
+        public override string ToString()
+        {
+            return Name;
+        }
+
         public static Tech NeutronBombs()
         {
             return new Tech("Neutron Bombs", 2, 2, TechCategory.Military);

@@ -1,8 +1,10 @@
+using Slugburn.Obscura.Lib.Factions;
+
 namespace Slugburn.Obscura.Lib.Actions
 {
     public interface IAction
     {
-        void Do(Player player);
-        bool IsValid(Player player);
+        void Do(Faction faction);
+        bool IsValid(Faction faction);
     }
 }

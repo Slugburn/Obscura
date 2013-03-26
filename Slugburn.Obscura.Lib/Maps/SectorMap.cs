@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Slugburn.Obscura.Lib
+namespace Slugburn.Obscura.Lib.Maps
 {
     public class SectorMap
     {
