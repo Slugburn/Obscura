@@ -12,5 +12,10 @@ namespace Slugburn.Obscura.Lib.Technology
         {
             _factory = factory;
         }
+
+        public ShipPart CreatePart()
+        {
+            return _factory();
+        }
     }
 }

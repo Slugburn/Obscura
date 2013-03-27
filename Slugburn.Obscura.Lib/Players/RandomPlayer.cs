@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Players
@@ -49,6 +51,36 @@ namespace Slugburn.Obscura.Lib.Players
         public Tech ChooseResearch(IEnumerable<Tech> availableTech)
         {
             return availableTech.PickRandom();
+        }
+
+        public IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders)
+        {
+            return validBuilders.PickRandom();
+        }
+
+        public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
+        {
+            return validPlacementLocations.PickRandom();
+        }
+
+        public ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints)
+        {
+            return blueprints.PickRandom();
+        }
+
+        public ShipPart ChooseUpgrade(IEnumerable<ShipPart> availableParts)
+        {
+            return availableParts.PickRandom();
+        }
+
+        public ShipPart ChoosePartToReplace(ShipBlueprint blueprint)
+        {
+            return blueprint.Parts.PickRandom();
+        }
+
+        public PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares)
+        {
+            return validSquares.PickRandom();
         }
     }
 }

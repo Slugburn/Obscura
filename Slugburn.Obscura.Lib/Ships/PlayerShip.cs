@@ -1,6 +1,7 @@
 using System.Linq;
-using Slugburn.Obscura.Lib.Builds;
+using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Maps;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -25,5 +26,10 @@ namespace Slugburn.Obscura.Lib.Ships
         public Faction Faction { get; private set; }
 
         public ShipBlueprint Blueprint { get; private set; }
+        
+        public void Place(Sector sector)
+        {
+            sector.AddShip(this);
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Slugburn.Obscura.Lib.Builds
+﻿namespace Slugburn.Obscura.Lib.Builders
 {
     public class DreadnoughtBuilder : ShipBuilder
     {

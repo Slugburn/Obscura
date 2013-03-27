@@ -1,3 +1,4 @@
+using System.Linq;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Factions
@@ -92,20 +93,24 @@ namespace Slugburn.Obscura.Lib.Factions
 
         protected virtual ShipBlueprint CreateStarbase()
         {
-            return new ShipBlueprint
-                       {
-                           BaseInitiative = 4,
-                           BasePower = 3,
-                           Cost = 3,
-                           PartSpaces = 5,
-                           Parts =
-                               {
-                                   PartFactory.Hull(),
-                                   PartFactory.Hull(),
-                                   PartFactory.IonCannon(),
-                                   PartFactory.ElectronComputer()
-                               }
-                       };
+            var blueprint = new ShipBlueprint
+                {
+                    BaseInitiative = 4, BasePower = 3, Cost = 3, PartSpaces = 5, Parts =
+                        {
+                            PartFactory.Hull(), PartFactory.Hull(), PartFactory.IonCannon(), PartFactory.ElectronComputer()
+                        }
+                };
+            blueprint.IsPartListValid = parts =>
+                {
+                    if (parts.Count > blueprint.PartSpaces)
+                        return false;
+
+                    // Needs to have positive drive and non-negative power
+                    var move = parts.Sum(x => x.Move);
+                    var power = parts.Sum(x => x.Power);
+                    return move == 0 && power >= 0;
+                };
+            return blueprint;
         }
     }
 }

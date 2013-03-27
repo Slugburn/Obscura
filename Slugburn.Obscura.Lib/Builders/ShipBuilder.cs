@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
 
-namespace Slugburn.Obscura.Lib.Builds
+namespace Slugburn.Obscura.Lib.Builders
 {
     public abstract class ShipBuilder : BuilderBase
     {
@@ -16,7 +17,7 @@ namespace Slugburn.Obscura.Lib.Builds
             _maxCount = maxCount;
         }
 
-        public override bool IsValid(Faction faction)
+        public override bool IsBuildAvailable(Faction faction)
         {
             var blueprint = _blueprintAccessor(faction);
             return faction.Materials > blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;

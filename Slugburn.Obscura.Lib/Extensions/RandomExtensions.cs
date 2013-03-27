@@ -37,6 +37,8 @@ namespace Slugburn.Obscura.Lib.Extensions
         public static T PickRandom<T>(this IEnumerable<T> items)
         {
             var list = items as IList<T> ?? new List<T>(items);
+            if (list.Count==0)
+                throw new ArgumentException("Unable to pick random item from empty list");
             var randomIndex = Random.Next(list.Count);
             return list[randomIndex];
         }

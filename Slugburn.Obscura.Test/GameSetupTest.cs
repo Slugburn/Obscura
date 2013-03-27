@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
+using Ninject;
+using Ninject.Extensions.Conventions;
 using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Factions;
 
@@ -13,28 +10,17 @@ namespace Slugburn.Obscura.Test
     public class GameSetupTest
     {
         [Test]
-        public void Setup()
-        {
-            // Arrange
-            var game = new Game();
-            var players = new[] {new Faction(), new Faction()};
-
-            // Act
-            game.Setup(players);
-
-
-        }
-
-        [Test]
         public void Start()
         {
             // Arrange
-            var game = new Game();
-            var players = new[] { new Faction(), new Faction() };
+            var kernel = new StandardKernel();
+            kernel.Bind(x=>x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
+            var game = kernel.Get<Game>();
+            var factions = new[] { new Faction(), new Faction() };
 
             // Act
-            game.Setup(players);
-            game.Start();
+            game.Setup(factions);
+            game.StartTurn();
         }
 
     }

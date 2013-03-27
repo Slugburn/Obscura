@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
@@ -116,12 +117,20 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual IPlayer Player { get; set; }
 
-        public void TakeAction()
+        public void TakeAction(IEnumerable<IAction> actions, Action callback)
         {
-            var validActions = ActionCatalog.All.Where(action => action.IsValid(this));
+            var validActions = actions.Where(action => action.IsValid(this));
             var chosenAction = Player.ChooseAction(validActions);
             chosenAction.Do(this);
+            if (!(chosenAction is PassAction))
+            {
+                Influence--;
+                ActionsTaken++;
+            }
+            callback();
         }
+
+        protected int ActionsTaken { get; set; }
 
         public virtual IEnumerable<MapLocation> GetValidExplorationLocations()
         {
@@ -136,11 +145,65 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public IList<Tech> Technologies { get; private set; }
 
+        public int BuildCount
+        {
+            get { return 2; }
+        }
+
+        public int UpgradeCount
+        {
+            get { return 2; }
+        }
+
+        public IEnumerable<ShipBlueprint> Blueprints
+        {
+            get { return new[] {Interceptor, Cruiser, Dreadnought, Starbase}; }
+        }
+
+        public bool Passed { get; set; }
+
         public virtual int CostFor(Tech tech)
         {
             var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8};
             var discounted = tech.Cost + techDiscount[Technologies.Count(t => t.Category == tech.Category)];
             return discounted > tech.MinCost ? discounted : tech.MinCost;
         }
+
+        public IEnumerable<ShipPart> GetAvailableShipParts()
+        {
+            return PartFactory.GetBasicParts().Concat(Technologies.Where(t => t is PartTech).Cast<PartTech>().Select(x => x.CreatePart()));
+        }
+
+        public void UpkeepPhase()
+        {
+            Colonize();
+            CivilizationUpkeep();
+        }
+
+        private void Colonize()
+        {
+            while (ColonyShips > 0)
+            {
+                var opportunities = Sectors.SelectMany(x => x.Squares.Where(s => s.Owner == null && CanColonize(s))).ToList();
+                if (opportunities.Count == 0)
+                    break;
+                var square = Player.ChooseColonizationLocation(opportunities);
+                if (square == null)
+                    break;
+                square.Owner = this;
+                IdlePopulation[square.ProductionType]--;
+            }
+        }
+
+        private bool CanColonize(PopulationSquare square)
+        {
+            return !square.Advanced;
+        }
+
+        private void CivilizationUpkeep()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

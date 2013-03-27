@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -11,16 +12,26 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        private IList<IFactionType> _factions;
-
-        public void Setup(IList<Faction> players)
+        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions)
         {
-            Players = players.Shuffle();
-            StartingFaction = Players[0];
-            _factions = FactionTypeCatalog.GetFactionTypes();
+            _factionTypes = factionTypes;
+            _actions = actions;
+        }
+
+        protected Game()
+        {
+        }
+
+        private readonly IEnumerable<IFactionType> _factionTypes;
+        private readonly IEnumerable<IAction> _actions;
+
+        public void Setup(IList<Faction> factions)
+        {
+            Factions = factions.Shuffle();
+            StartingFaction = Factions[0];
             Round = 1;
             TechTiles = TechCatalog.GetTiles().Shuffle();
-            AvailableTechTiles = TechTiles.Draw(GetStartingTechCount(Players.Count));
+            AvailableTechTiles = TechTiles.Draw(GetStartingTechCount(Factions.Count));
             ReputationTiles = GetRepTiles().Shuffle();
             DiscoveryTiles = DiscoveryCatalog.GetTiles().Shuffle();
             Sectors = SectorCatalog.GetSectors();
@@ -32,13 +43,13 @@ namespace Slugburn.Obscura.Lib
             galacticCenter.AddShip(gcds);
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();
-            OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Players.Count));
-            StartingLocations = Map.GetStartingLayout(Players.Count);
+            OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Factions.Count));
+            StartingLocations = Map.GetStartingLayout(Factions.Count);
 
-            players.Each(p=>p.Setup(this));
+            factions.Each(p=>p.Setup(this));
         }
 
-        protected Faction StartingFaction { get; set; }
+        public Faction StartingFaction { get; set; }
 
         protected MapLocation[] StartingLocations { get; set; }
 
@@ -60,7 +71,7 @@ namespace Slugburn.Obscura.Lib
             return 8 + playerCount * 2;
         }
 
-        protected List<Faction> Players { get; set; }
+        public List<Faction> Factions { get; set; }
 
         protected List<Sector> OuterSectors { get; set; }
 
@@ -93,8 +104,8 @@ namespace Slugburn.Obscura.Lib
 
         public IEnumerable<IFactionType> GetAvailableFactions()
         {
-            var takenColors = Players.Where(p=>p.HasFaction).Select(p=>p.Color);
-            return _factions.Where(f => !takenColors.Contains(f.Color));
+            var takenColors = Factions.Where(p=>p.HasFaction).Select(p=>p.Color);
+            return _factionTypes.Where(f => !takenColors.Contains(f.Color));
         }
 
         public IEnumerable<MapLocation> GetAvailableStartingLocations()
@@ -102,9 +113,47 @@ namespace Slugburn.Obscura.Lib
             return StartingLocations.Where(l => l.Sector == null);
         }
 
-        public void Start()
+        public void StartTurn()
         {
-            StartingFaction.TakeAction();
+            TakeAction(StartingFaction);
+        }
+
+        private void TakeAction(Faction faction)
+        {
+            faction.TakeAction(_actions, () => ActionDoneCallback(faction));
+        }
+
+        private void ActionDoneCallback(Faction faction)
+        {
+            // Have all players passed?
+            if (Factions.All(f => f.Passed))
+            {
+                StartCombatPhase();
+                return;
+            }
+            var nextFaction = GetNextFaction(faction);
+            TakeAction(nextFaction);
+        }
+
+        private Faction GetNextFaction(Faction faction)
+        {
+            var nextIndex = Factions.IndexOf(faction) + 1;
+            if (nextIndex >= Factions.Count)
+                nextIndex = 0;
+            var nextFaction = Factions[nextIndex];
+            return nextFaction;
+        }
+
+        private void StartCombatPhase()
+        {
+            // TODO: Combat phase
+            StartUpkeepPhase();
+        }
+
+        private void StartUpkeepPhase()
+        {
+            var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
+            Task.WaitAll(tasks);
         }
 
         public virtual Sector GetSectorFor(MapLocation location)
@@ -119,5 +168,6 @@ namespace Slugburn.Obscura.Lib
                     return OuterSectors.Draw();
             }
         }
+
     }
 }

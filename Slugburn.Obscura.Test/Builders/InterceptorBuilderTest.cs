@@ -1,6 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
-using Slugburn.Obscura.Lib.Builds;
+using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -45,7 +45,7 @@ namespace Slugburn.Obscura.Test.Builders
                 _builder.Create(_faction);
 
             // Act
-            var result = _builder.IsValid(_faction);
+            var result = _builder.IsBuildAvailable(_faction);
 
             // Assert
             Assert.That(result, Is.EqualTo(isValid));
@@ -58,7 +58,7 @@ namespace Slugburn.Obscura.Test.Builders
             _faction.Materials = 2;
             
             // Act
-            var result = _builder.IsValid(_faction);
+            var result = _builder.IsBuildAvailable(_faction);
 
             // Assert
             Assert.That(result, Is.False);

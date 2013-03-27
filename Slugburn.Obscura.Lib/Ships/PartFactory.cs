@@ -1,7 +1,22 @@
+using System.Collections.Generic;
+
 namespace Slugburn.Obscura.Lib.Ships
 {
     public class PartFactory
     {
+
+        public static IEnumerable<ShipPart> GetBasicParts()
+        {
+            return new[]
+                {
+                    IonCannon(),
+                    NuclearDrive(),
+                    NuclearSource(),
+                    Hull(),
+                    ElectronComputer()
+                };
+        }
+
         public static ShipPart IonCannon()
         {
             return new ShipPart {Name = "Ion Cannon", Power = -1, Damage = new[] {1}};
