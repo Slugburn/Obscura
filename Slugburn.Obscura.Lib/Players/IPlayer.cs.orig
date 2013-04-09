@@ -26,9 +26,12 @@ namespace Slugburn.Obscura.Lib.Players
         ShipPart ChoosePartToReplace(ShipBlueprint blueprint);
         ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> availableParts);
         PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares);
-        void HandleBankruptcy();
-        ProductionType ChooseColonizationType(ProductionType productionType);
+<<<<<<< HEAD
         PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
         Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations);
+=======
+        void HandleBankruptcy();
+        ProductionType ChooseColonizationType(ProductionType productionType);
+>>>>>>> a5dd651629f1661cc4d7e8b258a464474dc7a97c
     }
 }

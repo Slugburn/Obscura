@@ -4,6 +4,16 @@ namespace Slugburn.Obscura.Lib.Technology
 {
     public class Tech
     {
+        protected bool Equals(Tech other)
+        {
+            return string.Equals(Name, other.Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name != null ? Name.GetHashCode() : 0);
+        }
+
         public string Name { get; set; }
         public int MinCost { get; set; }
         public int Cost { get; set; }
@@ -24,124 +34,132 @@ namespace Slugburn.Obscura.Lib.Technology
             return Name;
         }
 
-        public static Tech NeutronBombs()
+        public override bool Equals(object obj)
         {
-            return new Tech("Neutron Bombs", 2, 2, TechCategory.Military);
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Tech) obj);
         }
 
-        public static Tech Starbase()
+        public static Tech NeutronBombs
         {
-            return new Tech("Starbase", 4, 3, TechCategory.Military);
+            get { return new Tech("Neutron Bombs", 2, 2, TechCategory.Military); }
         }
 
-        public static Tech PlasmaCannon()
+        public static Tech Starbase
         {
-            return new PartTech("Plasma Cannon", 6, 4, TechCategory.Military, () => new ShipPart {Damage = new[] {2}, Power = -2});
+            get { return new Tech("Starbase", 4, 3, TechCategory.Military); }
         }
 
-        public static Tech PhaseShield()
+        public static Tech PlasmaCannon
         {
-            return new PartTech("Phase Shield", 8, 5, TechCategory.Military, () => new ShipPart {Deflection = -2, Power = -1});
+            get { return new PartTech("Plasma Cannon", 6, 4, TechCategory.Military, () => new ShipPart {Cannons = new[] {2}, Energy = -2}); }
         }
 
-        public static Tech AdvancedMining()
+        public static Tech PhaseShield
         {
-            return new Tech("Advanced Mining", 10, 6, TechCategory.Military);
+            get { return new PartTech("Phase Shield", 8, 5, TechCategory.Military, () => new ShipPart {Deflection = -2, Energy = -1}); }
         }
 
-        public static Tech TachyonSource()
+        public static Tech AdvancedMining
         {
-            return new PartTech("Tachyon Source", 12, 6, TechCategory.Military, () => new ShipPart {Power = 9});
+            get { return new Tech("Advanced Mining", 10, 6, TechCategory.Military); }
         }
 
-        public static Tech PlasmaMissile()
+        public static Tech TachyonSource
         {
-            return new PartTech("Plasma Missile", 14, 7, TechCategory.Military, () => new ShipPart {Damage = new[] {2, 2}, FirstStrike = true});
+            get { return new PartTech("Tachyon Source", 12, 6, TechCategory.Military, () => new ShipPart {Energy = 9}); }
         }
 
-        public static Tech GluonComputer()
+        public static Tech PlasmaMissile
         {
-            return new PartTech("Gluon Computer", 16, 8, TechCategory.Military, () => new ShipPart {Accuracy = 3, Initiative = 2, Power = -2});
-        }
-        
-        public static Tech GaussShield()
-        {
-            return new PartTech("Gauss Shield", 2, 2, TechCategory.Grid, () => new ShipPart {Deflection = -1});
+            get { return new PartTech("Plasma Missile", 14, 7, TechCategory.Military, () => new ShipPart {Missiles = new[] {2, 2}}); }
         }
 
-        public static Tech ImprovedHull()
+        public static Tech GluonComputer
         {
-            return new PartTech("Improved Hull", 4, 3, TechCategory.Grid, () => new ShipPart {Structure = 2});
+            get { return new PartTech("Gluon Computer", 16, 8, TechCategory.Military, () => new ShipPart {Accuracy = 3, Initiative = 2, Energy = -2}); }
         }
 
-        public static Tech FusionSource()
+        public static Tech GaussShield
         {
-            return new PartTech("Fusion Source", 6, 4, TechCategory.Grid, () => new ShipPart {Power = 6});
+            get { return new PartTech("Gauss Shield", 2, 2, TechCategory.Grid, () => new ShipPart {Deflection = -1}); }
         }
 
-        public static Tech PositronComputer()
+        public static Tech ImprovedHull
         {
-            return new PartTech("Positron Computer", 8, 5, TechCategory.Grid, () => new ShipPart {Accuracy = 2, Initiative = 1, Power = -1});
+            get { return new PartTech("Improved Hull", 4, 3, TechCategory.Grid, () => new ShipPart {Structure = 2}); }
         }
 
-        public static Tech AdvancedEconomy()
+        public static Tech FusionSource
         {
-            return new Tech("Advanced Economy", 10, 6, TechCategory.Grid);
+            get { return new PartTech("Fusion Source", 6, 4, TechCategory.Grid, () => new ShipPart {Energy = 6}); }
         }
 
-        public static Tech TachyonDrive()
+        public static Tech PositronComputer
         {
-            return new PartTech("Tachyon Drive", 12, 6, TechCategory.Grid, () => new ShipPart {Move = 3, Initiative = 3, Power = -3});
+            get { return new PartTech("Positron Computer", 8, 5, TechCategory.Grid, () => new ShipPart {Accuracy = 2, Initiative = 1, Energy = -1}); }
         }
 
-        public static Tech AntimatterCannon()
+        public static Tech AdvancedEconomy
         {
-            return new PartTech("Antimatter Cannon", 14, 7, TechCategory.Grid, () => new ShipPart {Damage = new[] {4}, Power = -4});
+            get { return new Tech("Advanced Economy", 10, 6, TechCategory.Grid); }
         }
 
-        public static Tech QuantumGrid()
+        public static Tech TachyonDrive
         {
-            return new Tech("Quantum Grid", 16, 8, TechCategory.Grid);
+            get { return new PartTech("Tachyon Drive", 12, 6, TechCategory.Grid, () => new ShipPart {Move = 3, Initiative = 3, Energy = -3}); }
         }
 
-        public static Tech Nanorobots()
+        public static Tech AntimatterCannon
         {
-            return new Tech("Nanorobots",2,2,TechCategory.Nano);
+            get { return new PartTech("Antimatter Cannon", 14, 7, TechCategory.Grid, () => new ShipPart {Cannons = new[] {4}, Energy = -4}); }
         }
 
-        public static Tech FusionDrive()
+        public static Tech QuantumGrid
         {
-            return new PartTech("Fusion Drive", 4, 3, TechCategory.Nano, () => new ShipPart {Move = 2, Initiative = 2, Power = -2});
+            get { return new Tech("Quantum Grid", 16, 8, TechCategory.Grid); }
         }
 
-        public static Tech AdvancedRobotics()
+        public static Tech Nanorobots
         {
-            return new Tech("Advanced Robotics", 6, 4, TechCategory.Nano);
+            get { return new Tech("Nanorobots", 2, 2, TechCategory.Nano); }
         }
 
-        public static Tech Orbital()
+        public static Tech FusionDrive
         {
-            return new Tech("Orbital", 8, 5, TechCategory.Nano);
+            get { return new PartTech("Fusion Drive", 4, 3, TechCategory.Nano, () => new ShipPart {Move = 2, Initiative = 2, Energy = -2}); }
         }
 
-        public static Tech AdvancedLabs()
+        public static Tech AdvancedRobotics
         {
-            return new Tech("Advanced Labs", 10, 6, TechCategory.Nano);
+            get { return new Tech("Advanced Robotics", 6, 4, TechCategory.Nano); }
         }
 
-        public static Tech Monolith()
+        public static Tech Orbital
         {
-            return new Tech("Monolith", 12, 6, TechCategory.Nano);
+            get { return new Tech("Orbital", 8, 5, TechCategory.Nano); }
         }
 
-        public static Tech ArtifactKey()
+        public static Tech AdvancedLabs
         {
-            return new Tech("Artifact Key", 14, 7, TechCategory.Nano);
+            get { return new Tech("Advanced Labs", 10, 6, TechCategory.Nano); }
         }
 
-        public static Tech WormholeGenerator()
+        public static Tech Monolith
         {
-            return new Tech("Wormhole Generator", 16, 8, TechCategory.Nano);
+            get { return new Tech("Monolith", 12, 6, TechCategory.Nano); }
+        }
+
+        public static Tech ArtifactKey
+        {
+            get { return new Tech("Artifact Key", 14, 7, TechCategory.Nano); }
+        }
+
+        public static Tech WormholeGenerator
+        {
+            get { return new Tech("Wormhole Generator", 16, 8, TechCategory.Nano); }
         }
     }
 }

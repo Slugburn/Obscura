@@ -56,6 +56,7 @@
     <Compile Include="Builders\InterceptorBuilder.cs" />
     <Compile Include="Builders\ShipBuilder.cs" />
     <Compile Include="Builders\StarbaseBuilder.cs" />
+    <Compile Include="ILog.cs" />
     <Compile Include="Maps\Facing.cs" />
     <Compile Include="Maps\MapCoord.cs" />
     <Compile Include="Maps\MapLocation.cs" />
@@ -79,12 +80,15 @@
     <Compile Include="ProductionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ships\AncientShip.cs" />
+    <Compile Include="Ships\BlueprintGenerator.cs" />
     <Compile Include="Ships\GalacticCenterDefenseSystem.cs" />
     <Compile Include="Ships\PartFactory.cs" />
     <Compile Include="Ships\PlayerShip.cs" />
     <Compile Include="Ships\Ship.cs" />
     <Compile Include="Ships\ShipBlueprint.cs" />
     <Compile Include="Ships\ShipPart.cs" />
+    <Compile Include="Ships\ShipProfile.cs" />
+    <Compile Include="Ships\StarbaseBlueprint.cs" />
     <Compile Include="Technology\PartTech.cs" />
     <Compile Include="Technology\Tech.cs" />
     <Compile Include="Technology\TechCategory.cs" />

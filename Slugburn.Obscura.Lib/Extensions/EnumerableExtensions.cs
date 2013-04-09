@@ -17,5 +17,20 @@ namespace Slugburn.Obscura.Lib.Extensions
         {
             return Enumerable.Repeat(item, count);
         }
+
+        public static IEnumerable<T> Less<T>(this IEnumerable<T> items, IEnumerable<T> toRemove)
+        {
+            var itemGroups = items.ToLookup(x => x);
+            var removeGroups = toRemove.ToLookup(x => x);
+            return itemGroups.Where(group => group.Count() > removeGroups[group.Key].Count())
+                .SelectMany(group => group.Key.Repeat(group.Count() - removeGroups[group.Key].Count()));
+        }
+
+        public static IEnumerable<T> Less<T>(this IEnumerable<T> items, T toRemove)
+        {
+            var itemList = items.ToList();
+            itemList.Remove(toRemove);
+            return itemList;
+        }
     }
 }

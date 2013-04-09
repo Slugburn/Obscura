@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -9,7 +8,6 @@ namespace Slugburn.Obscura.Lib.Ships
         public ShipBlueprint()
         {
             Parts = new List<ShipPart>();
-            IsPartListValid = parts => DefaultIsPartListValid(this, parts);
         }
 
         public int Cost { get; set; }
@@ -20,49 +18,32 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public int BaseInitiative { get; set; }
 
-        public int BasePower { get; set; }
+        public int BaseEnergy { get; set; }
 
-        public int Initiative
+        public string Name { get; set; }
+
+        public ShipProfile Profile
         {
-            get { return BaseInitiative + Parts.Sum(x => x.Initiative); }
+            get { return ShipProfile.Create(this, Parts); }
         }
 
-        public int Power
+        public override string ToString()
         {
-            get { return BasePower + Parts.Sum(x => x.Power); }
+            return Name;
         }
 
-        public int Accuracy
+        public bool IsPartListValid(IList<ShipPart> parts)
         {
-            get { return Parts.Sum(x => x.Accuracy); }
-        }
-
-        public int Structure
-        {
-            get { return Parts.Sum(x => x.Structure); }
-        }
-
-        public int Deflection
-        {
-            get { return Parts.Sum(x => x.Deflection); }
-        }
-
-        public int Move
-        {
-            get { return Parts.Sum(x => x.Move); }
-        }
-
-        public Func<IList<ShipPart>, bool> IsPartListValid { get; set;}
-
-        private static bool DefaultIsPartListValid(ShipBlueprint blueprint, IList<ShipPart> parts)
-        {
-            if (parts.Count > blueprint.PartSpaces) 
+            if (parts.Count > PartSpaces) 
                 return false;
+            var profile = ShipProfile.Create(this, parts);
+            return IsProfileValid(profile);
+        }
 
-            // Needs to have positive drive and non-negative power
-            var move = parts.Sum(x => x.Move);
-            var power = parts.Sum(x => x.Power);
-            return move > 0 && power >= 0;
+        public virtual bool IsProfileValid(ShipProfile profile)
+        {
+            // Needs to have positive drive and non-negative energy
+            return profile.Move > 0 && profile.Energy >= 0;
         }
 
         public void Upgrade(ShipPart upgrade, ShipPart replace)

@@ -12,10 +12,11 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions)
+        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions, ILog log)
         {
             _factionTypes = factionTypes;
             _actions = actions;
+            _log = log;
         }
 
         protected Game()
@@ -24,6 +25,7 @@ namespace Slugburn.Obscura.Lib
 
         private readonly IEnumerable<IFactionType> _factionTypes;
         private readonly IEnumerable<IAction> _actions;
+        private readonly ILog _log;
 
         public void Setup(IList<Faction> factions)
         {
@@ -73,7 +75,7 @@ namespace Slugburn.Obscura.Lib
 
         public List<Faction> Factions { get; set; }
 
-        protected List<Sector> OuterSectors { get; set; }
+        public List<Sector> OuterSectors { get; set; }
 
         protected List<Sector> MiddleSectors { get; set; }
 
@@ -113,17 +115,22 @@ namespace Slugburn.Obscura.Lib
             return StartingLocations.Where(l => l.Sector == null);
         }
 
-        public void StartTurn()
+        public void Start()
         {
-            TakeAction(StartingFaction);
+            while (Round <= 10)
+            {
+                _log.Log("Round {0} started.", Round);
+                TakeAction(StartingFaction);
+            }
         }
 
         private void TakeAction(Faction faction)
         {
-            faction.TakeAction(_actions, () => ActionDoneCallback(faction));
+            faction.TakeAction(_actions);
+            ActionDone(faction);
         }
 
-        private void ActionDoneCallback(Faction faction)
+        private void ActionDone(Faction faction)
         {
             // Have all players passed?
             if (Factions.All(f => f.Passed))
@@ -154,6 +161,29 @@ namespace Slugburn.Obscura.Lib
         {
             var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
             Task.WaitAll(tasks);
+            StartCleanupPhase();
+        }
+
+        private void StartCleanupPhase()
+        {
+            var newTech = TechTiles.Draw(NewTechCount());
+            AvailableTechTiles.AddRange(newTech);
+            var tasks = Factions.Select(faction => Task.Factory.StartNew(faction.CleanupPhase)).ToArray();
+            Task.WaitAll(tasks);
+            Round++;
+        }
+
+        private int NewTechCount()
+        {
+            var count = new Dictionary<int, int>
+                            {
+                                {2, 5},
+                                {3, 10},
+                                {4, 14},
+                                {5, 16},
+                                {6, 18}
+                            };
+            return count[Factions.Count];
         }
 
         public virtual Sector GetSectorFor(MapLocation location)

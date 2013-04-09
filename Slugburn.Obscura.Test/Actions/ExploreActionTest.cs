@@ -15,7 +15,7 @@ namespace Slugburn.Obscura.Test.Actions
         public void WhenUndefendedSectorIsFound(bool playerClaimsSector)
         {
             // Arrange
-            var action = new ExploreAction();
+            var action = new ExploreAction(new ConsoleLog());
             var game = Substitute.For<Game>();
             var player = Substitute.For<Faction>();
             player.Game = game;

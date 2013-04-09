@@ -9,11 +9,11 @@ namespace Slugburn.Obscura.Lib.Technology
         {
             var techs = new[]
                             {
-                                Tech.AdvancedEconomy(), Tech.AdvancedLabs(), Tech.AdvancedMining(), Tech.AdvancedRobotics(), Tech.AntimatterCannon(),
-                                Tech.ArtifactKey(), Tech.FusionDrive(), Tech.FusionSource(), Tech.GaussShield(), Tech.GluonComputer(), Tech.ImprovedHull(),
-                                Tech.Monolith(), Tech.Nanorobots(), Tech.NeutronBombs(), Tech.Orbital(), Tech.PhaseShield(), Tech.PlasmaCannon(),
-                                Tech.PlasmaMissile(), Tech.PositronComputer(), Tech.QuantumGrid(), Tech.Starbase(), Tech.TachyonDrive(), Tech.TachyonSource(),
-                                Tech.WormholeGenerator()
+                                Tech.AdvancedEconomy, Tech.AdvancedLabs, Tech.AdvancedMining, Tech.AdvancedRobotics, Tech.AntimatterCannon,
+                                Tech.ArtifactKey, Tech.FusionDrive, Tech.FusionSource, Tech.GaussShield, Tech.GluonComputer, Tech.ImprovedHull,
+                                Tech.Monolith, Tech.Nanorobots, Tech.NeutronBombs, Tech.Orbital, Tech.PhaseShield, Tech.PlasmaCannon,
+                                Tech.PlasmaMissile, Tech.PositronComputer, Tech.QuantumGrid, Tech.Starbase, Tech.TachyonDrive, Tech.TachyonSource,
+                                Tech.WormholeGenerator
                             };
             return CreateTiles(techs);
         }

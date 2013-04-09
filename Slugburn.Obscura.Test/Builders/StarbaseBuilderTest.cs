@@ -4,6 +4,7 @@ using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Test.Builders
 {
@@ -18,9 +19,10 @@ namespace Slugburn.Obscura.Test.Builders
         public void BeforeEach()
         {
             _builder = new StarbaseBuilder();
-            _faction = new Faction();
-            _faction.Materials = 100;
+            _faction = new Faction(new ConsoleLog());
+            _faction.Material = 100;
             _faction.Starbase = new ShipBlueprint {Cost = 3};
+            _faction.Technologies.Add(Tech.Starbase);
             _homeSector = new Sector();
             _faction.ClaimSector(_homeSector);
         }
@@ -29,7 +31,7 @@ namespace Slugburn.Obscura.Test.Builders
         public void Create()
         {
             // Arrange
-            var startingMaterials = _faction.Materials;
+            var startingMaterials = _faction.Material;
 
             // Act
             var ship = (PlayerShip)_builder.Create(_faction);
@@ -37,7 +39,7 @@ namespace Slugburn.Obscura.Test.Builders
             // Assert
             Assert.That(ship.Faction, Is.SameAs(_faction));
             Assert.That(ship.Blueprint, Is.SameAs(_faction.Starbase));
-            Assert.That(_faction.Materials, Is.EqualTo(startingMaterials - _faction.Starbase.Cost));
+            Assert.That(_faction.Material, Is.EqualTo(startingMaterials - _faction.Starbase.Cost));
         }
 
         [TestCase(3, true)]
@@ -59,7 +61,7 @@ namespace Slugburn.Obscura.Test.Builders
         public void IsValid_NotEnoughMaterials()
         {
             // Arrange
-            _faction.Materials = 2;
+            _faction.Material = 2;
             
             // Act
             var result = _builder.IsBuildAvailable(_faction);

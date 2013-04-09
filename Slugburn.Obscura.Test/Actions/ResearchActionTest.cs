@@ -20,7 +20,7 @@ namespace Slugburn.Obscura.Test.Actions
         [SetUp]
         public void BeforeAch()
         {
-            _action = new ResearchAction();
+            _action = new ResearchAction(new ConsoleLog());
             _tech = new Tech("Test", 4, 3, TechCategory.Grid);
             _game = Substitute.For<Game>();
             _game.AvailableTechTiles = new List<Tech> {_tech};

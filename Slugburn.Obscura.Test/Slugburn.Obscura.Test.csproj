@@ -59,6 +59,7 @@
     <Compile Include="Builders\DreadnoughtBuilderTest.cs" />
     <Compile Include="Builders\InterceptorBuilderTest.cs" />
     <Compile Include="Builders\StarbaseBuilderTest.cs" />
+    <Compile Include="ConsoleLog.cs" />
     <Compile Include="Factions\Behavior\AvailableResearchTechTest.cs" />
     <Compile Include="Factions\Behavior\CostForTechTest.cs" />
     <Compile Include="GameSetupTest.cs" />

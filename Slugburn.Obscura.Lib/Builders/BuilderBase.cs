@@ -7,10 +7,12 @@ namespace Slugburn.Obscura.Lib.Builders
     {
         public abstract bool IsBuildAvailable(Faction faction);
         public abstract IBuildable Create(Faction faction);
+        public abstract int CostFor(Faction faction);
         
         public virtual bool IsValidPlacementLocation(Sector sector)
         {
             return true;
         }
+
     }
 }

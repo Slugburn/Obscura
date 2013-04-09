@@ -17,7 +17,7 @@ namespace Slugburn.Obscura.Test.Builders
         {
             _builder = new DreadnoughtBuilder();
             _faction = Substitute.For<Faction>();
-            _faction.Materials = 100;
+            _faction.Material = 100;
             _faction.Dreadnought = new ShipBlueprint {Cost = 8};
         }
 
@@ -25,7 +25,7 @@ namespace Slugburn.Obscura.Test.Builders
         public void Create()
         {
             // Arrange
-            var startingMaterials = _faction.Materials;
+            var startingMaterials = _faction.Material;
 
             // Act
             var ship = (PlayerShip)_builder.Create(_faction);
@@ -33,7 +33,7 @@ namespace Slugburn.Obscura.Test.Builders
             // Assert
             Assert.That(ship.Faction, Is.SameAs(_faction));
             Assert.That(ship.Blueprint, Is.SameAs(_faction.Dreadnought));
-            Assert.That(_faction.Materials, Is.EqualTo(startingMaterials - _faction.Dreadnought.Cost));
+            Assert.That(_faction.Material, Is.EqualTo(startingMaterials - _faction.Dreadnought.Cost));
         }
 
         [TestCase(1, true)]
@@ -55,7 +55,7 @@ namespace Slugburn.Obscura.Test.Builders
         public void IsValid_NotEnoughMaterials()
         {
             // Arrange
-            _faction.Materials = 7;
+            _faction.Material = 7;
             
             // Act
             var result = _builder.IsBuildAvailable(_faction);
