@@ -24,5 +24,7 @@ namespace Slugburn.Obscura.Lib.Players
         ShipPart ChooseUpgrade(IEnumerable<ShipPart> availableParts);
         ShipPart ChoosePartToReplace(ShipBlueprint blueprint);
         PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares);
+        PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
+        Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations);
     }
 }

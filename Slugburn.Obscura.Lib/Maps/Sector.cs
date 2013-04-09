@@ -63,6 +63,8 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public void AddShip(Ship ship)
         {
+            if (ship.Sector != null)
+                ship.Sector._ships.Remove(ship);
             _ships.Add(ship);
             ship.Sector = this;
         }

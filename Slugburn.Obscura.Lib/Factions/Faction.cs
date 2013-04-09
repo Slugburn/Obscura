@@ -162,6 +162,11 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public bool Passed { get; set; }
 
+        public decimal MoveCount
+        {
+            get { return 3; }
+        }
+
         public virtual int CostFor(Tech tech)
         {
             var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8};

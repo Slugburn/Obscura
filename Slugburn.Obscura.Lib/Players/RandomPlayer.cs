@@ -82,5 +82,15 @@ namespace Slugburn.Obscura.Lib.Players
         {
             return validSquares.PickRandom();
         }
+
+        public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

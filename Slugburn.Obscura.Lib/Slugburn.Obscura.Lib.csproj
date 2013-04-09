@@ -44,6 +44,7 @@
     <Compile Include="Actions\BuildAction.cs" />
     <Compile Include="Actions\ExploreAction.cs" />
     <Compile Include="Actions\IAction.cs" />
+    <Compile Include="Actions\MoveAction.cs" />
     <Compile Include="Actions\PassAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
