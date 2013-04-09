@@ -20,14 +20,19 @@ namespace Slugburn.Obscura.Lib.Builders
         public override bool IsBuildAvailable(Faction faction)
         {
             var blueprint = _blueprintAccessor(faction);
-            return faction.Materials > blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;
+            return faction.Material > blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;
         }
 
         public override IBuildable Create(Faction faction)
         {
-            var blueprint = _blueprintAccessor(faction);
-            faction.Materials -= blueprint.Cost;
-            return faction.CreateShip(blueprint);
+            var cost = CostFor(faction);
+            faction.Material -= cost;
+            return faction.CreateShip(_blueprintAccessor(faction));
+        }
+
+        public override int CostFor(Faction faction)
+        {
+            return _blueprintAccessor(faction).Cost;
         }
     }
 }

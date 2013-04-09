@@ -5,6 +5,8 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class PassAction : IAction
     {
+        public string Name { get { return "Pass"; } }
+
         public void Do(Faction faction)
         {
             if (!faction.Game.Factions.Any(f => f.Passed))

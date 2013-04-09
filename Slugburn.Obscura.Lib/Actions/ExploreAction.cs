@@ -8,13 +8,25 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class ExploreAction : IAction
     {
+        private readonly ILog _log;
+
+        public ExploreAction(ILog log)
+        {
+            _log = log;
+        }
+
+        public string Name { get { return "Explore"; } }
+
         public void Do(Faction faction)
         {
             var locations = faction.GetValidExplorationLocations();
             var location = faction.Player.ChooseSectorLocation(locations);
             var sector = faction.Game.GetSectorFor(location);
+            _log.Log("{0}'s exploration finds {1} ({2})", faction.Name, sector.Name, sector.Id);
             if (sector.HasDiscovery)
+            {
                 sector.DiscoveryTile = faction.Game.DiscoveryTiles.Draw();
+            }
             CreateAncientShips(sector);
             location.Sector = sector;
             RotateToMatchWormholes(faction, sector);
@@ -42,7 +54,7 @@ namespace Slugburn.Obscura.Lib.Actions
 
         public bool IsValid(Faction faction)
         {
-            return faction.GetValidExplorationLocations().Any();
+            return !faction.Passed && faction.Influence> 0 && faction.GetValidExplorationLocations().Any();
         }
     }
 }

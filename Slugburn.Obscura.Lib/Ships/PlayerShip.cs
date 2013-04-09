@@ -13,6 +13,13 @@ namespace Slugburn.Obscura.Lib.Ships
             Blueprint = blueprint;
         }
 
+        public string Name { get { return Blueprint.Name; } }
+
+        public void Place(Sector sector)
+        {
+            sector.AddShip(this);
+        }
+
         public bool IsPinned
         {
             get
@@ -27,9 +34,5 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public ShipBlueprint Blueprint { get; private set; }
         
-        public void Place(Sector sector)
-        {
-            sector.AddShip(this);
-        }
     }
 }

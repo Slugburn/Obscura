@@ -1,9 +1,17 @@
+using Slugburn.Obscura.Lib.Technology;
+
 namespace Slugburn.Obscura.Lib.Factions
 {
     public abstract class HumanFactionType : FactionType
     {
         protected HumanFactionType(FactionColor color, string name, int homeSectorId) : base(color, name, homeSectorId, 2,3,3)
         {
+        }
+
+        public override void Setup(Faction faction)
+        {
+            base.Setup(faction);
+            faction.Technologies.Add(Tech.Starbase);
         }
 
         public class TerranDirectorate : HumanFactionType

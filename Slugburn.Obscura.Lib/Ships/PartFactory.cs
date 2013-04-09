@@ -19,17 +19,17 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public static ShipPart IonCannon()
         {
-            return new ShipPart {Name = "Ion Cannon", Power = -1, Damage = new[] {1}};
+            return new ShipPart {Name = "Ion Cannon", Energy = -1, Cannons = new[] {1}};
         }
 
         public static ShipPart NuclearDrive()
         {
-            return new ShipPart {Name = "Nuclear Drive", Power = -1, Initiative = 1, Move = 1};
+            return new ShipPart {Name = "Nuclear Drive", Energy = -1, Initiative = 1, Move = 1};
         }
 
         public static ShipPart NuclearSource()
         {
-            return new ShipPart {Name = "Nuclear Source", Power = 3};
+            return new ShipPart {Name = "Nuclear Source", Energy = 3};
         }
 
         public static ShipPart Hull()

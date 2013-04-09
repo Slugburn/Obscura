@@ -10,6 +10,8 @@ namespace Slugburn.Obscura.Lib.Players
 {
     public interface IPlayer
     {
+        Faction Faction { get; set; }
+
         bool ChooseToClaimSector(Sector sector);
         bool ChooseToUseDiscovery(Discovery discoveryTile);
         IFactionType ChooseFaction(IEnumerable<IFactionType> availableFactions);
@@ -21,8 +23,10 @@ namespace Slugburn.Obscura.Lib.Players
         IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders);
         Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations);
         ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints);
-        ShipPart ChooseUpgrade(IEnumerable<ShipPart> availableParts);
         ShipPart ChoosePartToReplace(ShipBlueprint blueprint);
+        ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> availableParts);
         PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares);
+        void HandleBankruptcy();
+        ProductionType ChooseColonizationType(ProductionType productionType);
     }
 }

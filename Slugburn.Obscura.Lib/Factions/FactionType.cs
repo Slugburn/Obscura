@@ -29,12 +29,13 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             faction.Money = _startingMoney;
             faction.Science = _startingScience;
-            faction.Materials = _startingMaterials;
+            faction.Material = _startingMaterials;
             faction.Interceptor = CreateInterceptor();
             faction.Cruiser = CreateCruiser();
-            faction.Dreadnought = CreateDreadnaught();
+            faction.Dreadnought = CreateDreadnought();
             faction.Starbase = CreateStarbase();
             faction.ColonyShips = 3;
+            faction.MaxColonyShips = 3;
             faction.Influence = 13;
         }
 
@@ -42,6 +43,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             return new ShipBlueprint
                        {
+                           Name = "Interceptor",
                            BaseInitiative = 2,
                            Cost = 3,
                            PartSpaces = 4,
@@ -58,6 +60,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             return new ShipBlueprint
                        {
+                           Name = "Cruiser",
                            BaseInitiative = 1,
                            Cost = 5,
                            PartSpaces = 6,
@@ -72,10 +75,11 @@ namespace Slugburn.Obscura.Lib.Factions
                        };
         }
 
-        protected virtual ShipBlueprint CreateDreadnaught()
+        protected virtual ShipBlueprint CreateDreadnought()
         {
             return new ShipBlueprint
                        {
+                           Name = "Dreadnought",
                            Cost = 8,
                            PartSpaces = 8,
                            Parts =
@@ -93,24 +97,21 @@ namespace Slugburn.Obscura.Lib.Factions
 
         protected virtual ShipBlueprint CreateStarbase()
         {
-            var blueprint = new ShipBlueprint
-                {
-                    BaseInitiative = 4, BasePower = 3, Cost = 3, PartSpaces = 5, Parts =
-                        {
-                            PartFactory.Hull(), PartFactory.Hull(), PartFactory.IonCannon(), PartFactory.ElectronComputer()
-                        }
-                };
-            blueprint.IsPartListValid = parts =>
-                {
-                    if (parts.Count > blueprint.PartSpaces)
-                        return false;
-
-                    // Needs to have positive drive and non-negative power
-                    var move = parts.Sum(x => x.Move);
-                    var power = parts.Sum(x => x.Power);
-                    return move == 0 && power >= 0;
-                };
-            return blueprint;
+            return new StarbaseBlueprint
+                       {
+                           Name = "Starbase",
+                           BaseInitiative = 4,
+                           BaseEnergy = 3,
+                           Cost = 3,
+                           PartSpaces = 5,
+                           Parts =
+                               {
+                                   PartFactory.Hull(),
+                                   PartFactory.Hull(),
+                                   PartFactory.IonCannon(),
+                                   PartFactory.ElectronComputer()
+                               }
+                       };
         }
     }
 }

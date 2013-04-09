@@ -6,5 +6,6 @@ namespace Slugburn.Obscura.Lib.Actions
     {
         void Do(Faction faction);
         bool IsValid(Faction faction);
+        string Name { get; }
     }
 }

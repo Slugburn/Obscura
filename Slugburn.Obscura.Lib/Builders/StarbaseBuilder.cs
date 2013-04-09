@@ -2,6 +2,7 @@
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Builders
 {
@@ -14,7 +15,9 @@ namespace Slugburn.Obscura.Lib.Builders
         public override bool IsBuildAvailable(Faction faction)
         {
             var baseResult = base.IsBuildAvailable(faction);
-            return baseResult && faction.Sectors.Any(IsValidPlacementLocation);
+            return baseResult 
+                && faction.HasTechnology(Tech.Starbase)
+                && faction.Sectors.Any(IsValidPlacementLocation);
         }
 
         public override bool IsValidPlacementLocation(Sector sector)

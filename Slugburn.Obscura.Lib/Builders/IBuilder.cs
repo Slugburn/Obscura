@@ -8,5 +8,6 @@ namespace Slugburn.Obscura.Lib.Builders
         bool IsBuildAvailable(Faction faction);
         IBuildable Create(Faction faction);
         bool IsValidPlacementLocation(Sector sector);
+        int CostFor(Faction faction);
     }
 }

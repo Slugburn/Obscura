@@ -7,11 +7,16 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class BuildAction : IAction
     {
+        private readonly ILog _log;
+
         private readonly IEnumerable<IBuilder> _builders;
 
-        public BuildAction(IEnumerable<IBuilder> builders)
+        public string Name { get { return "Build"; } }
+
+        public BuildAction(IEnumerable<IBuilder> builders, ILog log)
         {
             _builders = builders;
+            _log = log;
         }
 
         public void Do(Faction faction)
@@ -19,7 +24,9 @@ namespace Slugburn.Obscura.Lib.Actions
             var buildsCompleted = 0;
             while (buildsCompleted < faction.BuildCount)
             {
-                var validBuilders = _builders.Where(b => b.IsBuildAvailable(faction));
+                var validBuilders = _builders.Where(b => b.IsBuildAvailable(faction)).ToList();
+                if (validBuilders.Count == 0)
+                    break;
                 var builder = faction.Player.ChooseBuilder(validBuilders);
                 if (builder == null)
                     break;
@@ -29,13 +36,15 @@ namespace Slugburn.Obscura.Lib.Actions
                                             ? validPlacementLocations[0]
                                             : faction.Player.ChoosePlacementLocation(built, validPlacementLocations);
                 built.Place(placementLocation);
+                _log.Log("{0} expends {1} Material to build {2} in {3} ({4})", faction.Name, builder.CostFor(faction), built.Name, placementLocation.Name, placementLocation.Id);
                 buildsCompleted++;
             }
         }
 
         public bool IsValid(Faction faction)
         {
-            return _builders.Any(builder => builder.IsBuildAvailable(faction));
+            return !faction.Passed && faction.Influence > 0 && _builders.Any(builder => builder.IsBuildAvailable(faction));
         }
+
     }
 }

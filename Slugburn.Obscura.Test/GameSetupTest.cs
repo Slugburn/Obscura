@@ -15,12 +15,13 @@ namespace Slugburn.Obscura.Test
             // Arrange
             var kernel = new StandardKernel();
             kernel.Bind(x=>x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
+            kernel.Bind<ILog>().To<ConsoleLog>().InSingletonScope();
             var game = kernel.Get<Game>();
-            var factions = new[] { new Faction(), new Faction() };
+            var factions = new[] { kernel.Get<Faction>(), kernel.Get<Faction>() };
 
             // Act
             game.Setup(factions);
-            game.StartTurn();
+            game.Start();
         }
 
     }
