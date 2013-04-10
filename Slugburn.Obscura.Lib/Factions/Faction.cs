@@ -134,11 +134,10 @@ namespace Slugburn.Obscura.Lib.Factions
             var chosenAction = Player.ChooseAction(validActions);
             _log.Log("{0} chooses to {1}", Name, chosenAction.Name);
             chosenAction.Do(this);
-            if (!(chosenAction is PassAction))
-            {
-                Influence--;
-                ActionsTaken++;
-            }
+            if (chosenAction is PassAction) 
+                return;
+            Influence--;
+            ActionsTaken++;
         }
 
         protected int ActionsTaken { get; set; }

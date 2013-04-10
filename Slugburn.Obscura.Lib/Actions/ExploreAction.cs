@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -49,6 +50,8 @@ namespace Slugburn.Obscura.Lib.Actions
         private void RotateToMatchWormholes(Faction faction, Sector sector)
         {
             var validFacings = sector.Location.AdjacentWormholesFor(faction).ToArray();
+            if (validFacings.Length==0)
+                throw new ArgumentException("No valid facings found");
             faction.Player.RotateSectorWormholes(sector, validFacings);
         }
 

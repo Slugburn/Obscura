@@ -8,16 +8,34 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class MoveAction : IAction
     {
+        private readonly ILog _log;
+
+        public MoveAction(ILog log)
+        {
+            _log = log;
+        }
+
+        public string Name { get { return "Move"; } }
+
         public void Do(Faction faction)
         {
             var movesCompleted = 0;
             while (movesCompleted < faction.MoveCount)
             {
-                var ship = faction.Player.ChooseShipToMove(GetMoveableShips(faction));
+                var moveable = GetMoveableShips(faction).ToArray();
+                if (!moveable.Any())
+                    break;
+                var ship = faction.Player.ChooseShipToMove(moveable);
                 if (ship == null)
                     break;
-                var validDestinations = GetValidDestinations(ship);
+                var validDestinations = GetValidDestinations(ship).ToList();
+                if (!validDestinations.Any())
+                    break;
                 var destination = faction.Player.ChooseShipDestination(ship, validDestinations);
+
+                _log.Log("{0} moves {1} from {2} to {3}",
+                    faction.Name, ship.Name, ship.Sector, destination);
+
                 destination.AddShip(ship);
                 movesCompleted++;
             }
@@ -28,14 +46,23 @@ namespace Slugburn.Obscura.Lib.Actions
             return faction.Ships.Where(x=>!x.IsPinned);
         }
 
-        private IList<Sector> GetValidDestinations(PlayerShip ship)
+        private IEnumerable<Sector> GetValidDestinations(PlayerShip ship)
         {
-            throw new System.NotImplementedException();
+            return GetSectorsInRadius(ship.Sector, ship.Blueprint.Profile.Move);
+        }
+
+        private static IEnumerable<Sector> GetSectorsInRadius(Sector sector, int radius)
+        {
+            var adjacentSectors = sector.Location.AdjacentSectors().ToArray();
+            if (radius==1)
+                return adjacentSectors;
+            return adjacentSectors.Concat(adjacentSectors.SelectMany(s => GetSectorsInRadius(s, radius - 1))).Distinct().Except(new[] {sector});
         }
 
         public bool IsValid(Faction faction)
         {
-            return GetMoveableShips(faction).Any();
+            var moveable = GetMoveableShips(faction);
+            return moveable.Any(ship=>GetValidDestinations(ship).Any());
         }
     }
 }

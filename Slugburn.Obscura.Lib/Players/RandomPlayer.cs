@@ -115,12 +115,12 @@ namespace Slugburn.Obscura.Lib.Players
         public ShipPart ChoosePartToReplace(ShipBlueprint blueprint)
         {
             // Get a part that is not in the ideal template
-            var difference = blueprint.Parts.Less(_idealBlueprints[blueprint]);
+            var difference = blueprint.Parts.Less(_idealBlueprints[blueprint]).ToArray();
             if (!difference.Any())
             {
                 throw new Exception(string.Join(", ", blueprint.Parts) + " : " + string.Join(", ", _idealBlueprints[blueprint]));
             }
-            return difference.OrderBy(x=>x.Energy).First();
+            return difference.OrderBy(x => x.Move).ThenBy(x=>x.Energy).First();
         }
 
         public ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> availableParts)
@@ -158,12 +158,12 @@ namespace Slugburn.Obscura.Lib.Players
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
         {
-            throw new System.NotImplementedException();
+            return ships.PickRandom();
         }
 
         public Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations)
         {
-            throw new System.NotImplementedException();
+            return validDestinations.PickRandom();
         }
     }
 }

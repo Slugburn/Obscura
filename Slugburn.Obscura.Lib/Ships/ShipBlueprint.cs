@@ -52,7 +52,7 @@ namespace Slugburn.Obscura.Lib.Ships
                 Parts.Remove(replace);
             Parts.Add(upgrade);
             if (!IsPartListValid(Parts))
-                throw new Exception("Ship blueprint part list is not valid.");
+                throw new Exception(string.Format("Ship blueprint part list is not valid: {0} [{1}]", string.Join(",", Parts), PartSpaces));
         }
     }
 }

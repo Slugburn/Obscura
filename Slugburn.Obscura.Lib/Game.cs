@@ -120,7 +120,15 @@ namespace Slugburn.Obscura.Lib
             while (Round <= 10)
             {
                 _log.Log("Round {0} started.", Round);
-                TakeAction(StartingFaction);
+                var currentFaction = StartingFaction;
+                while (Factions.Any(f=>!f.Passed))
+                {
+                    currentFaction.TakeAction(_actions);
+                    currentFaction = GetNextFaction(currentFaction);
+                }
+                StartCombatPhase();
+                StartUpkeepPhase();
+                StartCleanupPhase();
             }
         }
 
@@ -154,14 +162,12 @@ namespace Slugburn.Obscura.Lib
         private void StartCombatPhase()
         {
             // TODO: Combat phase
-            StartUpkeepPhase();
         }
 
         private void StartUpkeepPhase()
         {
             var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
             Task.WaitAll(tasks);
-            StartCleanupPhase();
         }
 
         private void StartCleanupPhase()

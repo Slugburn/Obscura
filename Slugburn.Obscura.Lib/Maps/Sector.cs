@@ -68,5 +68,10 @@ namespace Slugburn.Obscura.Lib.Maps
             _ships.Add(ship);
             ship.Sector = this;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", Name, Id);
+        }
     }
 }

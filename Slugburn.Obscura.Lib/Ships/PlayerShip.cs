@@ -24,9 +24,9 @@ namespace Slugburn.Obscura.Lib.Ships
         {
             get
             {
-                var friendlyShipCount = Sector.Ships.Cast<PlayerShip>().Count(ship => ship != null && ship.Faction == Faction);
+                var friendlyShipCount = Sector.Ships.Where(ship=>ship is PlayerShip).Cast<PlayerShip>().Count(ship => ship.Faction == Faction);
                 var enemyShipCount = Sector.Ships.Count() - friendlyShipCount;
-                return friendlyShipCount > enemyShipCount;
+                return friendlyShipCount <= enemyShipCount;
             }
         }
 

@@ -43,10 +43,22 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public IEnumerable<MapLocation> AdjacentExplorable()
         {
-            return Sector.Wormholes
-                .Select(facing => Coord.Go(facing, 1))
+            return AdjacentLocations()
                 .Where(coord => Map.GetSector(coord) == null)
                 .Select(coord => new MapLocation(Map, coord));
+        }
+
+        public IEnumerable<Sector>  AdjacentSectors()
+        {
+            return AdjacentLocations()
+                .Select(coord => Map.GetSector(coord))
+                .Where(sector => sector != null);
+        }
+
+        private IEnumerable<MapCoord> AdjacentLocations()
+        {
+            return Sector.Wormholes
+                .Select(facing => Coord.Go(facing, 1));
         }
 
         public override bool Equals(object obj)
