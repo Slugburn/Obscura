@@ -227,17 +227,32 @@ namespace Slugburn.Obscura.Lib.Factions
                 var square = Player.ChooseColonizationLocation(opportunities);
                 if (square == null)
                     break;
-                square.Owner = this;
                 var productionType = square.ProductionType;
                 if (productionType == ProductionType.Orbital || productionType == ProductionType.Any)
                     productionType = Player.ChooseColonizationType(productionType);
-                IdlePopulation[productionType]--;
+                ColonizePopulationSquare(square, productionType);
             }
+        }
+
+        private void ColonizePopulationSquare(PopulationSquare square, ProductionType productionType)
+        {
+            square.Owner = this;
+            IdlePopulation[productionType]--;
+            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", Name, square, square.Sector, productionType);
         }
 
         private bool CanColonize(PopulationSquare square)
         {
-            return !square.Advanced;
+            if (!square.Advanced)
+                return true;
+            var advancedTech = new Dictionary<ProductionType, Tech>
+                {
+                    {ProductionType.Money, Tech.AdvancedEconomy},
+                    {ProductionType.Science, Tech.AdvancedLabs},
+                    {ProductionType.Material, Tech.AdvancedMining}
+                };
+            var requiredTech = advancedTech[square.ProductionType];
+            return Technologies.Any(tech => tech.Equals(requiredTech));
         }
 
         private void CivilizationUpkeep()

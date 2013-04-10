@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Slugburn.Obscura.Lib.Extensions;
 
 namespace Slugburn.Obscura.Lib.Maps
 {
@@ -142,6 +143,7 @@ namespace Slugburn.Obscura.Lib.Maps
             public ISectorPopulation Population(params PopulationSquare[] populationSquares)
             {
                 _sector.Squares = populationSquares;
+                populationSquares.Each(sq => sq.Sector = _sector);
                 return this;
             }
 

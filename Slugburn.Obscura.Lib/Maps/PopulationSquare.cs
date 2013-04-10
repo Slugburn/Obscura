@@ -10,9 +10,16 @@ namespace Slugburn.Obscura.Lib.Maps
             Advanced = advanced;
         }
 
+        public Sector Sector { get; set; }
         public ProductionType ProductionType { get; set; }
         public bool Advanced { get; set; }
 
         public Faction Owner { get; set; }
+
+        public override string ToString()
+        {
+            return Advanced ? "Advanced " + ProductionType : ProductionType.ToString();
+        }
     }
+
 }
