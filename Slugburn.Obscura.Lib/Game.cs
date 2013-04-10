@@ -166,6 +166,10 @@ namespace Slugburn.Obscura.Lib
 
         private void StartUpkeepPhase()
         {
+//            foreach (var faction in Factions)
+//            {
+//                faction.UpkeepPhase();
+//            }
             var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
             Task.WaitAll(tasks);
         }

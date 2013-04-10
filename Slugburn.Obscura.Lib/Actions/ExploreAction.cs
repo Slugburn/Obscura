@@ -23,13 +23,11 @@ namespace Slugburn.Obscura.Lib.Actions
             var locations = faction.GetValidExplorationLocations();
             var location = faction.Player.ChooseSectorLocation(locations);
             var sector = faction.Game.GetSectorFor(location);
-            _log.Log("{0}'s exploration finds {1} ({2})", faction.Name, sector.Name, sector.Id);
             if (sector.HasDiscovery)
-            {
                 sector.DiscoveryTile = faction.Game.DiscoveryTiles.Draw();
-            }
             CreateAncientShips(sector);
             location.Sector = sector;
+            _log.Log("{0}'s exploration finds {1}", faction.Name, sector);
             RotateToMatchWormholes(faction, sector);
 
             if (sector.Ancients == 0 && faction.Player.ChooseToClaimSector(sector))

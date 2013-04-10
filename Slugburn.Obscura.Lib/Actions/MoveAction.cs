@@ -43,18 +43,18 @@ namespace Slugburn.Obscura.Lib.Actions
 
         private static IEnumerable<PlayerShip> GetMoveableShips(Faction faction)
         {
-            return faction.Ships.Where(x=>!x.IsPinned);
+            return faction.Ships.Where(ship => ship.Move > 0 && !ship.IsPinned);
         }
 
         private IEnumerable<Sector> GetValidDestinations(PlayerShip ship)
         {
-            return GetSectorsInRadius(ship.Sector, ship.Blueprint.Profile.Move);
+            return GetSectorsInRadius(ship.Sector, ship.Move);
         }
 
         private static IEnumerable<Sector> GetSectorsInRadius(Sector sector, int radius)
         {
             var adjacentSectors = sector.Location.AdjacentSectors().ToArray();
-            if (radius==1)
+            if (radius<=1)
                 return adjacentSectors;
             return adjacentSectors.Concat(adjacentSectors.SelectMany(s => GetSectorsInRadius(s, radius - 1))).Distinct().Except(new[] {sector});
         }

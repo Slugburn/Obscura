@@ -133,11 +133,12 @@ namespace Slugburn.Obscura.Lib.Factions
             var validActions = actions.Where(action => action.IsValid(this));
             var chosenAction = Player.ChooseAction(validActions);
             _log.Log("{0} chooses to {1}", Name, chosenAction.Name);
+            if (!(chosenAction is PassAction))
+            {
+                Influence--;
+                ActionsTaken++;
+            }
             chosenAction.Do(this);
-            if (chosenAction is PassAction) 
-                return;
-            Influence--;
-            ActionsTaken++;
         }
 
         protected int ActionsTaken { get; set; }

@@ -8,7 +8,7 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public IList<ShipPart> GetBestParts(ShipBlueprint blueprint, IList<ShipPart> partsPool)
         {
-            return Enumerable.Range(0, 100).Select(x => CreateRandomPartList(blueprint.PartSpaces, partsPool))
+            return Enumerable.Range(0, 1000).Select(x => CreateRandomPartList(blueprint.PartSpaces, partsPool))
                 .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
                 .OrderByDescending(x => RateProfile(x.Profile))

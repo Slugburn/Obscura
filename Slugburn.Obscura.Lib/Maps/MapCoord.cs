@@ -54,5 +54,10 @@ namespace Slugburn.Obscura.Lib.Maps
             if (obj.GetType() != GetType()) return false;
             return Equals((MapCoord) obj);
         }
+
+        public override string ToString()
+        {
+            return string.Format("( {0} , {1} )", X, Y);
+        }
     }
 }

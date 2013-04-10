@@ -75,5 +75,10 @@ namespace Slugburn.Obscura.Lib.Maps
                 .Where(x => x.sector != null && x.sector.Owner == faction && x.sector.Wormholes.Contains(Facing.Reverse(x.facing)))
                 .Select(x=>x.facing);
         }
+
+        public override string ToString()
+        {
+            return Coord != null ? Coord.ToString() : "<none>";
+        }
     }
 }
