@@ -11,7 +11,7 @@ namespace Slugburn.Obscura.Lib.Ships
             return Enumerable.Range(0, 1000).Select(x => CreateRandomPartList(blueprint.PartSpaces, partsPool))
                 .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
-                .OrderByDescending(x => RateProfile(x.Profile))
+                .OrderByDescending(x => x.Profile.Rating)
                 .First().Parts;
         }
 
@@ -22,20 +22,12 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public double RateBlueprint(ShipBlueprint blueprint)
         {
-            return RateProfile(blueprint.Profile); 
+            return blueprint.Profile.Rating; 
         }
 
         public double RateBlueprint(ShipBlueprint blueprint, IList<ShipPart> parts)
         {
-            return RateProfile(ShipProfile.Create(blueprint, parts));
-        }
-
-        private double RateProfile(ShipProfile profile)
-        {
-            var damageRating = profile.Cannons.Sum() + (profile.Missiles.Sum()*0.75);
-            var offenseMultiplier = (1 + profile.Accuracy + profile.Initiative*.25);
-            var defenseMultipler = (1 + profile.Structure - profile.Deflection);
-            return damageRating * offenseMultiplier * defenseMultipler + profile.Move;
+            return ShipProfile.Create(blueprint, parts).Rating;
         }
     }
 }

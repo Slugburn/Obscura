@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -71,7 +73,17 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public override string ToString()
         {
-            return string.Format("{0} {1}", Name, Location);
+            return String.Format("{0} {1}", Name, Location);
+        }
+
+        public IEnumerable<Ship> GetEnemyShips(Faction faction)
+        {
+            return Ships.Where(ship => ship.Faction != faction);
+        }
+
+        public IEnumerable<Ship> GetFriendlyShips(Faction faction)
+        {
+            return Ships.Where(ship => ship.Faction == faction);
         }
     }
 }

@@ -30,13 +30,16 @@ namespace Slugburn.Obscura.Lib.Ships
             }
         }
 
-        public Faction Faction { get; private set; }
-
         public ShipBlueprint Blueprint { get; private set; }
 
         public int Move
         {
             get { return Blueprint.Profile.Move; }
+        }
+
+        public override ShipProfile Profile
+        {
+            get { return Blueprint.Profile; }
         }
     }
 }

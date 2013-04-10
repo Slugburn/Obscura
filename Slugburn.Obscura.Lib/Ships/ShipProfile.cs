@@ -35,5 +35,16 @@ namespace Slugburn.Obscura.Lib.Ships
                            Move = parts.Sum(x => x.Move)
                        };
         }
+
+        public double Rating
+        {
+            get
+            {
+                var damageRating = Cannons.Sum() + (Missiles.Sum()*0.75);
+                var offenseMultiplier = (1 + Accuracy + Initiative*.25);
+                var defenseMultipler = (1 + Structure - Deflection);
+                return damageRating*offenseMultiplier*defenseMultipler + Move;
+            }
+        }
     }
 }

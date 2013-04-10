@@ -48,6 +48,13 @@
     <Compile Include="Actions\PassAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
+    <Compile Include="Ai\DecisionExtensions.cs" />
+    <Compile Include="Ai\DecisionResult.cs" />
+    <Compile Include="Ai\DefendRallyPoint.cs" />
+    <Compile Include="Ai\IAiPlayer.cs" />
+    <Compile Include="Ai\IDecision.cs" />
+    <Compile Include="Ai\UnderAttack.cs" />
+    <Compile Include="Ai\UnderThreat.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\CruiserBuilder.cs" />
     <Compile Include="Builders\DreadnoughtBuilder.cs" />
