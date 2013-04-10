@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Ai;
+using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -11,7 +13,7 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Players
 {
-    public class RandomPlayer : IPlayer
+    public class RandomPlayer : IAiPlayer
     {
         private readonly BlueprintGenerator _blueprintGenerator;
 
@@ -46,6 +48,8 @@ namespace Slugburn.Obscura.Lib.Players
 
         public IAction ChooseAction(IEnumerable<IAction> validActions)
         {
+            ValidActions = validActions;
+            return new ShouldPassDecision().GetResult(this);
             var actions = validActions.ToList();
             if (Faction.SpendingInfluenceWillBankrupt())
                 return actions.SingleOrDefault(x => x is PassAction);
@@ -59,6 +63,8 @@ namespace Slugburn.Obscura.Lib.Players
                 validActions = actions.Where(x=>!(x is UpgradeAction));
             return actions.PickRandom();
         }
+
+        public IEnumerable<IAction> ValidActions { get; set; }
 
         public void RotateSectorWormholes(Sector sector, int[] validFacings)
         {
@@ -165,5 +171,7 @@ namespace Slugburn.Obscura.Lib.Players
         {
             return validDestinations.PickRandom();
         }
+
+        public Sector RallyPoint { get; set; }
     }
 }

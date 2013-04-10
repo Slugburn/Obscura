@@ -1,4 +1,4 @@
-﻿namespace Slugburn.Obscura.Lib.Ai
+namespace Slugburn.Obscura.Lib.Ai
 {
     public static class DecisionExtensions
     {

@@ -1,5 +1,3 @@
-﻿using Slugburn.Obscura.Lib.Actions;
-
 namespace Slugburn.Obscura.Lib.Ai
 {
     public class DecisionResult<TResult>
@@ -7,6 +5,11 @@ namespace Slugburn.Obscura.Lib.Ai
         public DecisionResult(IDecision<TResult> nextDecision)
         {
             NextDecision = nextDecision;
+        }
+
+        public DecisionResult(TResult result)
+        {
+            Result = result;
         }
 
         public TResult Result { get; set; }

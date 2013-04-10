@@ -1,9 +1,9 @@
-﻿using System.Linq;
+using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 
-namespace Slugburn.Obscura.Lib.Ai
+namespace Slugburn.Obscura.Lib.Ai.Actions
 {
-    public class UnderAttack : IDecision<IAction>
+    public class UnderAttack : IActionDecision
     {
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {

@@ -1,8 +1,8 @@
-﻿using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Actions;
 
-namespace Slugburn.Obscura.Lib.Ai
+namespace Slugburn.Obscura.Lib.Ai.Actions
 {
-    public class DefendRallyPoint : IDecision<IAction>
+    public class DefendRallyPoint : IActionDecision
     {
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
