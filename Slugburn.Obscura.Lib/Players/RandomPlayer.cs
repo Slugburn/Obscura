@@ -16,10 +16,12 @@ namespace Slugburn.Obscura.Lib.Players
     public class RandomPlayer : IAiPlayer
     {
         private readonly BlueprintGenerator _blueprintGenerator;
+        private readonly IList<IBuilder> _builders;
 
-        public RandomPlayer(BlueprintGenerator blueprintGenerator)
+        public RandomPlayer(BlueprintGenerator blueprintGenerator, IList<IBuilder> builders)
         {
             _blueprintGenerator = blueprintGenerator;
+            _builders = builders;
         }
 
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
@@ -65,6 +67,7 @@ namespace Slugburn.Obscura.Lib.Players
         }
 
         public IEnumerable<IAction> ValidActions { get; set; }
+        public List<BuildLocation> BuildList { get; set; }
 
         public void RotateSectorWormholes(Sector sector, int[] validFacings)
         {
@@ -89,12 +92,16 @@ namespace Slugburn.Obscura.Lib.Players
 
         public IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders)
         {
-            return validBuilders.PickRandom();
+            return BuildList.First().Builder;
         }
 
         public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
         {
-            return validPlacementLocations.PickRandom();
+            var location = BuildList[0].Location;
+            if (validPlacementLocations.All(x => x != location))
+                throw new InvalidOperationException("Placement location is not valid.");
+            BuildList.RemoveAt(0);
+            return location;
         }
 
         public ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints)
@@ -124,7 +131,7 @@ namespace Slugburn.Obscura.Lib.Players
             var difference = blueprint.Parts.Less(_idealBlueprints[blueprint]).ToArray();
             if (!difference.Any())
             {
-                throw new Exception(string.Join(", ", blueprint.Parts) + " : " + string.Join(", ", _idealBlueprints[blueprint]));
+                throw new Exception(String.Join(", ", blueprint.Parts) + " : " + String.Join(", ", _idealBlueprints[blueprint]));
             }
             return difference.OrderBy(x => x.Move).ThenBy(x=>x.Energy).First();
         }
@@ -153,7 +160,7 @@ namespace Slugburn.Obscura.Lib.Players
             }
             else
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
         }
 
@@ -173,5 +180,31 @@ namespace Slugburn.Obscura.Lib.Players
         }
 
         public Sector RallyPoint { get; set; }
+
+        public IList<IBuilder> GetBestBuildList()
+        {
+            var faction = Faction;
+            // Constrained by number of builds, available blueprints, max ships and materials
+            var buildList = new List<IBuilder>();
+            var availableMaterial = faction.Material;
+            var builds = 0;
+            var builders = _builders.ToList();
+            while (builds < faction.BuildCount)
+            {
+                var best =
+                    builders.Where(
+                        x => x.IsBuildAvailable(faction) && x.CostFor(faction) <= availableMaterial && x.IsValidPlacementLocation(RallyPoint))
+                        .OrderByDescending(x => x.CombatEfficiencyFor(faction))
+                        .FirstOrDefault();
+                if (best == null)
+                    break;
+                buildList.Add(best);
+                availableMaterial -= best.CostFor(faction);
+                builds++;
+                if (best.OnePerSector)
+                    builders.Remove(best);
+            }
+            return buildList;
+        }
     }
 }

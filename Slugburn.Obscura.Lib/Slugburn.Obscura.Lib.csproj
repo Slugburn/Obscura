@@ -48,12 +48,14 @@
     <Compile Include="Actions\PassAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
+    <Compile Include="Ai\Actions\AttackDecision.cs" />
     <Compile Include="Ai\Actions\IActionDecision.cs" />
     <Compile Include="Ai\Actions\ActionDecisionResult.cs" />
-    <Compile Include="Ai\Actions\DefendRallyPoint.cs" />
+    <Compile Include="Ai\Actions\DefendRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\ShouldPassDecision.cs" />
-    <Compile Include="Ai\Actions\UnderAttack.cs" />
-    <Compile Include="Ai\Actions\UnderThreat.cs" />
+    <Compile Include="Ai\Actions\UnderAttackDecision.cs" />
+    <Compile Include="Ai\Actions\UnderThreatDecision.cs" />
+    <Compile Include="Ai\AiExtensions.cs" />
     <Compile Include="Ai\DecisionExtensions.cs" />
     <Compile Include="Ai\DecisionResult.cs" />
     <Compile Include="Ai\IAiPlayer.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Ships\PlayerShip.cs" />
     <Compile Include="Ships\Ship.cs" />
     <Compile Include="Ships\ShipBlueprint.cs" />
+    <Compile Include="Ships\ShipExtensions.cs" />
     <Compile Include="Ships\ShipPart.cs" />
     <Compile Include="Ships\ShipProfile.cs" />
     <Compile Include="Ships\StarbaseBlueprint.cs" />

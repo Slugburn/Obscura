@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
@@ -14,9 +15,10 @@ namespace Slugburn.Obscura.Lib.Factions
     {
         private readonly ILog _log;
 
-        public Faction(ILog log) : this()
+        public Faction(ILog log, IList<IBuilder> builders) : this()
         {
             _log = log;
+            Player = new RandomPlayer(new BlueprintGenerator(), builders);
         }
 
         protected Faction()
@@ -25,7 +27,6 @@ namespace Slugburn.Obscura.Lib.Factions
             Sectors = new List<Sector>();
             Ships = new List<PlayerShip>();
             Technologies = new List<Tech>();
-            Player = new RandomPlayer(new BlueprintGenerator());
         }
 
         public List<Sector> Sectors { get; set; }
@@ -293,6 +294,19 @@ namespace Slugburn.Obscura.Lib.Factions
         public bool SpendingInfluenceWillBankrupt()
         {
             return Money + GetProduction(ProductionType.Money) + GetUpkeep(Influence - 1) < 0;
+        }
+
+        public double CombatSuccessRatio(Sector mySector, IEnumerable<Sector> enemySectors)
+        {
+            var friendlyRating = mySector.GetFriendlyShips(this).GetTotalRating();
+            var enemyRating = enemySectors.SelectMany(sector => sector.GetEnemyShips(this)).GetTotalRating();
+            var ratio = friendlyRating/enemyRating;
+            return double.IsInfinity(ratio) ? 100 : ratio;
+        }
+
+        public double CombatSuccessRatio(Sector sector)
+        {
+            return CombatSuccessRatio(sector, new[] {sector});
         }
     }
 }

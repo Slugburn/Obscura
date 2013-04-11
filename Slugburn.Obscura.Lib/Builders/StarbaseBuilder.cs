@@ -25,5 +25,10 @@ namespace Slugburn.Obscura.Lib.Builders
             return sector.Ships
                          .Cast<PlayerShip>().All(ship => ship.Blueprint != sector.Owner.Starbase);
         }
+
+        public override bool OnePerSector
+        {
+            get { return true; }
+        }
     }
 }

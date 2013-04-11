@@ -1,5 +1,8 @@
 using NSubstitute;
 using NUnit.Framework;
+using Ninject;
+using Ninject.Extensions.Conventions;
+using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -18,8 +21,11 @@ namespace Slugburn.Obscura.Test.Builders
         [SetUp]
         public void BeforeEach()
         {
+            var kernel = new StandardKernel();
+            kernel.Bind(x => x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
+            kernel.Bind<ILog>().To<ConsoleLog>().InSingletonScope();
             _builder = new StarbaseBuilder();
-            _faction = new Faction(new ConsoleLog());
+            _faction = kernel.Get<Faction>();
             _faction.Material = 100;
             _faction.Starbase = new ShipBlueprint {Cost = 3};
             _faction.Technologies.Add(Tech.Starbase);

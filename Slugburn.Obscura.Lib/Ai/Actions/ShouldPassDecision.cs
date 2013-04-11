@@ -8,7 +8,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         {
             return player.Faction.SpendingInfluenceWillBankrupt()
                        ? new ActionDecisionResult(new PassAction())
-                       : new ActionDecisionResult(new UnderAttack());
+                       : new ActionDecisionResult(new UnderAttackDecision());
         }
     }
 }

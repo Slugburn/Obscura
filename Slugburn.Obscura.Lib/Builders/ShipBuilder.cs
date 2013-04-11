@@ -34,5 +34,11 @@ namespace Slugburn.Obscura.Lib.Builders
         {
             return _blueprintAccessor(faction).Cost;
         }
+
+        public override double CombatEfficiencyFor(Faction faction)
+        {
+            var blueprint = _blueprintAccessor(faction);
+            return blueprint.Profile.Rating/blueprint.Cost;
+        }
     }
 }
