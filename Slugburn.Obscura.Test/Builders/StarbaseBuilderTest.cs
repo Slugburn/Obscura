@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using Ninject;
 using Ninject.Extensions.Conventions;
-using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -22,8 +22,7 @@ namespace Slugburn.Obscura.Test.Builders
         public void BeforeEach()
         {
             var kernel = new StandardKernel();
-            kernel.Bind(x => x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
-            kernel.Bind<ILog>().To<ConsoleLog>().InSingletonScope();
+            kernel.Load(new TestModule());
             _builder = new StarbaseBuilder();
             _faction = kernel.Get<Faction>();
             _faction.Material = 100;

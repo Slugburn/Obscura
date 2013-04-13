@@ -7,7 +7,8 @@ namespace Slugburn.Obscura.Lib.Builders
     {
         public void Place(Sector sector)
         {
-            throw new NotImplementedException();
+            sector.HasOrbital = true;
+            sector.Squares.Add(new PopulationSquare(ProductionType.Orbital, false) {Sector = sector});
         }
 
         public string Name

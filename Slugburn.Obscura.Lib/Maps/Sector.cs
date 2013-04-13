@@ -36,7 +36,7 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public Discovery DiscoveryTile { get; set; }
 
-        public PopulationSquare[] Squares { get; set; }
+        public ICollection<PopulationSquare> Squares { get; set; }
         
         public bool IsInner
         {

@@ -7,12 +7,17 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class DefendRallyPointDecision : IActionDecision
     {
-        public DefendRallyPointDecision()
+        private readonly BuildListGenerator _generator;
+
+        public DefendRallyPointDecision(BuildListGenerator generator)
         {
+            _generator = generator;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
+            var faction = player.Faction;
+
             // Need to decide whether we should build, upgrade, or move
             var build = player.GetAction<BuildAction>();
             var upgrade = player.GetAction<UpgradeAction>();
@@ -21,8 +26,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             if (build!=null)
             {
-                var buildList = player.GetBestBuildListForSector(player.RallyPoint, player.Faction.Material);
-                player.BuildList = buildList.Select(x => new BuildLocation { Builder = x, Location = player.RallyPoint }).ToList();
+                var buildList = _generator.Generate(faction, new[] {player.RallyPoint}, builder=>builder.CombatEfficiencyFor(faction));
+                player.BuildList = buildList;
                 return new ActionDecisionResult(build);
             }
             else if (explore!=null)

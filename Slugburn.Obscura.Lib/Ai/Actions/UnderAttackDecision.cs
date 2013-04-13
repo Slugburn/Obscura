@@ -5,6 +5,15 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class UnderAttackDecision : IActionDecision
     {
+        private readonly UnderThreatDecision _underThreatDecision;
+        private readonly DefendRallyPointDecision _defendRallyPointDecision;
+
+        public UnderAttackDecision(UnderThreatDecision underThreatDecision, DefendRallyPointDecision defendRallyPointDecision)
+        {
+            _underThreatDecision = underThreatDecision;
+            _defendRallyPointDecision = defendRallyPointDecision;
+        }
+
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
             var faction = player.Faction;
@@ -15,9 +24,9 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       orderby ratio
                                       select sector).FirstOrDefault();
             if (mostNeedsDefending == null)
-                return new ActionDecisionResult(new UnderThreatDecision());
+                return new ActionDecisionResult(_underThreatDecision);
             player.RallyPoint = mostNeedsDefending;
-            return new ActionDecisionResult(new DefendRallyPointDecision());
+            return new ActionDecisionResult(_defendRallyPointDecision);
         }
     }
 }

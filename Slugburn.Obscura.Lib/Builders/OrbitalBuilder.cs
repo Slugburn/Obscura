@@ -5,17 +5,10 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Builders
 {
-    public class OrbitalBuilder : BuilderBase
+    public class OrbitalBuilder : BuilderBase, IOnePerSectorBuilder
     {
         public OrbitalBuilder() : base("Orbital")
         {
-        }
-
-        public override bool IsBuildAvailable(Faction faction)
-        {
-            return faction.Material >= faction.OrbitalCost
-                   && faction.HasTechnology(Tech.Orbital)
-                   && faction.Sectors.Any(IsValidPlacementLocation);
         }
 
         public override IBuildable Create(Faction faction)
@@ -28,14 +21,24 @@ namespace Slugburn.Obscura.Lib.Builders
             return faction.OrbitalCost;
         }
 
-        public override double CombatEfficiencyFor(Faction faction)
+        public override decimal CombatEfficiencyFor(Faction faction)
         {
             return 0;
+        }
+
+        public override Tech RequiredTech
+        {
+            get { return Tech.Orbital; }
         }
 
         public override bool IsValidPlacementLocation(Sector sector)
         {
             return !sector.HasOrbital;
+        }
+
+        public bool HasBeenBuilt(Sector sector)
+        {
+            return sector.HasOrbital;
         }
     }
 }

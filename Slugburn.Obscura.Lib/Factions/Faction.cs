@@ -15,10 +15,10 @@ namespace Slugburn.Obscura.Lib.Factions
     {
         private readonly ILog _log;
 
-        public Faction(ILog log, IList<IBuilder> builders) : this()
+        public Faction(ILog log, IList<IBuilder> builders, IPlayer player) : this()
         {
             _log = log;
-            Player = new RandomPlayer(new BlueprintGenerator(), builders);
+            Player = player;
         }
 
         protected Faction()
@@ -241,6 +241,8 @@ namespace Slugburn.Obscura.Lib.Factions
                 var productionType = square.ProductionType;
                 if (productionType == ProductionType.Orbital || productionType == ProductionType.Any)
                     productionType = Player.ChooseColonizationType(productionType);
+                if ((productionType & square.ProductionType) != productionType)
+                    throw new InvalidOperationException(string.Format("{0} square cannot produce {1}", square.ProductionType, productionType));
                 ColonizePopulationSquare(square, productionType);
             }
         }
@@ -306,15 +308,15 @@ namespace Slugburn.Obscura.Lib.Factions
             return Money + GetProduction(ProductionType.Money) + GetUpkeep(Influence - 1) < 0;
         }
 
-        public double CombatSuccessRatio(Sector mySector, IEnumerable<Sector> enemySectors)
+        public decimal CombatSuccessRatio(Sector mySector, IEnumerable<Sector> enemySectors)
         {
             var friendlyRating = mySector.GetFriendlyShips(this).GetTotalRating();
             var enemyRating = enemySectors.SelectMany(sector => sector.GetEnemyShips(this)).GetTotalRating();
             var ratio = friendlyRating/enemyRating;
-            return double.IsInfinity(ratio) ? 100 : ratio;
+            return ratio;
         }
 
-        public double CombatSuccessRatio(Sector sector)
+        public decimal CombatSuccessRatio(Sector sector)
         {
             return CombatSuccessRatio(sector, new[] {sector});
         }

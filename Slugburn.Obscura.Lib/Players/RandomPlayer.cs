@@ -17,11 +17,13 @@ namespace Slugburn.Obscura.Lib.Players
     {
         private readonly BlueprintGenerator _blueprintGenerator;
         private readonly IList<IBuilder> _builders;
+        private readonly IActionDecision _actionDecision;
 
-        public RandomPlayer(BlueprintGenerator blueprintGenerator, IList<IBuilder> builders)
+        public RandomPlayer(BlueprintGenerator blueprintGenerator, IList<IBuilder> builders, ShouldPassDecision actionDecision)
         {
             _blueprintGenerator = blueprintGenerator;
             _builders = builders;
+            _actionDecision = actionDecision;
         }
 
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
@@ -51,7 +53,7 @@ namespace Slugburn.Obscura.Lib.Players
         public IAction ChooseAction(IEnumerable<IAction> validActions)
         {
             ValidActions = validActions;
-            return new ShouldPassDecision().GetResult(this);
+            return _actionDecision.GetResult(this);
         }
 
         public IEnumerable<IAction> ValidActions { get; set; }
@@ -90,7 +92,7 @@ namespace Slugburn.Obscura.Lib.Players
         {
             var location = BuildList[0].Location;
             if (validPlacementLocations.All(x => x != location))
-                throw new InvalidOperationException("Placement location is not valid.");
+                throw new InvalidOperationException(string.Format("Placing {0} at {1} is not valid.", built.Name, location));
             BuildList.RemoveAt(0);
             return location;
         }
@@ -104,7 +106,7 @@ namespace Slugburn.Obscura.Lib.Players
         {
             return _idealBlueprints.Select(
                 x => new {Blueprint = x.Key, Difference = _blueprintGenerator.RateBlueprint(x.Key, x.Value) - _blueprintGenerator.RateBlueprint(x.Key)})
-                .Where(x => x.Difference >= 0.5)
+                .Where(x => x.Difference >= 0.5m)
                 .OrderBy(x => x.Difference)
                 .Select(x=>x.Blueprint);
         }
@@ -157,7 +159,7 @@ namespace Slugburn.Obscura.Lib.Players
 
         public ProductionType ChooseColonizationType(ProductionType productionType)
         {
-            return ProductionType.Material;
+            return productionType == ProductionType.Any ? ProductionType.Material : ProductionType.Science;
         }
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
@@ -171,64 +173,5 @@ namespace Slugburn.Obscura.Lib.Players
         }
 
         public Sector RallyPoint { get; set; }
-
-        public IList<IBuilder> GetBestBuildListForSector(Sector sector, int availableMaterial)
-        {
-            // Constrained by number of builds, available blueprints, max ships and materials
-            var buildList = new List<IBuilder>();
-            var builds = 0;
-            var builders = _builders.ToList();
-            while (builds < Faction.BuildCount)
-            {
-                var best =
-                    builders.Where(
-                        x => x.IsBuildAvailable(Faction) && x.CostFor(Faction) <= availableMaterial && x.IsValidPlacementLocation(sector))
-                        .OrderByDescending(x => x.CombatEfficiencyFor(Faction))
-                        .FirstOrDefault();
-                if (best == null)
-                    break;
-                buildList.Add(best);
-                availableMaterial -= best.CostFor(Faction);
-                builds++;
-                if (best.OnePerSector)
-                    builders.Remove(best);
-            }
-            return buildList;
-        }
-
-        public IList<BuildLocation> GetGeneralPurposeBuildList()
-        {
-            // Constrainted by number of builds, available technology, and materials
-            var buildList = new List<BuildLocation>();
-            var availableMaterial = Faction.Material;
-            var builds = 0;
-            var builders = _builders.ToList();
-            while (builds < Faction.BuildCount)
-            {
-                var monolithBuilder = _builders.Single(x => x is MonolithBuilder);
-                var orbitalBuilder = _builders.Single(x => x is OrbitalBuilder);
-                Sector location;
-                IBuilder builder;
-                if (monolithBuilder != null && monolithBuilder.CostFor(Faction) <= availableMaterial && monolithBuilder.IsBuildAvailable(Faction))
-                {
-                    builder = monolithBuilder;
-                    location = Faction.Sectors.Where(x => !x.HasMonolith).PickRandom();
-                }
-                else if (orbitalBuilder != null && orbitalBuilder.CostFor(Faction) < availableMaterial && orbitalBuilder.IsBuildAvailable(Faction))
-                {
-                    builder = orbitalBuilder;
-                    location = Faction.Sectors.Where(x => !x.HasOrbital).PickRandom();
-                }
-                else
-                {
-                    location = Faction.Sectors.PickRandom();
-                    builder = GetBestBuildListForSector(location, availableMaterial).First();
-                }
-                buildList.Add(new BuildLocation { Builder = builder, Location = location });
-                availableMaterial -= builder.CostFor(Faction);
-                builds++;
-            }
-            return buildList;
-        }
     }
 }

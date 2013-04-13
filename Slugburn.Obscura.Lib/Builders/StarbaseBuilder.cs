@@ -1,23 +1,14 @@
 ﻿using System.Linq;
-using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Builders
 {
-    public class StarbaseBuilder : ShipBuilder
+    public class StarbaseBuilder : ShipBuilder, IOnePerSectorBuilder
     {
         public StarbaseBuilder() : base("Starbase", faction=>faction.Starbase, 4)
         {
-        }
-
-        public override bool IsBuildAvailable(Faction faction)
-        {
-            var baseResult = base.IsBuildAvailable(faction);
-            return baseResult 
-                && faction.HasTechnology(Tech.Starbase)
-                && faction.Sectors.Any(IsValidPlacementLocation);
         }
 
         public override bool IsValidPlacementLocation(Sector sector)
@@ -29,6 +20,17 @@ namespace Slugburn.Obscura.Lib.Builders
         public override bool OnePerSector
         {
             get { return true; }
+        }
+
+        public override Tech RequiredTech
+        {
+            get { return Tech.Starbase; }
+        }
+
+        public bool HasBeenBuilt(Sector sector)
+        {
+            return sector.Ships
+                         .Cast<PlayerShip>().Any(ship => ship.Blueprint == sector.Owner.Starbase);
         }
     }
 }

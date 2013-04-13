@@ -5,22 +5,20 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Builders
 {
-    public class MonolithBuilder : BuilderBase
+    public class MonolithBuilder : BuilderBase, IOnePerSectorBuilder
     {
         public MonolithBuilder() : base("Monolith")
         {
         }
 
-        public override bool IsBuildAvailable(Faction faction)
-        {
-            return faction.Material >= CostFor(faction)
-                   && faction.HasTechnology(Tech.Monolith)
-                   && faction.Sectors.Any(IsValidPlacementLocation);
-        }
-
         public override IBuildable Create(Faction faction)
         {
             return new Monolith();
+        }
+
+        public override Tech RequiredTech
+        {
+            get { return Tech.Monolith; }
         }
 
         public override bool IsValidPlacementLocation(Sector sector)
@@ -33,7 +31,7 @@ namespace Slugburn.Obscura.Lib.Builders
             return faction.MonolithCost;
         }
 
-        public override double CombatEfficiencyFor(Faction faction)
+        public override decimal CombatEfficiencyFor(Faction faction)
         {
             return 0;
         }
@@ -41,6 +39,11 @@ namespace Slugburn.Obscura.Lib.Builders
         public override bool OnePerSector
         {
             get { return true; }
+        }
+
+        public bool HasBeenBuilt(Sector sector)
+        {
+            return sector.HasMonolith;
         }
     }
 }

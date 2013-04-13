@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
-using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Builders
 {
-    public abstract class ShipBuilder : BuilderBase
+    public abstract class ShipBuilder : BuilderBase, IShipBuilder
     {
         private readonly Func<Faction, ShipBlueprint> _blueprintAccessor;
         private readonly int _maxCount;
@@ -17,10 +17,10 @@ namespace Slugburn.Obscura.Lib.Builders
             _maxCount = maxCount;
         }
 
-        public override bool IsBuildAvailable(Faction faction)
+        public int MaximumBuildableFor(Faction faction)
         {
             var blueprint = _blueprintAccessor(faction);
-            return faction.Material >= blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;
+            return _maxCount - faction.Ships.Count(ship => ship.Blueprint == blueprint);
         }
 
         public override IBuildable Create(Faction faction)
@@ -35,10 +35,16 @@ namespace Slugburn.Obscura.Lib.Builders
             return _blueprintAccessor(faction).Cost;
         }
 
-        public override double CombatEfficiencyFor(Faction faction)
+        public override decimal CombatEfficiencyFor(Faction faction)
         {
             var blueprint = _blueprintAccessor(faction);
             return blueprint.Profile.Rating/blueprint.Cost;
         }
+
+        public override Tech RequiredTech
+        {
+            get { return null; }
+        }
+
     }
 }

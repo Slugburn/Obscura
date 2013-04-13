@@ -14,7 +14,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
         public void BeforeEach()
         {
             _tech = new Tech("Test", 6, 4, TechCategory.Grid);
-            _faction = new Faction(new ConsoleLog(), null);
+            _faction = new Faction(new ConsoleLog(), null, null);
         }
 
         [Test]

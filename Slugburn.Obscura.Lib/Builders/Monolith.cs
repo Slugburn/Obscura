@@ -12,7 +12,8 @@ namespace Slugburn.Obscura.Lib.Builders
 
         public void Place(Sector sector)
         {
-            throw new NotImplementedException();
+            sector.HasMonolith = true;
+            sector.Vp += 3;
         }
 
     }

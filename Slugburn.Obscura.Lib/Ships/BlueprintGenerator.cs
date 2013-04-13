@@ -20,12 +20,12 @@ namespace Slugburn.Obscura.Lib.Ships
             return Enumerable.Range(0, partCount).Select(x => partsPool.PickRandom()).ToList();
         }
 
-        public double RateBlueprint(ShipBlueprint blueprint)
+        public decimal RateBlueprint(ShipBlueprint blueprint)
         {
             return blueprint.Profile.Rating; 
         }
 
-        public double RateBlueprint(ShipBlueprint blueprint, IList<ShipPart> parts)
+        public decimal RateBlueprint(ShipBlueprint blueprint, IList<ShipPart> parts)
         {
             return ShipProfile.Create(blueprint, parts).Rating;
         }

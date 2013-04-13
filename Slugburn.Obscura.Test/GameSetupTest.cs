@@ -14,8 +14,7 @@ namespace Slugburn.Obscura.Test
         {
             // Arrange
             var kernel = new StandardKernel();
-            kernel.Bind(x=>x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
-            kernel.Bind<ILog>().To<ConsoleLog>().InSingletonScope();
+            kernel.Load(new TestModule());
             var game = kernel.Get<Game>();
             var factions = new[] { kernel.Get<Faction>(), kernel.Get<Faction>() };
 

@@ -142,7 +142,7 @@ namespace Slugburn.Obscura.Lib.Maps
 
             public ISectorPopulation Population(params PopulationSquare[] populationSquares)
             {
-                _sector.Squares = populationSquares;
+                _sector.Squares = populationSquares.ToList();
                 populationSquares.Each(sq => sq.Sector = _sector);
                 return this;
             }

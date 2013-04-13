@@ -21,7 +21,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
             _tech = new Tech("Test", 4, 3, TechCategory.Grid);
             _game.AvailableTechTiles = new List<Tech> { _tech };
 
-            _faction = new Faction(new ConsoleLog(), null) { Game = _game, Science = 4 };
+            _faction = new Faction(new ConsoleLog(), null, null) { Game = _game, Science = 4 };
         }
 
         [Test]

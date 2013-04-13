@@ -8,7 +8,7 @@ namespace Slugburn.Obscura.Lib.Ships
 {
     public static class ShipExtensions
     {
-        public static double GetTotalRating(this IEnumerable<Ship> ships)
+        public static decimal GetTotalRating(this IEnumerable<Ship> ships)
         {
             return ships.Sum(ship => ship.Profile.Rating);
         }
