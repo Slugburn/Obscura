@@ -21,7 +21,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             if (build!=null)
             {
-                var buildList = player.GetBestBuildList();
+                var buildList = player.GetBestBuildListForSector(player.RallyPoint, player.Faction.Material);
                 player.BuildList = buildList.Select(x => new BuildLocation { Builder = x, Location = player.RallyPoint }).ToList();
                 return new ActionDecisionResult(build);
             }

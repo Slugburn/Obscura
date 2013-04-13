@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -13,7 +11,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var threatenedSectors = from sector in faction.Sectors
                                     let adjacent = (
                                                        from adj in sector.Location.AdjacentSectors()
-                                                       where adj.GetEnemyShips(faction).Any()
+                                                       where adj.GetEnemyShips(faction).Where(s=>s.Faction!=null).Any()
                                                        select adj
                                                    )
                                     where adjacent.Any()
@@ -25,7 +23,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       orderby ratio
                                       select location.sector).FirstOrDefault();
             if (mostNeedsDefending == null)
-                return new ActionDecisionResult(new AttackDecision());
+                return new ActionDecisionResult(new SafeDecision());
             player.RallyPoint = mostNeedsDefending;
             return new ActionDecisionResult(new DefendRallyPointDecision());
         }

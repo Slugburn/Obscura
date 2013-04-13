@@ -57,6 +57,10 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public Faction Owner { get; set; }
 
+        public bool HasOrbital { get; set; }
+
+        public bool HasMonolith { get; set; }
+
         public void RotateClockwise()
         {
             for (var i = 0; i < Wormholes.Length; i++)

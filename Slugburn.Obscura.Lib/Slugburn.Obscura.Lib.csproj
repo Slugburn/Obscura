@@ -49,9 +49,13 @@
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
     <Compile Include="Ai\Actions\AttackDecision.cs" />
+    <Compile Include="Ai\Actions\BuildDecision.cs" />
+    <Compile Include="Ai\Actions\ExploreDecision.cs" />
     <Compile Include="Ai\Actions\IActionDecision.cs" />
     <Compile Include="Ai\Actions\ActionDecisionResult.cs" />
     <Compile Include="Ai\Actions\DefendRallyPointDecision.cs" />
+    <Compile Include="Ai\Actions\ResearchDecision.cs" />
+    <Compile Include="Ai\Actions\SafeDecision.cs" />
     <Compile Include="Ai\Actions\ShouldPassDecision.cs" />
     <Compile Include="Ai\Actions\UnderAttackDecision.cs" />
     <Compile Include="Ai\Actions\UnderThreatDecision.cs" />
@@ -66,6 +70,10 @@
     <Compile Include="Builders\IBuildable.cs" />
     <Compile Include="Builders\IBuilder.cs" />
     <Compile Include="Builders\InterceptorBuilder.cs" />
+    <Compile Include="Builders\Monolith.cs" />
+    <Compile Include="Builders\MonolithBuilder.cs" />
+    <Compile Include="Builders\Orbital.cs" />
+    <Compile Include="Builders\OrbitalBuilder.cs" />
     <Compile Include="Builders\ShipBuilder.cs" />
     <Compile Include="Builders\StarbaseBuilder.cs" />
     <Compile Include="ILog.cs" />

@@ -11,7 +11,7 @@ namespace Slugburn.Obscura.Lib.Builders
         private readonly Func<Faction, ShipBlueprint> _blueprintAccessor;
         private readonly int _maxCount;
 
-        protected ShipBuilder(Func<Faction,ShipBlueprint> blueprintAccessor, int maxCount)
+        protected ShipBuilder(string name, Func<Faction,ShipBlueprint> blueprintAccessor, int maxCount) :base(name)
         {
             _blueprintAccessor = blueprintAccessor;
             _maxCount = maxCount;
@@ -20,7 +20,7 @@ namespace Slugburn.Obscura.Lib.Builders
         public override bool IsBuildAvailable(Faction faction)
         {
             var blueprint = _blueprintAccessor(faction);
-            return faction.Material > blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;
+            return faction.Material >= blueprint.Cost && faction.Ships.Count(ship => ship.Blueprint == blueprint) < _maxCount;
         }
 
         public override IBuildable Create(Faction faction)

@@ -4,6 +4,7 @@ using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai
 {
@@ -11,7 +12,9 @@ namespace Slugburn.Obscura.Lib.Ai
     {
         Sector RallyPoint { get; set; }
         IEnumerable<IAction> ValidActions { get; set; }
-        List<BuildLocation> BuildList { get; set; }
-        IList<IBuilder> GetBestBuildList();
+        IList<BuildLocation> BuildList { get; set; }
+        Tech TechToResearch { get; set; }
+        IList<IBuilder> GetBestBuildListForSector(Sector sector, int availableMaterial);
+        IList<BuildLocation> GetGeneralPurposeBuildList();
     }
 }

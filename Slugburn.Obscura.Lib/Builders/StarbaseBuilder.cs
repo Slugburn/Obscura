@@ -8,7 +8,7 @@ namespace Slugburn.Obscura.Lib.Builders
 {
     public class StarbaseBuilder : ShipBuilder
     {
-        public StarbaseBuilder() : base(faction=>faction.Starbase, 4)
+        public StarbaseBuilder() : base("Starbase", faction=>faction.Starbase, 4)
         {
         }
 

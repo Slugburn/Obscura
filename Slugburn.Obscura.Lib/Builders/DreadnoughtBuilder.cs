@@ -2,7 +2,7 @@
 {
     public class DreadnoughtBuilder : ShipBuilder
     {
-        public DreadnoughtBuilder() : base(faction=>faction.Dreadnought, 2)
+        public DreadnoughtBuilder() : base("Dreadnought", faction=>faction.Dreadnought, 2)
         {
         }
     }

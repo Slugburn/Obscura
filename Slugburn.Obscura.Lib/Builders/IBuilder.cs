@@ -5,6 +5,7 @@ namespace Slugburn.Obscura.Lib.Builders
 {
     public interface IBuilder
     {
+        string Name { get; }
         bool IsBuildAvailable(Faction faction);
         IBuildable Create(Faction faction);
         bool IsValidPlacementLocation(Sector sector);

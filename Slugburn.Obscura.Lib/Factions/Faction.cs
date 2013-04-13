@@ -192,6 +192,16 @@ namespace Slugburn.Obscura.Lib.Factions
             get { return 2; }
         }
 
+        public int OrbitalCost
+        {
+            get { return 5; }
+        }
+
+        public int MonolithCost
+        {
+            get { return 10; }
+        }
+
         public virtual int CostFor(Tech tech)
         {
             var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8};

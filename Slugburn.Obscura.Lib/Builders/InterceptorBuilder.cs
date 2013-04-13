@@ -2,7 +2,7 @@
 {
     public class InterceptorBuilder : ShipBuilder
     {
-        public InterceptorBuilder() : base(faction=>faction.Interceptor, 8)
+        public InterceptorBuilder() : base("Interceptor", faction=>faction.Interceptor, 8)
         {
         }
     }

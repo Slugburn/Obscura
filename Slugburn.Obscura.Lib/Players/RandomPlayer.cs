@@ -52,22 +52,11 @@ namespace Slugburn.Obscura.Lib.Players
         {
             ValidActions = validActions;
             return new ShouldPassDecision().GetResult(this);
-            var actions = validActions.ToList();
-            if (Faction.SpendingInfluenceWillBankrupt())
-                return actions.SingleOrDefault(x => x is PassAction);
-            validActions = actions.Where(x => !(x is PassAction));
-            if (Faction.Science >= 8 && actions.Any(x => x is ResearchAction))
-                return actions.Single(x => x is ResearchAction);
-            if (Faction.Material >= 13 && actions.Any(x => x is BuildAction))
-                return actions.Single(x => x is BuildAction);
-            UpdateIdealBlueprints();
-            if (!GetUpgradeableBlueprints().Any())
-                validActions = actions.Where(x=>!(x is UpgradeAction));
-            return actions.PickRandom();
         }
 
         public IEnumerable<IAction> ValidActions { get; set; }
-        public List<BuildLocation> BuildList { get; set; }
+        public IList<BuildLocation> BuildList { get; set; }
+        public Tech TechToResearch { get; set; }
 
         public void RotateSectorWormholes(Sector sector, int[] validFacings)
         {
@@ -84,15 +73,17 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Tech ChooseResearch(IEnumerable<Tech> availableTech)
         {
-            var techs = availableTech.ToArray();
-            var bestLevel = techs.Where(x => x.Cost == techs.Max(y => y.Cost)).ToArray();
-            var best = bestLevel.Where(x => Faction.CostFor(x) == bestLevel.Min(y => Faction.CostFor(y)));
-            return best.PickRandom();
+            if (!availableTech.Any(x=>x.Equals(TechToResearch)))
+                throw new InvalidOperationException("Selected research technology is not valid.");
+            return TechToResearch;
         }
 
         public IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders)
         {
-            return BuildList.First().Builder;
+            var builder = BuildList.First().Builder;
+            if (!validBuilders.Any(x=>x.Equals(builder)))
+                throw new InvalidOperationException(string.Format("Building {0} is not valid.", builder.Name));
+            return builder;
         }
 
         public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
@@ -166,7 +157,7 @@ namespace Slugburn.Obscura.Lib.Players
 
         public ProductionType ChooseColonizationType(ProductionType productionType)
         {
-            return ProductionType.Money;
+            return ProductionType.Material;
         }
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
@@ -181,28 +172,61 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Sector RallyPoint { get; set; }
 
-        public IList<IBuilder> GetBestBuildList()
+        public IList<IBuilder> GetBestBuildListForSector(Sector sector, int availableMaterial)
         {
-            var faction = Faction;
             // Constrained by number of builds, available blueprints, max ships and materials
             var buildList = new List<IBuilder>();
-            var availableMaterial = faction.Material;
             var builds = 0;
             var builders = _builders.ToList();
-            while (builds < faction.BuildCount)
+            while (builds < Faction.BuildCount)
             {
                 var best =
                     builders.Where(
-                        x => x.IsBuildAvailable(faction) && x.CostFor(faction) <= availableMaterial && x.IsValidPlacementLocation(RallyPoint))
-                        .OrderByDescending(x => x.CombatEfficiencyFor(faction))
+                        x => x.IsBuildAvailable(Faction) && x.CostFor(Faction) <= availableMaterial && x.IsValidPlacementLocation(sector))
+                        .OrderByDescending(x => x.CombatEfficiencyFor(Faction))
                         .FirstOrDefault();
                 if (best == null)
                     break;
                 buildList.Add(best);
-                availableMaterial -= best.CostFor(faction);
+                availableMaterial -= best.CostFor(Faction);
                 builds++;
                 if (best.OnePerSector)
                     builders.Remove(best);
+            }
+            return buildList;
+        }
+
+        public IList<BuildLocation> GetGeneralPurposeBuildList()
+        {
+            // Constrainted by number of builds, available technology, and materials
+            var buildList = new List<BuildLocation>();
+            var availableMaterial = Faction.Material;
+            var builds = 0;
+            var builders = _builders.ToList();
+            while (builds < Faction.BuildCount)
+            {
+                var monolithBuilder = _builders.Single(x => x is MonolithBuilder);
+                var orbitalBuilder = _builders.Single(x => x is OrbitalBuilder);
+                Sector location;
+                IBuilder builder;
+                if (monolithBuilder != null && monolithBuilder.CostFor(Faction) <= availableMaterial && monolithBuilder.IsBuildAvailable(Faction))
+                {
+                    builder = monolithBuilder;
+                    location = Faction.Sectors.Where(x => !x.HasMonolith).PickRandom();
+                }
+                else if (orbitalBuilder != null && orbitalBuilder.CostFor(Faction) < availableMaterial && orbitalBuilder.IsBuildAvailable(Faction))
+                {
+                    builder = orbitalBuilder;
+                    location = Faction.Sectors.Where(x => !x.HasOrbital).PickRandom();
+                }
+                else
+                {
+                    location = Faction.Sectors.PickRandom();
+                    builder = GetBestBuildListForSector(location, availableMaterial).First();
+                }
+                buildList.Add(new BuildLocation { Builder = builder, Location = location });
+                availableMaterial -= builder.CostFor(Faction);
+                builds++;
             }
             return buildList;
         }
