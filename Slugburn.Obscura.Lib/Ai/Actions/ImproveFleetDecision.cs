@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
-using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
@@ -38,7 +37,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             if (upgrade!=null)
             {
                 player.UpgradeList = _upgradeListGenerator.Generate(player);
-                var rating = player.UpgradeList.Sum(x => x.RatingImprovement);
+                var rating = player.UpgradeList != null ? player.UpgradeList.Sum(x => x.RatingImprovement) : 0;
                 if (rating > 0)
                     possibleActions.Add(new ActionRating(upgrade,rating));
             }

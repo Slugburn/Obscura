@@ -39,7 +39,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 .GroupBy(x => x.Ship)
                 .Select(g => new {Ship = g.Key, Final = g.Last().Destination})
                 .Where(x => x.Final == player.RallyPoint)
-                .Select(x => x.Ship);
+                .Select(x => x.Ship)
+                .Concat(player.RallyPoint.GetFriendlyShips(faction));
             var afterMoveRating = shipsAtDestinations.GetTotalRating();
             if (afterMoveRating/enemyRating < 1.5m)
             {

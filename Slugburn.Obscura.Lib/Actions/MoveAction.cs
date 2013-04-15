@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -31,10 +32,14 @@ namespace Slugburn.Obscura.Lib.Actions
                 var ship = faction.Player.ChooseShipToMove(moveable);
                 if (ship == null)
                     break;
+                if (moveable.All(x => x != ship))
+                    throw new InvalidOperationException(string.Format("{0} in {1} is not moveable", ship, ship.Sector));
                 var validDestinations = GetValidDestinations(ship).ToList();
                 if (!validDestinations.Any())
                     break;
                 var destination = faction.Player.ChooseShipDestination(ship, validDestinations);
+                if (validDestinations.All(x=>x!=destination))
+                    throw new InvalidOperationException(string.Format("Moving {0} in {1} to {2} is not valid", ship, ship.Sector, destination));
 
                 _log.Log("{0} moves {1} from {2} to {3}",
                     faction, ship, ship.Sector, destination);

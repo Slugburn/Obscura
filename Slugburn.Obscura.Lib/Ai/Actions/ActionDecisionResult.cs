@@ -1,4 +1,5 @@
-﻿using Slugburn.Obscura.Lib.Actions;
+﻿using System;
+using Slugburn.Obscura.Lib.Actions;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -10,6 +11,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
         public ActionDecisionResult(IAction result) : base(result)
         {
+            if (result == null)
+                throw new ArgumentNullException();
         }
     }
 }

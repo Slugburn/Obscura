@@ -1,3 +1,5 @@
+using System;
+
 namespace Slugburn.Obscura.Lib.Ai
 {
     public class DecisionResult<TResult>

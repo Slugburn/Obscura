@@ -1,9 +1,7 @@
 using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Factions;
-using Slugburn.Obscura.Lib.Maps;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -26,7 +24,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var move = player.GetAction<MoveAction>();
             var explore = player.GetAction<ExploreAction>();
 
-            if (build!=null)
+            if (build!=null && player.RallyPoint.Owner == player.Faction)
             {
                 var buildList = _generator.Generate(faction, new[] {player.RallyPoint}, BuildListGenerator.RateCombatEfficiency);
                 player.BuildList = buildList;
@@ -40,12 +38,5 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(player.GetAction<PassAction>());
             }
         }
-    }
-
-    public class BuildLocation
-    {
-        public IBuilder Builder { get; set; }
-
-        public Sector Location { get; set; }
     }
 }

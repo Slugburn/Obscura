@@ -15,5 +15,10 @@ namespace Slugburn.Obscura.Lib
         {
             throw new System.NotImplementedException();
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

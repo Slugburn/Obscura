@@ -15,7 +15,7 @@ namespace Slugburn.Obscura.Lib.Ai
             // Get the set with the best possible rating improvement
             return sets
                 .OrderByDescending(set => set.Sum(x => x.RatingImprovement))
-                .First();
+                .FirstOrDefault();
         }
 
         private static IEnumerable<List<BlueprintUpgrade>> GetPossibleUpgradeSets(int remainingPicks, List<BlueprintUpgrade> upgrades)

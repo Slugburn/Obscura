@@ -33,7 +33,9 @@ namespace Slugburn.Obscura.Lib.Players
 
         public bool ChooseToClaimSector(Sector sector)
         {
-            return !Faction.SpendingInfluenceWillBankrupt();
+            var sectoryProducesMoney = sector.Squares.Any(x => x.ProductionType == ProductionType.Money
+                                                               && (!x.Advanced || Faction.HasTechnology(Tech.AdvancedEconomy)));
+            return sectoryProducesMoney || !Faction.SpendingInfluenceWillBankrupt();
         }
 
         public bool ChooseToUseDiscovery(Discovery discoveryTile)
@@ -93,6 +95,8 @@ namespace Slugburn.Obscura.Lib.Players
 
         public IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders)
         {
+            if (!BuildList.Any())
+                return null;
             var builder = BuildList.First().Builder;
             if (!validBuilders.Any(x=>x.Equals(builder)))
                 throw new InvalidOperationException(string.Format("Building {0} is not valid.", builder.Name));

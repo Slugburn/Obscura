@@ -64,6 +64,7 @@
     <Compile Include="Ai\AiExtensions.cs" />
     <Compile Include="Ai\BlueprintUpgrade.cs" />
     <Compile Include="Ai\BuildListGenerator.cs" />
+    <Compile Include="Ai\BuildLocation.cs" />
     <Compile Include="Ai\DecisionExtensions.cs" />
     <Compile Include="Ai\DecisionResult.cs" />
     <Compile Include="Ai\IAiPlayer.cs" />

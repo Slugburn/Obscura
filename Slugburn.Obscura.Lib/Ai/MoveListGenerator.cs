@@ -9,7 +9,7 @@ namespace Slugburn.Obscura.Lib.Ai
         public IList<ShipMove> Generate(IAiPlayer player)
         {
             return player.Faction.Ships
-                .Where(ship => ship.Move > 0)
+                .Where(ship => ship.Move > 0 && ship.Sector != player.RallyPoint)
                 .Select(ship => new {ship, path = GetPath(ship.Sector, player.RallyPoint)})
                 .SelectMany(x => x.path.Select(s => new ShipMove(x.ship, s)))
                 .ToList();

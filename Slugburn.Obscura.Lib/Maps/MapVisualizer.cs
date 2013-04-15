@@ -45,13 +45,14 @@ namespace Slugburn.Obscura.Lib.Maps
                             line += string.Format(@"   {0}  {1}   ", two, four);
                             break;
                         case 2:
-                            line += string.Format("|  {0},{1}", x, y).PadRight(9) + "|";
+                            var ownerLabel = sector.Owner != null ? sector.Owner.Color.ToString().Substring(0, 3) : "   ";
+                            line += string.Format("|   {0}  |", ownerLabel);
                             break;
                         case 3:
                             var twelve = GetWormholeSymbol(sector, 12, "|");
                             var six = GetWormholeSymbol(sector,6,"|");
-                            var ownerLabel = sector.Owner != null ? sector.Owner.Color.ToString().Substring(0, 3) : "   ";
-                            line += string.Format("{1}   {0}  {2}", ownerLabel, twelve,six);
+                            var coords = string.Format("{0},{1}", x, y).PadRight(4).PadLeft(5);
+                            line += string.Format("{1}  {0} {2}", coords, twelve,six);
                             break;
                         case 4:
                             line += "|        |";
