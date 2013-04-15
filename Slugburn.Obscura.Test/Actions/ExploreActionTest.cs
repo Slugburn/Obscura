@@ -17,7 +17,7 @@ namespace Slugburn.Obscura.Test.Actions
             // Arrange
             var action = new ExploreAction(new ConsoleLog());
             var game = Substitute.For<Game>();
-            var player = Substitute.For<Faction>();
+            var player = Substitute.For<PlayerFaction>();
             player.Game = game;
             var mapLocation = Substitute.For<MapLocation>();
             var mapLocations = new[] {mapLocation};

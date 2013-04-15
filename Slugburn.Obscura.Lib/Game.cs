@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -12,12 +14,17 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions, ILog log)
+        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions, ILog log, Random random, CombatEngine combatEngine)
         {
             _factionTypes = factionTypes;
             _actions = actions;
             _log = log;
+            _random = random;
+            _combatEngine = combatEngine;
+            Ancients = new AncientFaction();
         }
+
+        public AncientFaction Ancients { get; private set; }
 
         protected Game()
         {
@@ -26,8 +33,10 @@ namespace Slugburn.Obscura.Lib
         private readonly IEnumerable<IFactionType> _factionTypes;
         private readonly IEnumerable<IAction> _actions;
         private readonly ILog _log;
+        private readonly Random _random;
+        private readonly CombatEngine _combatEngine;
 
-        public void Setup(IList<Faction> factions)
+        public void Setup(IList<PlayerFaction> factions)
         {
             Factions = factions.Shuffle();
             StartingFaction = Factions[0];
@@ -51,7 +60,7 @@ namespace Slugburn.Obscura.Lib
             factions.Each(p=>p.Setup(this));
         }
 
-        public Faction StartingFaction { get; set; }
+        public PlayerFaction StartingFaction { get; set; }
 
         protected MapLocation[] StartingLocations { get; set; }
 
@@ -73,7 +82,7 @@ namespace Slugburn.Obscura.Lib
             return 8 + playerCount * 2;
         }
 
-        public List<Faction> Factions { get; set; }
+        public List<PlayerFaction> Factions { get; set; }
 
         public List<Sector> OuterSectors { get; set; }
 
@@ -81,7 +90,7 @@ namespace Slugburn.Obscura.Lib
 
         protected List<Sector> InnerSectors { get; set; }
 
-        protected SectorMap Map { get; set; }
+        public SectorMap Map { get; set; }
 
         public Dictionary<int, Sector> Sectors { get; set; }
 
@@ -117,28 +126,35 @@ namespace Slugburn.Obscura.Lib
 
         public void Start()
         {
-            while (Round <= 10)
+            try
             {
-                _log.Log("Round {0} started.", Round);
-                var currentFaction = StartingFaction;
-                while (Factions.Any(f=>!f.Passed))
+                while (Round <= 10)
                 {
-                    currentFaction.TakeAction(_actions);
-                    currentFaction = GetNextFaction(currentFaction);
+                    _log.Log("Round {0} started.", Round);
+                    var currentFaction = StartingFaction;
+                    while (Factions.Any(f=>!f.Passed))
+                    {
+                        currentFaction.TakeAction(_actions);
+                        currentFaction = GetNextFaction(currentFaction);
+                    }
+                    StartCombatPhase();
+                    StartUpkeepPhase();
+                    StartCleanupPhase();
                 }
-                StartCombatPhase();
-                StartUpkeepPhase();
-                StartCleanupPhase();
+            }
+            finally
+            {
+                new MapVisualizer(_log).Display(Map);
             }
         }
 
-        private void TakeAction(Faction faction)
+        private void TakeAction(PlayerFaction faction)
         {
             faction.TakeAction(_actions);
             ActionDone(faction);
         }
 
-        private void ActionDone(Faction faction)
+        private void ActionDone(PlayerFaction faction)
         {
             // Have all players passed?
             if (Factions.All(f => f.Passed))
@@ -150,7 +166,7 @@ namespace Slugburn.Obscura.Lib
             TakeAction(nextFaction);
         }
 
-        private Faction GetNextFaction(Faction faction)
+        private PlayerFaction GetNextFaction(PlayerFaction faction)
         {
             var nextIndex = Factions.IndexOf(faction) + 1;
             if (nextIndex >= Factions.Count)
@@ -161,15 +177,26 @@ namespace Slugburn.Obscura.Lib
 
         private void StartCombatPhase()
         {
-            // TODO: Combat phase
+            var combatSectors = Map.GetSectors()
+                .Where(s => s.Ships.GroupBy(ship => ship.Faction).Count() > 1)
+                .OrderByDescending(sector => sector.Id)
+                .ToList();
+            foreach (var sector in combatSectors)
+            {
+                _combatEngine.ResolveSectorCombat(sector);
+                var winner = sector.Ships.Select(ship=>ship.Faction).Distinct().SingleOrDefault();
+                if (winner!=null)
+                {
+                    _log.Log("{0} wins combat.", winner);
+                    var playerWinner = winner as PlayerFaction;
+                    if (sector.Owner != null && playerWinner != null && playerWinner.Player.ChooseToClaimSector(sector))
+                        playerWinner.ClaimSector(sector);
+                }
+            }
         }
 
         private void StartUpkeepPhase()
         {
-//            foreach (var faction in Factions)
-//            {
-//                faction.UpkeepPhase();
-//            }
             var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
             Task.WaitAll(tasks);
         }
@@ -210,4 +237,5 @@ namespace Slugburn.Obscura.Lib
         }
 
     }
+
 }

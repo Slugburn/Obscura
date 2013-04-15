@@ -7,13 +7,11 @@ namespace Slugburn.Obscura.Lib.Ships
 {
     public class PlayerShip : Ship, IBuildable
     {
-        public PlayerShip(Faction faction, ShipBlueprint blueprint)
+        public PlayerShip(PlayerFaction faction, ShipBlueprint blueprint)
         {
             Faction = faction;
             Blueprint = blueprint;
         }
-
-        public string Name { get { return Blueprint.Name; } }
 
         public void Place(Sector sector)
         {
@@ -40,6 +38,16 @@ namespace Slugburn.Obscura.Lib.Ships
         public override ShipProfile Profile
         {
             get { return Blueprint.Profile; }
+        }
+
+        public override string ToString()
+        {
+            return Blueprint.ToString();
+        }
+
+        public override ShipType ShipType
+        {
+            get { return Blueprint.ShipType; }
         }
     }
 }

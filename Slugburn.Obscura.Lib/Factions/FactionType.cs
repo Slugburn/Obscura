@@ -25,7 +25,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public int HomeSectorId { get; private set; }
 
-        public virtual void Setup(Faction faction)
+        public virtual void Setup(PlayerFaction faction)
         {
             faction.Money = _startingMoney;
             faction.Science = _startingScience;
@@ -43,6 +43,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             return new ShipBlueprint
                        {
+                           ShipType = ShipType.Interceptor,
                            Name = "Interceptor",
                            BaseInitiative = 2,
                            Cost = 3,
@@ -60,6 +61,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             return new ShipBlueprint
                        {
+                           ShipType = ShipType.Cruiser,
                            Name = "Cruiser",
                            BaseInitiative = 1,
                            Cost = 5,
@@ -79,6 +81,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             return new ShipBlueprint
                        {
+                           ShipType = ShipType.Dreadnought,
                            Name = "Dreadnought",
                            Cost = 8,
                            PartSpaces = 8,

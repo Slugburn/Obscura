@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Extensions;
+using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -10,11 +13,20 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         {
             var faction = player.Faction;
             var techs = faction.Game.AvailableTechTiles.Except(faction.Technologies);
-            var canResearch = (from tech in techs where faction.CostFor(tech) <= faction.Science select tech).ToArray();
-            var highestLevel = (from tech in canResearch let maxCost = canResearch.Max(x => x.Cost) where tech.Cost == maxCost select tech).ToArray();
-            var best = from tech in highestLevel let minCost = highestLevel.Min(x=>faction.CostFor(x)) where faction.CostFor(tech) == minCost select tech;
-            player.TechToResearch = best.PickRandom();
+            var canResearch = (from tech in techs where faction.CostFor(tech) <= faction.Science select tech);
+            var picked = PickBestAvailableTech(faction, canResearch);
+            player.TechToResearch = picked;
             return new ActionDecisionResult(player.GetAction<ResearchAction>());
+        }
+
+        public static Tech PickBestAvailableTech(PlayerFaction faction, IEnumerable<Tech> available)
+        {
+            var techs = available.ToArray();
+            if (techs.Length == 0)
+                return null;
+            var highestLevel = (from tech in techs let maxCost = techs.Max(x => x.Cost) where tech.Cost == maxCost select tech).ToArray();
+            var best = (from tech in highestLevel let minCost = highestLevel.Min(x => faction.CostFor(x)) where faction.CostFor(tech) == minCost select tech).ToArray();
+            return best.PickRandom();
         }
     }
 }

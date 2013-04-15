@@ -54,12 +54,12 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech PlasmaCannon
         {
-            get { return new PartTech("Plasma Cannon", 6, 4, TechCategory.Military, () => new ShipPart {Cannons = new[] {2}, Energy = -2}); }
+            get { return new PartTech("Plasma Cannon", 6, 4, TechCategory.Military, PartType.Cannon, () => new ShipPart {Cannons = new[] {2}, Energy = -2}); }
         }
 
         public static Tech PhaseShield
         {
-            get { return new PartTech("Phase Shield", 8, 5, TechCategory.Military, () => new ShipPart {Deflection = -2, Energy = -1}); }
+            get { return new PartTech("Phase Shield", 8, 5, TechCategory.Military, PartType.Shield, () => new ShipPart {Deflection = -2, Energy = -1}); }
         }
 
         public static Tech AdvancedMining
@@ -69,37 +69,37 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech TachyonSource
         {
-            get { return new PartTech("Tachyon Source", 12, 6, TechCategory.Military, () => new ShipPart {Energy = 9}); }
+            get { return new PartTech("Tachyon Source", 12, 6, TechCategory.Military, PartType.Source, () => new ShipPart {Energy = 9}); }
         }
 
         public static Tech PlasmaMissile
         {
-            get { return new PartTech("Plasma Missile", 14, 7, TechCategory.Military, () => new ShipPart {Missiles = new[] {2, 2}}); }
+            get { return new PartTech("Plasma Missile", 14, 7, TechCategory.Military, PartType.Missile, () => new ShipPart {Missiles = new[] {2, 2}}); }
         }
 
         public static Tech GluonComputer
         {
-            get { return new PartTech("Gluon Computer", 16, 8, TechCategory.Military, () => new ShipPart {Accuracy = 3, Initiative = 2, Energy = -2}); }
+            get { return new PartTech("Gluon Computer", 16, 8, TechCategory.Military, PartType.Computer, () => new ShipPart {Accuracy = 3, Initiative = 2, Energy = -2}); }
         }
 
         public static Tech GaussShield
         {
-            get { return new PartTech("Gauss Shield", 2, 2, TechCategory.Grid, () => new ShipPart {Deflection = -1}); }
+            get { return new PartTech("Gauss Shield", 2, 2, TechCategory.Grid, PartType.Shield, () => new ShipPart {Deflection = -1}); }
         }
 
         public static Tech ImprovedHull
         {
-            get { return new PartTech("Improved Hull", 4, 3, TechCategory.Grid, () => new ShipPart {Structure = 2}); }
+            get { return new PartTech("Improved Hull", 4, 3, TechCategory.Grid, PartType.Hull, () => new ShipPart {Structure = 2}); }
         }
 
         public static Tech FusionSource
         {
-            get { return new PartTech("Fusion Source", 6, 4, TechCategory.Grid, () => new ShipPart {Energy = 6}); }
+            get { return new PartTech("Fusion Source", 6, 4, TechCategory.Grid, PartType.Hull,  () => new ShipPart {Energy = 6}); }
         }
 
         public static Tech PositronComputer
         {
-            get { return new PartTech("Positron Computer", 8, 5, TechCategory.Grid, () => new ShipPart {Accuracy = 2, Initiative = 1, Energy = -1}); }
+            get { return new PartTech("Positron Computer", 8, 5, TechCategory.Grid, PartType.Computer, () => new ShipPart {Accuracy = 2, Initiative = 1, Energy = -1}); }
         }
 
         public static Tech AdvancedEconomy
@@ -109,12 +109,12 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech TachyonDrive
         {
-            get { return new PartTech("Tachyon Drive", 12, 6, TechCategory.Grid, () => new ShipPart {Move = 3, Initiative = 3, Energy = -3}); }
+            get { return new PartTech("Tachyon Drive", 12, 6, TechCategory.Grid, PartType.Drive, () => new ShipPart {Move = 3, Initiative = 3, Energy = -3}); }
         }
 
         public static Tech AntimatterCannon
         {
-            get { return new PartTech("Antimatter Cannon", 14, 7, TechCategory.Grid, () => new ShipPart {Cannons = new[] {4}, Energy = -4}); }
+            get { return new PartTech("Antimatter Cannon", 14, 7, TechCategory.Grid, PartType.Cannon, () => new ShipPart {Cannons = new[] {4}, Energy = -4}); }
         }
 
         public static Tech QuantumGrid
@@ -129,7 +129,7 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech FusionDrive
         {
-            get { return new PartTech("Fusion Drive", 4, 3, TechCategory.Nano, () => new ShipPart {Move = 2, Initiative = 2, Energy = -2}); }
+            get { return new PartTech("Fusion Drive", 4, 3, TechCategory.Nano, PartType.Drive, () => new ShipPart {Move = 2, Initiative = 2, Energy = -2}); }
         }
 
         public static Tech AdvancedRobotics

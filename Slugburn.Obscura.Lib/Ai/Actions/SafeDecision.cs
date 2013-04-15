@@ -24,9 +24,9 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(_researchDecision);
             if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
                 return new ActionDecisionResult(_buildDecision);
+            return new ActionDecisionResult(_attackDecision);
             if (player.GetAction<ExploreAction>() != null)
                 return new ActionDecisionResult(_exploreDecision);
-            return new ActionDecisionResult(_attackDecision);
         }
     }
 }

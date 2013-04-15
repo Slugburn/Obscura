@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -10,7 +8,12 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public static decimal GetTotalRating(this IEnumerable<Ship> ships)
         {
-            return ships.Sum(ship => ship.Profile.Rating);
+            return ships.Sum(ship => ship.Rating);
+        }
+
+        public static string ListToString(this IEnumerable<ShipPart> shipParts)
+        {
+            return String.Join(", ", shipParts.GroupBy(p => p).Select(g => string.Format("{0}{1}", g.First().Name, g.Count() > 1 ? " x " + g.Count() : null)));
         }
     }
 }

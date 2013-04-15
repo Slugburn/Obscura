@@ -11,7 +11,7 @@ namespace Slugburn.Obscura.Lib
             Name = name;
         }
 
-        public void Use(Faction faction)
+        public void Use(PlayerFaction faction)
         {
             throw new System.NotImplementedException();
         }

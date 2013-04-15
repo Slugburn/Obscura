@@ -5,11 +5,13 @@ namespace Slugburn.Obscura.Lib.Technology
 {
     public class PartTech : Tech
     {
+        public PartType PartType { get; set; }
         private readonly Func<ShipPart> _factory;
 
-        public PartTech(string name, int cost, int minCost, TechCategory category, Func<ShipPart> factory)
+        public PartTech(string name, int cost, int minCost, TechCategory category, PartType partType, Func<ShipPart> factory)
             : base(name,cost,minCost, category)
         {
+            PartType = partType;
             _factory = factory;
         }
 

@@ -11,9 +11,9 @@ namespace Slugburn.Obscura.Lib.Builders
             sector.Squares.Add(new PopulationSquare(ProductionType.Orbital, false) {Sector = sector});
         }
 
-        public string Name
+        public override string ToString()
         {
-            get { return "Orbital"; }
+            return "Orbital";
         }
     }
 }

@@ -61,5 +61,10 @@ namespace Slugburn.Obscura.Lib.Maps
         {
             return _map.ContainsKey(coord) ? _map[coord] : null;
         }
+
+        public IEnumerable<Sector>  GetSectors()
+        {
+            return _map.Values;
+        }
     }
 }

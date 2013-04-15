@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
+using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
@@ -10,7 +11,7 @@ namespace Slugburn.Obscura.Lib.Players
 {
     public interface IPlayer
     {
-        Faction Faction { get; set; }
+        PlayerFaction Faction { get; set; }
 
         bool ChooseToClaimSector(Sector sector);
         bool ChooseToUseDiscovery(Discovery discoveryTile);
@@ -24,11 +25,14 @@ namespace Slugburn.Obscura.Lib.Players
         Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations);
         ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints);
         ShipPart ChoosePartToReplace(ShipBlueprint blueprint);
-        ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> availableParts);
+        ShipPart ChooseUpgrade(ShipBlueprint blueprint);
         PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares);
         void HandleBankruptcy();
         ProductionType ChooseColonizationType(ProductionType productionType);
         PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
         Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations);
+        IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets);
+        void AfterAction(IAction chosenAction);
+        void AfterUpgradeCompleted();
     }
 }

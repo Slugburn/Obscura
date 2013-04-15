@@ -15,9 +15,12 @@ namespace Slugburn.Obscura.Lib.Actions
             _log = log;
         }
 
-        public string Name { get { return "Upgrade"; } }
+        public override string ToString()
+        {
+            return "Upgrade";
+        }
 
-        public void Do(Faction faction)
+        public void Do(PlayerFaction faction)
         {
             var upgradesCompleted = 0;
             while (upgradesCompleted < faction.UpgradeCount)
@@ -30,13 +33,15 @@ namespace Slugburn.Obscura.Lib.Actions
                 if (blueprint.Parts.Count == blueprint.PartSpaces)
                     replace = faction.Player.ChoosePartToReplace(blueprint);
                 var validUpgrades = availableParts.Where(part => IsUpgradeValid(blueprint, part, replace));
-                var upgrade = faction.Player.ChooseUpgrade(blueprint, validUpgrades);
+                var upgrade = faction.Player.ChooseUpgrade(blueprint);
                 if (replace == null)
-                    _log.Log("{0} upgrades {1} with {2}", faction.Name, blueprint.Name, upgrade.Name);
+                    _log.Log("{0} upgrades {1} with {2}", faction, blueprint, upgrade);
                 else
-                    _log.Log("{0} upgrades {1} with {2}, replacing {3}", faction.Name, blueprint.Name, upgrade.Name, replace.Name);
+                    _log.Log("{0} upgrades {1} with {2}, replacing {3}", faction, blueprint, upgrade, replace);
                 blueprint.Upgrade(upgrade, replace);
                 upgradesCompleted++;
+                _log.Log("\t{0} {1}: {2}", faction, blueprint, blueprint.Parts.ListToString());
+                faction.Player.AfterUpgradeCompleted();
                 if (string.IsNullOrWhiteSpace(upgrade.Name))
                     throw new Exception("Part of type {0} does not have a name");
             }
@@ -49,7 +54,7 @@ namespace Slugburn.Obscura.Lib.Actions
             return blueprint.IsPartListValid(newParts);
         }
 
-        public bool IsValid(Faction faction)
+        public bool IsValid(PlayerFaction faction)
         {
             return !faction.Passed && faction.Influence > 0;
         }

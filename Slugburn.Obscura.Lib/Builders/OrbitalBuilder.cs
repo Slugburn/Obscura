@@ -11,19 +11,14 @@ namespace Slugburn.Obscura.Lib.Builders
         {
         }
 
-        public override IBuildable Create(Faction faction)
+        public override IBuildable Create(PlayerFaction faction)
         {
             return new Orbital();
         }
 
-        public override int CostFor(Faction faction)
+        public override int CostFor(PlayerFaction faction)
         {
             return faction.OrbitalCost;
-        }
-
-        public override decimal CombatEfficiencyFor(Faction faction)
-        {
-            return 0;
         }
 
         public override Tech RequiredTech

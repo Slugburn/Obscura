@@ -8,37 +8,41 @@ namespace Slugburn.Obscura.Lib.Builders
 {
     public abstract class ShipBuilder : BuilderBase, IShipBuilder
     {
-        private readonly Func<Faction, ShipBlueprint> _blueprintAccessor;
+        private readonly Func<PlayerFaction, ShipBlueprint> _blueprintAccessor;
         private readonly int _maxCount;
 
-        protected ShipBuilder(string name, Func<Faction,ShipBlueprint> blueprintAccessor, int maxCount) :base(name)
+        protected ShipBuilder(string name, Func<PlayerFaction,ShipBlueprint> blueprintAccessor, int maxCount) :base(name)
         {
             _blueprintAccessor = blueprintAccessor;
             _maxCount = maxCount;
         }
 
-        public int MaximumBuildableFor(Faction faction)
+        public int MaximumBuildableFor(PlayerFaction faction)
         {
             var blueprint = _blueprintAccessor(faction);
             return _maxCount - faction.Ships.Count(ship => ship.Blueprint == blueprint);
         }
 
-        public override IBuildable Create(Faction faction)
+        public virtual bool CanMove
+        {
+            get { return true; }
+        }
+
+        public override IBuildable Create(PlayerFaction faction)
         {
             var cost = CostFor(faction);
             faction.Material -= cost;
             return faction.CreateShip(_blueprintAccessor(faction));
         }
 
-        public override int CostFor(Faction faction)
+        public override int CostFor(PlayerFaction faction)
         {
             return _blueprintAccessor(faction).Cost;
         }
 
-        public override decimal CombatEfficiencyFor(Faction faction)
+        public override decimal CombatRatingFor(PlayerFaction faction)
         {
-            var blueprint = _blueprintAccessor(faction);
-            return blueprint.Profile.Rating/blueprint.Cost;
+            return _blueprintAccessor(faction).Rating;
         }
 
         public override Tech RequiredTech

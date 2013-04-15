@@ -12,7 +12,10 @@ namespace Slugburn.Obscura.Lib.Ships
                 .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
                 .OrderByDescending(x => x.Profile.Rating)
-                .First().Parts;
+                .First()
+                .Parts
+                .OrderBy(x=>x.Name)
+                .ToList();
         }
 
         public IList<ShipPart> CreateRandomPartList(int partCount, IList<ShipPart> partsPool)
@@ -22,7 +25,7 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public decimal RateBlueprint(ShipBlueprint blueprint)
         {
-            return blueprint.Profile.Rating; 
+            return blueprint.Rating; 
         }
 
         public decimal RateBlueprint(ShipBlueprint blueprint, IList<ShipPart> parts)

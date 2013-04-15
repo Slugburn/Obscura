@@ -1,5 +1,6 @@
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -19,8 +20,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var faction = player.Faction;
             var threatenedSectors = from sector in faction.Sectors
                                     let adjacent = (
-                                                       from adj in sector.Location.AdjacentSectors()
-                                                       where adj.GetEnemyShips(faction).Where(s=>s.Faction!=null).Any()
+                                                       from adj in sector.AdjacentSectors()
+                                                       where adj.GetEnemyShips(faction).Where(s=>s.Faction is PlayerFaction).Any()
                                                        select adj
                                                    )
                                     where adjacent.Any()

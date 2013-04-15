@@ -15,7 +15,7 @@ namespace Slugburn.Obscura.Test.Builders
     public class StarbaseBuilderTest
     {
         private StarbaseBuilder _builder;
-        private Faction _faction;
+        private PlayerFaction _faction;
         private Sector _homeSector;
 
         [SetUp]
@@ -24,7 +24,7 @@ namespace Slugburn.Obscura.Test.Builders
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
             _builder = new StarbaseBuilder();
-            _faction = kernel.Get<Faction>();
+            _faction = kernel.Get<PlayerFaction>();
             _faction.Material = 100;
             _faction.Starbase = new ShipBlueprint {Cost = 3};
             _faction.Technologies.Add(Tech.Starbase);

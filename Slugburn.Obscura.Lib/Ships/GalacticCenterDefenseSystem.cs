@@ -12,5 +12,10 @@ namespace Slugburn.Obscura.Lib.Ships
         {
             get { return _profile; }
         }
+
+        public override ShipType ShipType
+        {
+            get { return ShipType.GCDS; }
+        }
     }
 }

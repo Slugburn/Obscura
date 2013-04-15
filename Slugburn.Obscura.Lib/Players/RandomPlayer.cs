@@ -5,6 +5,7 @@ using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Builders;
+using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -16,19 +17,19 @@ namespace Slugburn.Obscura.Lib.Players
     public class RandomPlayer : IAiPlayer
     {
         private readonly BlueprintGenerator _blueprintGenerator;
-        private readonly IList<IBuilder> _builders;
         private readonly IActionDecision _actionDecision;
+        private readonly ILog _log;
 
-        public RandomPlayer(BlueprintGenerator blueprintGenerator, IList<IBuilder> builders, ShouldPassDecision actionDecision)
+        public RandomPlayer(BlueprintGenerator blueprintGenerator, ShouldPassDecision actionDecision, ILog log)
         {
             _blueprintGenerator = blueprintGenerator;
-            _builders = builders;
             _actionDecision = actionDecision;
+            _log = log;
         }
 
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
 
-        public Faction Faction { get; set; }
+        public PlayerFaction Faction { get; set; }
 
         public bool ChooseToClaimSector(Sector sector)
         {
@@ -57,8 +58,17 @@ namespace Slugburn.Obscura.Lib.Players
         }
 
         public IEnumerable<IAction> ValidActions { get; set; }
+        public IList<ShipMove> MoveList { get; set; }
         public IList<BuildLocation> BuildList { get; set; }
         public Tech TechToResearch { get; set; }
+        public IList<BlueprintUpgrade> UpgradeList { get; set; }
+
+        public IList<ShipPart> GetIdealPartList(ShipBlueprint blueprint)
+        {
+            if (_idealBlueprints==null)
+                UpdateIdealBlueprints();
+            return _idealBlueprints[blueprint];
+        }
 
         public void RotateSectorWormholes(Sector sector, int[] validFacings)
         {
@@ -69,7 +79,8 @@ namespace Slugburn.Obscura.Lib.Players
         public MapLocation ChooseSectorLocation(IEnumerable<MapLocation> availableLocations)
         {
             var locations = availableLocations.ToList();
-            var closest = locations.Where(loc => loc.DistanceFromCenter == locations.Min(loc1 => loc1.DistanceFromCenter));
+            var closestDistance = locations.Min(loc1 => loc1.DistanceFromCenter);
+            var closest = locations.Where(loc => loc.DistanceFromCenter == closestDistance);
             return closest.PickRandom();
         }
 
@@ -92,23 +103,17 @@ namespace Slugburn.Obscura.Lib.Players
         {
             var location = BuildList[0].Location;
             if (validPlacementLocations.All(x => x != location))
-                throw new InvalidOperationException(string.Format("Placing {0} at {1} is not valid.", built.Name, location));
+                throw new InvalidOperationException(string.Format("Placing {0} at {1} is not valid.", built, location));
             BuildList.RemoveAt(0);
             return location;
         }
 
         public ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints)
         {
-            return GetUpgradeableBlueprints().FirstOrDefault();
-        }
-
-        private IEnumerable<ShipBlueprint> GetUpgradeableBlueprints()
-        {
-            return _idealBlueprints.Select(
-                x => new {Blueprint = x.Key, Difference = _blueprintGenerator.RateBlueprint(x.Key, x.Value) - _blueprintGenerator.RateBlueprint(x.Key)})
-                .Where(x => x.Difference >= 0.5m)
-                .OrderBy(x => x.Difference)
-                .Select(x=>x.Blueprint);
+            var blueprint = UpgradeList[0].Blueprint;
+            if (blueprints.All(x => x != blueprint))
+                throw new InvalidOperationException(string.Format("{0} is not valid to upgrade", blueprint));
+            return blueprint;
         }
 
         private void UpdateIdealBlueprints()
@@ -116,23 +121,18 @@ namespace Slugburn.Obscura.Lib.Players
             var blueprints = new[] {Faction.Interceptor, Faction.Cruiser, Faction.Dreadnought, Faction.Starbase};
             var partsPool = Faction.GetAvailableShipParts().ToList();
             _idealBlueprints = blueprints.ToDictionary(x=>x, x=>_blueprintGenerator.GetBestParts(x, partsPool));
+            _log.Log("{0} updates ideal blueprints:", Faction);
+            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
         }
 
         public ShipPart ChoosePartToReplace(ShipBlueprint blueprint)
         {
-            // Get a part that is not in the ideal template
-            var difference = blueprint.Parts.Less(_idealBlueprints[blueprint]).ToArray();
-            if (!difference.Any())
-            {
-                throw new Exception(String.Join(", ", blueprint.Parts) + " : " + String.Join(", ", _idealBlueprints[blueprint]));
-            }
-            return difference.OrderBy(x => x.Move).ThenBy(x=>x.Energy).First();
+            return UpgradeList[0].Replace;
         }
 
-        public ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> availableParts)
+        public ShipPart ChooseUpgrade(ShipBlueprint blueprint)
         {
-            // Get a part that is in the ideal template but not the current
-            return _idealBlueprints[blueprint].Less(blueprint.Parts).OrderByDescending(x=>x.Energy).First();
+            return UpgradeList[0].Upgrade;
         }
 
         public PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares)
@@ -164,12 +164,74 @@ namespace Slugburn.Obscura.Lib.Players
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
         {
-            return ships.PickRandom();
+            return MoveList.Count > 0 ? MoveList[0].Ship : null;
         }
 
         public Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations)
         {
-            return validDestinations.PickRandom();
+            var sector = MoveList[0].Destination;
+            MoveList.RemoveAt(0);
+            if (validDestinations.All(x => x != sector))
+                throw new InvalidOperationException(string.Format("Moving {0} to {1} is not valid.", ship, sector));
+            return sector;
+        }
+
+        public IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets)
+        {
+            return PickDamageDistribution(damageRolls, targets);
+        }
+
+        public static IEnumerable<Target> PickDamageDistribution(IEnumerable<DamageRoll> hits, IEnumerable<Target> targets)
+        {
+            var rolls = hits.ToList();
+            var myTargets = targets.ToArray();
+            var liveTargets = targets.ToList();
+            while (rolls.Any())
+            {
+                // find largest target that can be destroyed
+                var largestDestroyable =
+                    liveTargets.Where(t => t.Ship.RemainingStructure < rolls.Where(r => r.Roll >= t.Number).Sum(r => r.Damage))
+                        .OrderByDescending(t => t.Ship.Rating)
+                        .FirstOrDefault();
+                if (largestDestroyable != null)
+                {
+                    var necessaryDamage = largestDestroyable.Ship.RemainingStructure + 1;
+                    while (necessaryDamage > 0)
+                    {
+                        var hitsAgainstTarget = rolls.Where(r => r.Roll >= largestDestroyable.Number).ToArray();
+                        // Use largest damage roll to that doesn't overkill the target, if available. Otherwise use smallest damage roll.
+                        var rollToUse = hitsAgainstTarget.Where(r => r.Damage <= necessaryDamage).OrderByDescending(r => r.Damage).FirstOrDefault();
+                        rollToUse = rollToUse ?? hitsAgainstTarget.OrderBy(r => r.Damage).First();
+                        rolls.Remove(rollToUse);
+                        largestDestroyable.Damage += rollToUse.Damage;
+                        necessaryDamage -= rollToUse.Damage;
+                    }
+                    liveTargets.Remove(largestDestroyable);
+                }
+                else
+                {
+                    // allocate remaining hits to largest target
+                    foreach (var roll in rolls)
+                    {
+                        var largestHitable = liveTargets.Where(t => t.Number <= roll.Roll).OrderByDescending(t => t.Ship.Rating).FirstOrDefault();
+                        if (largestHitable != null)
+                            largestHitable.Damage += roll.Damage;
+                    }
+                    break;
+                }
+            }
+            return myTargets.Where(x=>x.Damage > 0);
+        }
+
+        public void AfterAction(IAction chosenAction)
+        {
+            if (chosenAction is ResearchAction)
+                UpdateIdealBlueprints();
+        }
+
+        public void AfterUpgradeCompleted()
+        {
+            UpgradeList.RemoveAt(0);
         }
 
         public Sector RallyPoint { get; set; }

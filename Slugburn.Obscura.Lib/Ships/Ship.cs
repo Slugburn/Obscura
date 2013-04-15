@@ -7,8 +7,32 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public Sector Sector { get; set; }
 
-        public Faction Faction { get; set; }
+        public IFaction Faction { get; set; }
 
         public abstract ShipProfile Profile { get; }
+
+        public decimal Rating
+        {
+            get { return Profile.Rating; }
+        }
+
+        public int Damage { get; set; }
+
+        public int RemainingStructure
+        {
+            get { return Profile.Structure - Damage; }
+        }
+
+        public abstract ShipType ShipType { get; }
+    }
+
+    public enum ShipType
+    {
+        Interceptor,
+        Cruiser,
+        Dreadnought,
+        Starbase,
+        AncientShip,
+        GCDS
     }
 }

@@ -18,12 +18,12 @@ namespace Slugburn.Obscura.Lib.Ai
             _builders = builders;
         }
 
-        public IList<BuildLocation> Generate(Faction faction, IEnumerable<Sector> validLocations, Func<IBuilder, decimal> builderRating )
+        public IList<BuildLocation> Generate(PlayerFaction faction, IEnumerable<Sector> validLocations, Func<PlayerFaction, IBuilder, decimal> builderRating )
         {
             var builders = _builders.Where(b => b.IsBuildAvailable(faction));
             var builderStates = builders.Select(b => CreateBuilderState(faction, validLocations, b));
             var buildLists = Generate(faction.BuildCount, faction.Material, builderStates.ToArray());
-            var bestList = buildLists.OrderByDescending(x => x.Sum(y => builderRating(y.Builder))).FirstOrDefault();
+            var bestList = buildLists.OrderByDescending(x => x.Sum(y => builderRating(faction, y.Builder))).FirstOrDefault();
             return bestList;
         }
 
@@ -45,7 +45,7 @@ namespace Slugburn.Obscura.Lib.Ai
                                               Builder = state.Builder,
                                               Cost = state.Cost,
                                               NumberAvailable = state.NumberAvailable - 1,
-                                              PlacementLocations = state.Builder is IOnePerSectorBuilder
+                                              PlacementLocations = state.Builder.OnePerSector
                                                                        ? state.PlacementLocations.Except(new[] {buildLocation.Location})
                                                                        : state.PlacementLocations
                                           });
@@ -58,14 +58,14 @@ namespace Slugburn.Obscura.Lib.Ai
             return lists;
         }
 
-        private static BuilderState CreateBuilderState(Faction faction, IEnumerable<Sector> validLocations, IBuilder b)
+        private static BuilderState CreateBuilderState(PlayerFaction faction, IEnumerable<Sector> validLocations, IBuilder b)
         {
             return new BuilderState
                        {
                            Builder=b, 
                            Cost = b.CostFor(faction), 
                            PlacementLocations = validLocations.Where(b.IsValidPlacementLocation),
-                           NumberAvailable = b is IShipBuilder ? ((IShipBuilder)b).MaximumBuildableFor(faction) : int.MaxValue
+                           NumberAvailable = b is IShipBuilder ? ((IShipBuilder)b).MaximumBuildableFor(faction) : Int32.MaxValue
                        };
         }
 
@@ -78,6 +78,41 @@ namespace Slugburn.Obscura.Lib.Ai
             public IEnumerable<Sector> PlacementLocations { get; set; }
 
             public int NumberAvailable { get; set; }
+        }
+
+        public static Func<PlayerFaction, IBuilder, decimal> RateCombatEfficiency
+        {
+            get { return (f, b) =>
+                             {
+                                 var rating = b.CombatEfficiencyFor(f);
+                                 return rating;
+                             }; }
+        }
+
+        public static Func<PlayerFaction,IBuilder, decimal> RateAttackEfficency
+        {
+            get
+            {
+                return (f, b) =>
+                           {
+                               var sb = b as IShipBuilder;
+                               var rating = sb != null ? (sb.CanMove ? RateCombatEfficiency(f, b) : 0) : 0;
+                               return rating;
+                           };
+            }
+        }
+
+        public static Func<PlayerFaction, IBuilder, decimal> RateEconomicEfficiency
+        {
+            get
+            {
+                return (f, b) =>
+                           {
+                               if (b.CombatEfficiencyFor(f) == 0)
+                                   return b.CostFor(f)*1000;
+                               return b.CombatEfficiencyFor(f);
+                           };
+            }
         }
     }
 

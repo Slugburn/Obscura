@@ -11,7 +11,7 @@ namespace Slugburn.Obscura.Lib.Builders
         {
         }
 
-        public override IBuildable Create(Faction faction)
+        public override IBuildable Create(PlayerFaction faction)
         {
             return new Monolith();
         }
@@ -26,19 +26,14 @@ namespace Slugburn.Obscura.Lib.Builders
             return !sector.HasMonolith;
         }
 
-        public override int CostFor(Faction faction)
+        public override int CostFor(PlayerFaction faction)
         {
             return faction.MonolithCost;
         }
 
-        public override decimal CombatEfficiencyFor(Faction faction)
+        public override decimal CombatRatingFor(PlayerFaction faction)
         {
             return 0;
-        }
-
-        public override bool OnePerSector
-        {
-            get { return true; }
         }
 
         public bool HasBeenBuilt(Sector sector)

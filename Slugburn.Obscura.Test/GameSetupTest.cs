@@ -16,8 +16,8 @@ namespace Slugburn.Obscura.Test
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
             var game = kernel.Get<Game>();
-            var factions = new[] { kernel.Get<Faction>(), kernel.Get<Faction>() };
-
+            var factions = new[] { kernel.Get<PlayerFaction>(), kernel.Get<PlayerFaction>() };
+            
             // Act
             game.Setup(factions);
             game.Start();

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
+using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
@@ -11,22 +12,32 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public class Faction
+    public class PlayerFaction : IFaction
     {
         private readonly ILog _log;
 
-        public Faction(ILog log, IList<IBuilder> builders, IPlayer player) : this()
+        public PlayerFaction(ILog log, IList<IBuilder> builders, IPlayer player) : this()
         {
             _log = log;
             Player = player;
         }
 
-        protected Faction()
+        protected PlayerFaction()
         {
             IdlePopulation = new ProductionQuantity();
             Sectors = new List<Sector>();
             Ships = new List<PlayerShip>();
             Technologies = new List<Tech>();
+        }
+
+        public override string ToString()
+        {
+            return Color.ToString();
+        }
+
+        public IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> hits, IEnumerable<Target> targets)
+        {
+            return Player.ChooseDamageDistribution(hits, targets);
         }
 
         public List<Sector> Sectors { get; set; }
@@ -53,7 +64,10 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public ProductionQuantity IdlePopulation { get; private set; }
 
-        public FactionColor Color { get { return _factionType.Color; } }
+        public FactionColor Color
+        {
+            get { return _factionType != null ? _factionType.Color : FactionColor.Undefined; }
+        }
 
         public int HomeSectorId { get { return _factionType.HomeSectorId; } }
 
@@ -92,14 +106,14 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual void ClaimSector(Sector sector)
         {
-            _log.Log("{0} claims {1} ({2})", Name, sector.Name, sector.Id);
+            _log.Log("{0} claims {1}", this, sector);
             Sectors.Add(sector);
             sector.Owner = this;
             Influence--;
             if (sector.HasDiscovery )
             {
                 var tile = sector.DiscoveryTile;
-                _log.Log("{0} discovers {1}", Name, tile.Name);
+                _log.Log("{0} discovers {1}", this, tile);
 
                 sector.DiscoveryTile = null;
 
@@ -133,13 +147,14 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             var validActions = actions.Where(action => action.IsValid(this));
             var chosenAction = Player.ChooseAction(validActions);
-            _log.Log("{0} chooses to {1}", Name, chosenAction.Name);
+            _log.Log("{0} chooses to {1}", this, chosenAction);
             if (!(chosenAction is PassAction))
             {
                 Influence--;
                 ActionsTaken++;
             }
             chosenAction.Do(this);
+            Player.AfterAction(chosenAction);
         }
 
         protected int ActionsTaken { get; set; }
@@ -180,7 +195,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public bool Passed { get; set; }
 
-        public decimal MoveCount
+        public int MoveCount
         {
             get { return 3; }
         }
@@ -202,9 +217,17 @@ namespace Slugburn.Obscura.Lib.Factions
             get { return 10; }
         }
 
+        public int GetActionsBeforeBankruptcy()
+        {
+            var actions = 0;
+            while (GetIncomeForInfluence(Influence - actions) >= 0)
+                actions++;
+            return actions;
+        }
+
         public virtual int CostFor(Tech tech)
         {
-            var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8};
+            var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8,-8};
             var discounted = tech.Cost + techDiscount[Technologies.Count(t => t.Category == tech.Category)];
             return discounted > tech.MinCost ? discounted : tech.MinCost;
         }
@@ -219,7 +242,7 @@ namespace Slugburn.Obscura.Lib.Factions
             Colonize();
             CivilizationUpkeep();
             Production();
-            _log.Log("After upkeep, {0} has {1} Money, {2} Science, and {3} Material", Name, Money, Science, Material);
+            _log.Log("After upkeep, {0} has {1} Money, {2} Science, and {3} Material", this, Money, Science, Material);
         }
 
         private void Production()
@@ -251,7 +274,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             square.Owner = this;
             IdlePopulation[productionType]--;
-            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", Name, square, square.Sector, productionType);
+            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
         }
 
         private bool CanColonize(PopulationSquare square)
@@ -305,7 +328,12 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public bool SpendingInfluenceWillBankrupt()
         {
-            return Money + GetProduction(ProductionType.Money) + GetUpkeep(Influence - 1) < 0;
+            return GetIncomeForInfluence(Influence - 1) < 0;
+        }
+
+        private int GetIncomeForInfluence(int influence)
+        {
+            return Money + GetProduction(ProductionType.Money) + GetUpkeep(influence);
         }
 
         public decimal CombatSuccessRatio(Sector mySector, IEnumerable<Sector> enemySectors)
@@ -319,6 +347,12 @@ namespace Slugburn.Obscura.Lib.Factions
         public decimal CombatSuccessRatio(Sector sector)
         {
             return CombatSuccessRatio(sector, new[] {sector});
+        }
+
+        public Sector GetClosestSectorTo(Sector sector)
+        {
+            // assume that sector is adjacent to one of our sectors for now
+            return Sectors.FirstOrDefault(s => s.AdjacentSectors().Any(x => x == sector));
         }
     }
 }

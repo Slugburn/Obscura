@@ -5,16 +5,19 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class PassAction : IAction
     {
-        public string Name { get { return "Pass"; } }
+        public override string ToString()
+        {
+            return "Pass";
+        }
 
-        public void Do(Faction faction)
+        public void Do(PlayerFaction faction)
         {
             if (!faction.Game.Factions.Any(f => f.Passed))
                 faction.Game.StartingFaction = faction;
             faction.Passed = true;
         }
 
-        public bool IsValid(Faction faction)
+        public bool IsValid(PlayerFaction faction)
         {
             return true;
         }

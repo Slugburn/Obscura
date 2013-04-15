@@ -16,18 +16,26 @@ namespace Slugburn.Obscura.Lib.Actions
             _log = log;
         }
 
-        public string Name { get { return "Explore"; } }
+        public override string ToString()
+        {
+            return "Explore";
+        }
 
-        public void Do(Faction faction)
+        public void Do(PlayerFaction faction)
         {
             var locations = faction.GetValidExplorationLocations();
             var location = faction.Player.ChooseSectorLocation(locations);
+            if (!location.AdjacentWormholesFor(faction).Any())
+            {
+                new MapVisualizer(_log).Display(faction.Game.Map);
+                throw new ArgumentException(string.Format("{0} is not a valid location to place a sector because there are no free adjacent wormholes", location));
+            }
             var sector = faction.Game.GetSectorFor(location);
             if (sector.HasDiscovery)
                 sector.DiscoveryTile = faction.Game.DiscoveryTiles.Draw();
-            CreateAncientShips(sector);
+            faction.Game.Ancients.CreateShipsFor(sector);
             location.Sector = sector;
-            _log.Log("{0}'s exploration finds {1}", faction.Name, sector);
+            _log.Log("{0}'s exploration finds {1}", faction, sector);
             RotateToMatchWormholes(faction, sector);
 
             if (sector.Ancients == 0 && faction.Player.ChooseToClaimSector(sector))
@@ -36,16 +44,7 @@ namespace Slugburn.Obscura.Lib.Actions
             }
         }
 
-        private static void CreateAncientShips(Sector sector)
-        {
-            for (var i = 0; i < sector.Ancients; i++)
-            {
-                var ship = new AncientShip();
-                sector.AddShip(ship);
-            }
-        }
-
-        private void RotateToMatchWormholes(Faction faction, Sector sector)
+        private void RotateToMatchWormholes(PlayerFaction faction, Sector sector)
         {
             var validFacings = sector.Location.AdjacentWormholesFor(faction).ToArray();
             if (validFacings.Length==0)
@@ -53,7 +52,7 @@ namespace Slugburn.Obscura.Lib.Actions
             faction.Player.RotateSectorWormholes(sector, validFacings);
         }
 
-        public bool IsValid(Faction faction)
+        public bool IsValid(PlayerFaction faction)
         {
             return !faction.Passed && faction.Influence> 0 && faction.GetValidExplorationLocations().Any();
         }

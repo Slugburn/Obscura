@@ -5,9 +5,9 @@ namespace Slugburn.Obscura.Lib.Builders
 {
     public class Monolith : IBuildable
     {
-        public string Name
+        public override string ToString()
         {
-            get { return "Monolith"; }
+            return "Monolith";
         }
 
         public void Place(Sector sector)

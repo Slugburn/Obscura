@@ -17,14 +17,14 @@ namespace Slugburn.Obscura.Lib.Builders
                          .Cast<PlayerShip>().All(ship => ship.Blueprint != sector.Owner.Starbase);
         }
 
-        public override bool OnePerSector
-        {
-            get { return true; }
-        }
-
         public override Tech RequiredTech
         {
             get { return Tech.Starbase; }
+        }
+
+        public override bool CanMove
+        {
+            get { return false; }
         }
 
         public bool HasBeenBuilt(Sector sector)

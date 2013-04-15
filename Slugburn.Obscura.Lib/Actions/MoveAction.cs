@@ -15,9 +15,12 @@ namespace Slugburn.Obscura.Lib.Actions
             _log = log;
         }
 
-        public string Name { get { return "Move"; } }
+        public override string ToString()
+        {
+            return "Move";
+        }
 
-        public void Do(Faction faction)
+        public void Do(PlayerFaction faction)
         {
             var movesCompleted = 0;
             while (movesCompleted < faction.MoveCount)
@@ -34,14 +37,14 @@ namespace Slugburn.Obscura.Lib.Actions
                 var destination = faction.Player.ChooseShipDestination(ship, validDestinations);
 
                 _log.Log("{0} moves {1} from {2} to {3}",
-                    faction.Name, ship.Name, ship.Sector, destination);
+                    faction, ship, ship.Sector, destination);
 
                 destination.AddShip(ship);
                 movesCompleted++;
             }
         }
 
-        private static IEnumerable<PlayerShip> GetMoveableShips(Faction faction)
+        private static IEnumerable<PlayerShip> GetMoveableShips(PlayerFaction faction)
         {
             return faction.Ships.Where(ship => ship.Move > 0 && !ship.IsPinned);
         }
@@ -53,13 +56,13 @@ namespace Slugburn.Obscura.Lib.Actions
 
         private static IEnumerable<Sector> GetSectorsInRadius(Sector sector, int radius)
         {
-            var adjacentSectors = sector.Location.AdjacentSectors().ToArray();
+            var adjacentSectors = sector.AdjacentSectors().ToArray();
             if (radius<=1)
                 return adjacentSectors;
             return adjacentSectors.Concat(adjacentSectors.SelectMany(s => GetSectorsInRadius(s, radius - 1))).Distinct().Except(new[] {sector});
         }
 
-        public bool IsValid(Faction faction)
+        public bool IsValid(PlayerFaction faction)
         {
             var moveable = GetMoveableShips(faction);
             return moveable.Any(ship=>GetValidDestinations(ship).Any());

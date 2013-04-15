@@ -27,6 +27,13 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return ShipProfile.Create(this, Parts); }
         }
 
+        public decimal Rating
+        {
+            get { return Profile.Rating; }
+        }
+
+        public ShipType ShipType { get; set; }
+
         public override string ToString()
         {
             return Name;

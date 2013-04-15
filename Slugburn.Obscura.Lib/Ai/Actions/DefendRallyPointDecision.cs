@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
@@ -26,7 +28,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             if (build!=null)
             {
-                var buildList = _generator.Generate(faction, new[] {player.RallyPoint}, builder=>builder.CombatEfficiencyFor(faction));
+                var buildList = _generator.Generate(faction, new[] {player.RallyPoint}, BuildListGenerator.RateCombatEfficiency);
                 player.BuildList = buildList;
                 return new ActionDecisionResult(build);
             }

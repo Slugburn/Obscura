@@ -4,8 +4,7 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public interface IAction
     {
-        void Do(Faction faction);
-        bool IsValid(Faction faction);
-        string Name { get; }
+        void Do(PlayerFaction faction);
+        bool IsValid(PlayerFaction faction);
     }
 }
