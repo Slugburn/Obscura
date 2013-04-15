@@ -32,7 +32,7 @@ namespace Slugburn.Obscura.Lib.Actions
                 var validPlacementLocations = faction.Sectors.Where(builder.IsValidPlacementLocation).ToList();
                 var placementLocation = faction.Player.ChoosePlacementLocation(built, validPlacementLocations);
                 built.Place(placementLocation);
-                _log.Log("{0} expends {1} Material to build {2} in {3}", faction, builder.CostFor(faction), built, placementLocation, placementLocation);
+                _log.Log("\t{0} built in {1} ({2} Material)", built, placementLocation, builder.CostFor(faction));
                 buildsCompleted++;
             }
         }

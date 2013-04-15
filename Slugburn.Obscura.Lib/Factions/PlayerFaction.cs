@@ -106,7 +106,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual void ClaimSector(Sector sector)
         {
-            _log.Log("{0} claims {1}", this, sector);
+            _log.Log("\t{0} claims {1}", this, sector);
             Sectors.Add(sector);
             sector.Owner = this;
             Influence--;
@@ -242,7 +242,7 @@ namespace Slugburn.Obscura.Lib.Factions
             Colonize();
             CivilizationUpkeep();
             Production();
-            _log.Log("After upkeep, {0} has {1} Money, {2} Science, and {3} Material", this, Money, Science, Material);
+            _log.Log("\t{0}: {1} Money, {2} Science, {3} Material", this, Money, Science, Material);
         }
 
         private void Production()
@@ -265,7 +265,7 @@ namespace Slugburn.Obscura.Lib.Factions
                 if (productionType == ProductionType.Orbital || productionType == ProductionType.Any)
                     productionType = Player.ChooseColonizationType(productionType);
                 if ((productionType & square.ProductionType) != productionType)
-                    throw new InvalidOperationException(string.Format("{0} square cannot produce {1}", square.ProductionType, productionType));
+                    throw new InvalidOperationException(String.Format("{0} square cannot produce {1}", square.ProductionType, productionType));
                 ColonizePopulationSquare(square, productionType);
             }
         }
@@ -274,7 +274,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             square.Owner = this;
             IdlePopulation[productionType]--;
-            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
+            _log.Log("\t{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
         }
 
         private bool CanColonize(PopulationSquare square)
@@ -328,6 +328,8 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public bool SpendingInfluenceWillBankrupt()
         {
+            if (Influence == 1)
+                return true;
             return GetIncomeForInfluence(Influence - 1) < 0;
         }
 
@@ -353,6 +355,33 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             // assume that sector is adjacent to one of our sectors for now
             return Sectors.FirstOrDefault(s => s.AdjacentSectors().Any(x => x == sector));
+        }
+
+        public Sector[] GetInfluencePlacementLocations()
+        {
+            // valid placement locations include any unclaimed sectors adjacent to my sectors or ships
+            // that do not have enemy ships
+            return Sectors.SelectMany(x => x.AdjacentSectors())
+                          .Concat(Ships.SelectMany(x => x.Sector.AdjacentSectors()))
+                          .Distinct()
+                          .Where(x => x.Owner == null && !x.GetEnemyShips(this).Any())
+                          .ToArray();
+        }
+
+        public void Trade(ProductionType trade, ProductionType tradeFor)
+        {
+            if (trade == ProductionType.Material)
+                Material -= TradeRatio;
+            if (trade == ProductionType.Money)
+                Money -= TradeRatio;
+            if (trade == ProductionType.Science)
+                Science -= TradeRatio;
+            if (tradeFor == ProductionType.Material)
+                Material += 1;
+            if (tradeFor == ProductionType.Money)
+                Money += 1;
+            if (tradeFor == ProductionType.Science)
+                Science += 1;
         }
     }
 }

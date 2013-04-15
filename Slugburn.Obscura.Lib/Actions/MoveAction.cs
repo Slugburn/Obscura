@@ -41,8 +41,7 @@ namespace Slugburn.Obscura.Lib.Actions
                 if (validDestinations.All(x=>x!=destination))
                     throw new InvalidOperationException(string.Format("Moving {0} in {1} to {2} is not valid", ship, ship.Sector, destination));
 
-                _log.Log("{0} moves {1} from {2} to {3}",
-                    faction, ship, ship.Sector, destination);
+                _log.Log("\t{0}: {1} => {2}", ship, ship.Sector, destination);
 
                 destination.AddShip(ship);
                 movesCompleted++;

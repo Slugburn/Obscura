@@ -16,6 +16,7 @@ namespace Slugburn.Obscura.Lib.Ai
         IList<BuildLocation> BuildList { get; set; }
         Tech TechToResearch { get; set; }
         IList<BlueprintUpgrade> UpgradeList { get; set; }
+        IList<InfluenceLocation> InfluenceList { get; set; }
         IList<ShipPart> GetIdealPartList(ShipBlueprint blueprint);
     }
 }

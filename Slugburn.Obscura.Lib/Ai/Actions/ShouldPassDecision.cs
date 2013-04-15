@@ -13,7 +13,17 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
-            return player.Faction.SpendingInfluenceWillBankrupt()
+            var faction = player.Faction;
+            
+            if (faction.SpendingInfluenceWillBankrupt())
+            {
+                while (faction.Science > 10)
+                    faction.Trade(ProductionType.Science, ProductionType.Money);
+                while (faction.Material > 10)
+                    faction.Trade(ProductionType.Material, ProductionType.Money);
+            }
+
+            return faction.SpendingInfluenceWillBankrupt()
                        ? new ActionDecisionResult(player.GetAction<PassAction>())
                        : new ActionDecisionResult(_underAttackDecision);
         }

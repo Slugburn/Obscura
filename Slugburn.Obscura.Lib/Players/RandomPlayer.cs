@@ -238,6 +238,22 @@ namespace Slugburn.Obscura.Lib.Players
             UpgradeList.RemoveAt(0);
         }
 
+        public InfluenceDirection ChooseInfluenceDirection()
+        {
+            return InfluenceDirection.Place;
+        }
+
+        public Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations)
+        {
+            if (!InfluenceList.Any())
+                return null;
+            var location = InfluenceList[0].Location;
+            InfluenceList.RemoveAt(0);
+            return location;
+        }
+
+        public IList<InfluenceLocation> InfluenceList { get; set; }
+
         public Sector RallyPoint { get; set; }
     }
 }

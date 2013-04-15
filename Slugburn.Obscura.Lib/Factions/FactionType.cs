@@ -1,4 +1,5 @@
 using System.Linq;
+using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Factions

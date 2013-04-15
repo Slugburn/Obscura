@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
+using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
@@ -10,11 +11,13 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
     {
         private readonly BuildListGenerator _buildListGenerator;
         private readonly UpgradeListGenerator _upgradeListGenerator;
+        private readonly ILog _log;
 
-        public ImproveFleetDecision(BuildListGenerator buildListGenerator, UpgradeListGenerator upgradeListGenerator)
+        public ImproveFleetDecision(BuildListGenerator buildListGenerator, UpgradeListGenerator upgradeListGenerator, ILog log)
         {
             _buildListGenerator = buildListGenerator;
             _upgradeListGenerator = upgradeListGenerator;
+            _log = log;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -31,9 +34,15 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             {
                 var closestSectorToRallyPoint = faction.GetClosestSectorTo(player.RallyPoint);
                 player.BuildList = _buildListGenerator.Generate(faction, new[] { closestSectorToRallyPoint }, BuildListGenerator.RateAttackEfficency);
-                var rating = player.BuildList.Select(x => x.Builder).GetTotalCombatRatingFor(faction);
-                possibleActions.Add(new ActionRating(build,rating));
+                
+                // don't build unless we can fully utilize the build action
+                if (player.BuildList != null && player.BuildList.Count == faction.BuildCount)
+                {
+                    var rating = player.BuildList.Select(x => x.Builder).GetTotalCombatRatingFor(faction);
+                    possibleActions.Add(new ActionRating(build, rating));
+                }
             }
+
             if (upgrade!=null)
             {
                 player.UpgradeList = _upgradeListGenerator.Generate(player);
@@ -58,7 +67,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 if (toResearch!=null)
                 {
                     player.TechToResearch = toResearch;
-                    possibleActions.Add(new ActionRating(research, toResearch.Cost * faction.Ships.Count));
+                    possibleActions.Add(new ActionRating(research, toResearch.Cost));
                 }
             }
 
@@ -66,6 +75,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(new ExploreDecision());
 
             // return action with highest rating
+            possibleActions.Each(x => _log.Log("\t\t{0} [{1:n2}]", x.Action, x.Rating));
             var action = possibleActions.OrderByDescending(x => x.Rating).First().Action;
             return new ActionDecisionResult(action);
         }

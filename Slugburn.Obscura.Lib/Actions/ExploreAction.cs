@@ -35,7 +35,7 @@ namespace Slugburn.Obscura.Lib.Actions
                 sector.DiscoveryTile = faction.Game.DiscoveryTiles.Draw();
             faction.Game.Ancients.CreateShipsFor(sector);
             location.Sector = sector;
-            _log.Log("{0}'s exploration finds {1}", faction, sector);
+            _log.Log("\t{0} found", sector);
             RotateToMatchWormholes(faction, sector);
 
             if (sector.Ancients == 0 && faction.Player.ChooseToClaimSector(sector))

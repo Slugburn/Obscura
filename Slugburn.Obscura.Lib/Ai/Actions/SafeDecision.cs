@@ -1,4 +1,5 @@
-﻿using Slugburn.Obscura.Lib.Actions;
+﻿using System.Linq;
+using Slugburn.Obscura.Lib.Actions;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
@@ -9,7 +10,11 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         private readonly ExploreDecision _exploreDecision;
         private readonly AttackDecision _attackDecision;
 
-        public SafeDecision(ResearchDecision researchDecision, BuildDecision buildDecision, ExploreDecision exploreDecision, AttackDecision attackDecision)
+        public SafeDecision(
+            ResearchDecision researchDecision, 
+            BuildDecision buildDecision, 
+            ExploreDecision exploreDecision, 
+            AttackDecision attackDecision)
         {
             _researchDecision = researchDecision;
             _buildDecision = buildDecision;
@@ -24,6 +29,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(_researchDecision);
             if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
                 return new ActionDecisionResult(_buildDecision);
+            if (player.GetAction<InfluenceAction>() != null && faction.GetInfluencePlacementLocations().Any())
+                return new ActionDecisionResult(new InfluenceDecision());
             return new ActionDecisionResult(_attackDecision);
             if (player.GetAction<ExploreAction>() != null)
                 return new ActionDecisionResult(_exploreDecision);

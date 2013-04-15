@@ -25,7 +25,7 @@ namespace Slugburn.Obscura.Lib.Actions
             faction.Technologies.Add(tech);
             var cost = faction.CostFor(tech);
             faction.Science -= cost;
-            _log.Log("{0}'s research expends {2} Science to discover {1}", faction, tech, cost);
+            _log.Log("\t{0} discovered ({1} Science)", tech, cost);
         }
 
         public bool IsValid(PlayerFaction faction)

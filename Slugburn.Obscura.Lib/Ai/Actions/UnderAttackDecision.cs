@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Maps;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {

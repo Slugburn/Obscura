@@ -35,6 +35,9 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             // can we move enough ships to win on this round?
             // if not, redirect ships to a nearby rally point
             player.MoveList = _moveListGenerator.Generate(player).ToList();
+            if (!player.MoveList.Any())
+                return new ActionDecisionResult(new ExploreDecision());
+
             var shipsAtDestinations = player.MoveList.Take(faction.GetActionsBeforeBankruptcy()*faction.MoveCount)
                 .GroupBy(x => x.Ship)
                 .Select(g => new {Ship = g.Key, Final = g.Last().Destination})

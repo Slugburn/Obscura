@@ -34,5 +34,7 @@ namespace Slugburn.Obscura.Lib.Players
         IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets);
         void AfterAction(IAction chosenAction);
         void AfterUpgradeCompleted();
+        InfluenceDirection ChooseInfluenceDirection();
+        Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations);
     }
 }

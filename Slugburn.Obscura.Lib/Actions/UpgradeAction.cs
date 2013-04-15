@@ -35,9 +35,9 @@ namespace Slugburn.Obscura.Lib.Actions
                 var validUpgrades = availableParts.Where(part => IsUpgradeValid(blueprint, part, replace));
                 var upgrade = faction.Player.ChooseUpgrade(blueprint);
                 if (replace == null)
-                    _log.Log("{0} upgrades {1} with {2}", faction, blueprint, upgrade);
+                    _log.Log("\t{0} upgrades {1} with {2}", faction, blueprint, upgrade);
                 else
-                    _log.Log("{0} upgrades {1} with {2}, replacing {3}", faction, blueprint, upgrade, replace);
+                    _log.Log("\t{0} upgrades {1} with {2}, replacing {3}", faction, blueprint, upgrade, replace);
                 blueprint.Upgrade(upgrade, replace);
                 upgradesCompleted++;
                 _log.Log("\t{0} {1}: {2}", faction, blueprint, blueprint.Parts.ListToString());

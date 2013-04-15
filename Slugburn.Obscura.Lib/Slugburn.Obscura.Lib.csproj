@@ -44,6 +44,8 @@
     <Compile Include="Actions\BuildAction.cs" />
     <Compile Include="Actions\ExploreAction.cs" />
     <Compile Include="Actions\IAction.cs" />
+    <Compile Include="Actions\InfluenceAction.cs" />
+    <Compile Include="Actions\InfluenceDirection.cs" />
     <Compile Include="Actions\MoveAction.cs" />
     <Compile Include="Actions\PassAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Ai\Actions\ActionDecisionResult.cs" />
     <Compile Include="Ai\Actions\DefendRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\ImproveFleetDecision.cs" />
+    <Compile Include="Ai\Actions\InfluenceDecision.cs" />
     <Compile Include="Ai\Actions\ResearchDecision.cs" />
     <Compile Include="Ai\Actions\SafeDecision.cs" />
     <Compile Include="Ai\Actions\ShouldPassDecision.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Ai\DecisionResult.cs" />
     <Compile Include="Ai\IAiPlayer.cs" />
     <Compile Include="Ai\IDecision.cs" />
+    <Compile Include="Ai\InfluenceLocation.cs" />
     <Compile Include="Ai\MoveListGenerator.cs" />
     <Compile Include="Ai\ShipMove.cs" />
     <Compile Include="Ai\UpgradeListGenerator.cs" />

@@ -38,6 +38,7 @@ namespace Slugburn.Obscura.Lib
 
         public void Setup(IList<PlayerFaction> factions)
         {
+            _log.Log("-- Setup --");
             Factions = factions.Shuffle();
             StartingFaction = Factions[0];
             Round = 1;
@@ -130,7 +131,7 @@ namespace Slugburn.Obscura.Lib
             {
                 while (Round <= 10)
                 {
-                    _log.Log("Round {0} started.", Round);
+                    _log.Log("-- Round {0} --", Round);
                     var currentFaction = StartingFaction;
                     while (Factions.Any(f=>!f.Passed))
                     {
@@ -197,6 +198,7 @@ namespace Slugburn.Obscura.Lib
 
         private void StartUpkeepPhase()
         {
+            _log.Log("- Upkeep -");
             var tasks = Factions.Select(faction=>Task.Factory.StartNew(faction.UpkeepPhase)).ToArray();
             Task.WaitAll(tasks);
         }
