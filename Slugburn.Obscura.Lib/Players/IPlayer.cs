@@ -30,7 +30,7 @@ namespace Slugburn.Obscura.Lib.Players
         void HandleBankruptcy();
         ProductionType ChooseColonizationType(ProductionType productionType);
         PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
-        Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations);
+        IList<Sector> ChooseShipPath(PlayerShip ship, IList<Sector> validDestinations);
         IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets);
         void AfterAction(IAction chosenAction);
         void AfterUpgradeCompleted();

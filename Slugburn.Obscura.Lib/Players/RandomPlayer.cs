@@ -171,13 +171,13 @@ namespace Slugburn.Obscura.Lib.Players
             return MoveList.Count > 0 ? MoveList[0].Ship : null;
         }
 
-        public Sector ChooseShipDestination(PlayerShip ship, IList<Sector> validDestinations)
+        public IList<Sector> ChooseShipPath(PlayerShip ship, IList<Sector> validDestinations)
         {
-            var sector = MoveList[0].Destination;
+            var moves = MoveList[0].Moves;
             MoveList.RemoveAt(0);
-            if (validDestinations.All(x => x != sector))
-                throw new InvalidOperationException(string.Format("Moving {0} to {1} is not valid.", ship, sector));
-            return sector;
+            if (moves.Except(validDestinations).Any())
+                throw new InvalidOperationException(string.Format("Moving {0} to {1} is not valid.", ship, moves));
+            return moves;
         }
 
         public IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets)
@@ -240,7 +240,7 @@ namespace Slugburn.Obscura.Lib.Players
 
         public InfluenceDirection ChooseInfluenceDirection()
         {
-            return InfluenceDirection.Place;
+            return InfluenceList.Any() ? InfluenceDirection.Place : InfluenceDirection.None;
         }
 
         public Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations)

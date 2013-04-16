@@ -9,11 +9,13 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
     {
         private readonly MoveListGenerator _moveListGenerator;
         private readonly ImproveFleetDecision _improveFleetDecision;
+        private readonly ILog _log;
 
-        public AttackRallyPointDecision(MoveListGenerator moveListGenerator, ImproveFleetDecision improveFleetDecision)
+        public AttackRallyPointDecision(MoveListGenerator moveListGenerator, ImproveFleetDecision improveFleetDecision, ILog log)
         {
             _moveListGenerator = moveListGenerator;
             _improveFleetDecision = improveFleetDecision;
+            _log = log;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -27,10 +29,17 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             if (ourRating / enemyRating > 2.0m)
                 return new ActionDecisionResult(new ExploreDecision());
                 
-            // does our entire fleet have enough power to take down enemy?
-            var fleetRating = faction.Ships.GetTotalRating();
+            // does our entire unengaged fleet have enough power to take down enemy?
+            var fleetRating = faction.Ships.Where(x =>
+                {
+                    var enemyShips = x.Sector.GetEnemyShips(faction);
+                    return !enemyShips.Any();
+                }).GetTotalRating();
             if (fleetRating/enemyRating < 1.5m)
+            {
+                _log.Log("{0} decides to upgrade their fleet", faction);
                 return new ActionDecisionResult(_improveFleetDecision);
+            }
 
             // can we move enough ships to win on this round?
             // if not, redirect ships to a nearby rally point
@@ -40,7 +49,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             var shipsAtDestinations = player.MoveList.Take(faction.GetActionsBeforeBankruptcy()*faction.MoveCount)
                 .GroupBy(x => x.Ship)
-                .Select(g => new {Ship = g.Key, Final = g.Last().Destination})
+                .Select(g => new {Ship = g.Key, Final = g.Last().Moves})
                 .Where(x => x.Final == player.RallyPoint)
                 .Select(x => x.Ship)
                 .Concat(player.RallyPoint.GetFriendlyShips(faction));

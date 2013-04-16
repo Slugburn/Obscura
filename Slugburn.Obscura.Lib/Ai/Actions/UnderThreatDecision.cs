@@ -34,6 +34,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       select location.sector).FirstOrDefault();
             if (mostNeedsDefending == null)
                 return new ActionDecisionResult(_safeDecision);
+
             player.RallyPoint = mostNeedsDefending;
             return new ActionDecisionResult(_defendRallyPointDecision);
         }

@@ -217,6 +217,8 @@ namespace Slugburn.Obscura.Lib.Factions
             get { return 10; }
         }
 
+        public Sector HomeSector { get { return Game.GetSectorById(HomeSectorId); } }
+
         public int GetActionsBeforeBankruptcy()
         {
             var actions = 0;

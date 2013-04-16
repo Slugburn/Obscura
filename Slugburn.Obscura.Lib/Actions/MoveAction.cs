@@ -37,13 +37,16 @@ namespace Slugburn.Obscura.Lib.Actions
                 var validDestinations = GetValidDestinations(ship).ToList();
                 if (!validDestinations.Any())
                     break;
-                var destination = faction.Player.ChooseShipDestination(ship, validDestinations);
-                if (validDestinations.All(x=>x!=destination))
-                    throw new InvalidOperationException(string.Format("Moving {0} in {1} to {2} is not valid", ship, ship.Sector, destination));
-
-                _log.Log("\t{0}: {1} => {2}", ship, ship.Sector, destination);
-
-                destination.AddShip(ship);
+                var path = faction.Player.ChooseShipPath(ship, validDestinations);
+                if (path.Count > ship.Move)
+                    throw new InvalidOperationException(string.Format("{0} is not capable of moving {1}", ship, path.Count));
+                foreach (var sector in path)
+                {
+                    if (validDestinations.All(x => x != sector))
+                        throw new InvalidOperationException(string.Format("Moving {0} in {1} to {2} is not valid", ship, ship.Sector, sector));
+                    _log.Log("\t{0}: {1} => {2}", ship, ship.Sector, sector);
+                    sector.AddShip(ship);
+                }
                 movesCompleted++;
             }
         }

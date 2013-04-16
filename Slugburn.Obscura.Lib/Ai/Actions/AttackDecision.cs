@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Extensions;
@@ -30,13 +29,25 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(_attackRallyPointDecision);
             }
 
+            var galacticCore = faction.Game.GalacticCore;
+            var pathToCore = MoveListGenerator.GetPath(faction, faction.HomeSector, galacticCore);
+            if (pathToCore != null && pathToCore.Count > 0)
+            {
+                _log.Log("{0} decides to attack Galactice Core", faction);
+                player.RallyPoint = galacticCore;
+                return new ActionDecisionResult(_attackRallyPointDecision);
+            }
+
             return new ActionDecisionResult(new ExploreDecision());
         }
 
         private Sector GetBestAncientSector(PlayerFaction faction)
         {
             // for now, just look for ancient sectors that are adjacent to our sectors
-            var sectors = faction.Sectors.SelectMany(s => s.AdjacentSectors().Where(x => x.Ships.Any(ship => ship is AncientShip))).Distinct().ToArray();
+            var sectors = faction.Sectors
+                .SelectMany(s => s.AdjacentSectors()
+                    .Where(x => x.Ships.Any(ship => ship is AncientShip) && !x.GetFriendlyShips(faction).Any()))
+                    .Distinct().ToArray();
             return sectors.Any() ? sectors.PickRandom() : null;
         }
     }

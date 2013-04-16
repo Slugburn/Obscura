@@ -114,6 +114,11 @@ namespace Slugburn.Obscura.Lib
 
         protected int Round { get; set; }
 
+        public Sector GalacticCore
+        {
+            get { return Sectors[1]; }
+        }
+
         public IEnumerable<IFactionType> GetAvailableFactions()
         {
             var takenColors = Factions.Where(p=>p.HasFaction).Select(p=>p.Color);
@@ -238,6 +243,10 @@ namespace Slugburn.Obscura.Lib
             }
         }
 
+        public Sector GetSectorById(int sectorId)
+        {
+            return Sectors[sectorId];
+        }
     }
 
 }
