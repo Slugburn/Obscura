@@ -59,7 +59,7 @@
     <Compile Include="Ai\Actions\DefendRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\ImproveFleetDecision.cs" />
     <Compile Include="Ai\Actions\InfluenceDecision.cs" />
-    <Compile Include="Ai\Actions\ResearchDecision.cs" />
+    <Compile Include="Ai\Actions\EconomicResearchDecision.cs" />
     <Compile Include="Ai\Actions\SafeDecision.cs" />
     <Compile Include="Ai\Actions\ShouldPassDecision.cs" />
     <Compile Include="Ai\Actions\UnderAttackDecision.cs" />
@@ -130,7 +130,9 @@
     <Compile Include="Ships\ShipExtensions.cs" />
     <Compile Include="Ships\ShipPart.cs" />
     <Compile Include="Ships\ShipProfile.cs" />
+    <Compile Include="Ships\ShipType.cs" />
     <Compile Include="Ships\StarbaseBlueprint.cs" />
+    <Compile Include="Technology\EffectTech.cs" />
     <Compile Include="Technology\PartTech.cs" />
     <Compile Include="Technology\PartType.cs" />
     <Compile Include="Technology\Tech.cs" />

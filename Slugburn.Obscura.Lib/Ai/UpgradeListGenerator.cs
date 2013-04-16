@@ -62,7 +62,7 @@ namespace Slugburn.Obscura.Lib.Ai
                         item.Replace = ChoosePartToReplace(current, ideal);
                         item.After.Remove(item.Replace);
                     }
-                    item.RatingImprovement = shipCount*(ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
+                    item.RatingImprovement = (shipCount+0.5m)*(ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
                     upgrades.Add(item);
                     current = item.After;
                 }

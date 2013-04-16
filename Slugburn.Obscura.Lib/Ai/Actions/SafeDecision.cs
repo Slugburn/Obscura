@@ -1,22 +1,23 @@
 ﻿using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class SafeDecision : IActionDecision
     {
-        private readonly ResearchDecision _researchDecision;
+        private readonly EconomicResearchDecision _economicResearchDecision;
         private readonly BuildDecision _buildDecision;
         private readonly ExploreDecision _exploreDecision;
         private readonly AttackDecision _attackDecision;
 
         public SafeDecision(
-            ResearchDecision researchDecision, 
+            EconomicResearchDecision economicResearchDecision, 
             BuildDecision buildDecision, 
             ExploreDecision exploreDecision, 
             AttackDecision attackDecision)
         {
-            _researchDecision = researchDecision;
+            _economicResearchDecision = economicResearchDecision;
             _buildDecision = buildDecision;
             _exploreDecision = exploreDecision;
             _attackDecision = attackDecision;
@@ -25,8 +26,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
             var faction = player.Faction;
-            if (player.GetAction<ResearchAction>() != null && faction.Science >= 8)
-                return new ActionDecisionResult(_researchDecision);
+            if (player.GetAction<ResearchAction>() != null && faction.AvailableResearchTech().Any(x=>!(x is PartTech)))
+                return new ActionDecisionResult(_economicResearchDecision);
             if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
                 return new ActionDecisionResult(_buildDecision);
             if (player.GetAction<InfluenceAction>() != null && faction.GetInfluencePlacementLocations().Any())

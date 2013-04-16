@@ -38,6 +38,7 @@ namespace Slugburn.Obscura.Lib.Factions
             faction.ColonyShips = 3;
             faction.MaxColonyShips = 3;
             faction.Influence = 13;
+            faction.BuildCount = 2;
         }
 
         protected virtual ShipBlueprint CreateInterceptor()

@@ -47,7 +47,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             {
                 player.UpgradeList = _upgradeListGenerator.Generate(player);
                 var rating = player.UpgradeList != null ? player.UpgradeList.Sum(x => x.RatingImprovement) : 0;
-                if (rating > 0)
+                if (rating > 10)
                     possibleActions.Add(new ActionRating(upgrade,rating));
             }
 
@@ -61,13 +61,14 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 var improvedPartTechs = faction.Game.AvailableTechTiles
                     .Where(tech => tech is PartTech && tech.Cost <= faction.Science)
                     .Cast<PartTech>()
-                    .Where(tech=>!bestPartTechCost.ContainsKey(tech.PartType) || bestPartTechCost[tech.PartType] < tech.Cost)
+                    .Select(tech => new { tech, rating = bestPartTechCost.ContainsKey(tech.PartType) ? tech.Cost -  bestPartTechCost[tech.PartType] : tech.Cost })
+                    .Where(x=>x.rating > 0)
                     .ToArray();
-                var toResearch = ResearchDecision.PickBestAvailableTech(faction, improvedPartTechs);
+                var toResearch = EconomicResearchDecision.PickBestAvailableTech(faction, improvedPartTechs.Select(x=>x.tech));
                 if (toResearch!=null)
                 {
                     player.TechToResearch = toResearch;
-                    possibleActions.Add(new ActionRating(research, toResearch.Cost));
+                    possibleActions.Add(new ActionRating(research, improvedPartTechs.First(x => toResearch == x.tech).rating * faction.Ships.Count));
                 }
             }
 

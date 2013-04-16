@@ -35,7 +35,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                     var enemyShips = x.Sector.GetEnemyShips(faction);
                     return !enemyShips.Any();
                 }).GetTotalRating();
-            if (fleetRating/enemyRating < 1.5m)
+            if (fleetRating/enemyRating < 2.0m)
             {
                 _log.Log("{0} decides to upgrade their fleet", faction);
                 return new ActionDecisionResult(_improveFleetDecision);
@@ -50,11 +50,11 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var shipsAtDestinations = player.MoveList.Take(faction.GetActionsBeforeBankruptcy()*faction.MoveCount)
                 .GroupBy(x => x.Ship)
                 .Select(g => new {Ship = g.Key, Final = g.Last().Moves})
-                .Where(x => x.Final == player.RallyPoint)
+                .Where(x => x.Final.Last() == player.RallyPoint)
                 .Select(x => x.Ship)
                 .Concat(player.RallyPoint.GetFriendlyShips(faction));
             var afterMoveRating = shipsAtDestinations.GetTotalRating();
-            if (afterMoveRating/enemyRating < 1.5m)
+            if (afterMoveRating/enemyRating < 2.0m)
             {
                 player.RallyPoint = faction.GetClosestSectorTo(player.RallyPoint);
                 player.MoveList = _moveListGenerator.Generate(player);

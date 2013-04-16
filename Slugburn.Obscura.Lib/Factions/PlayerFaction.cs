@@ -178,10 +178,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public IList<Tech> Technologies { get; private set; }
 
-        public int BuildCount
-        {
-            get { return 2; }
-        }
+        public int BuildCount { get; set; }
 
         public int UpgradeCount
         {
@@ -253,7 +250,7 @@ namespace Slugburn.Obscura.Lib.Factions
             Material += GetProduction(ProductionType.Material);
         }
 
-        private void Colonize()
+        public void Colonize()
         {
             while (ColonyShips > 0)
             {
@@ -269,6 +266,7 @@ namespace Slugburn.Obscura.Lib.Factions
                 if ((productionType & square.ProductionType) != productionType)
                     throw new InvalidOperationException(String.Format("{0} square cannot produce {1}", square.ProductionType, productionType));
                 ColonizePopulationSquare(square, productionType);
+                ColonyShips--;
             }
         }
 
@@ -310,7 +308,7 @@ namespace Slugburn.Obscura.Lib.Factions
         public static int GetUpkeep(int influence)
         {
             if (influence < 0 || influence > 15)
-                throw new Exception(String.Format("Influcent {0} is not valid.", influence));
+                throw new Exception(String.Format("Influence {0} is not valid.", influence));
             var influenceTrack = new[] {-30, -25, -21, -17, -13, -10, -7, -5, -3, -2, -1, 0, 0, 0, 0, 0};
             return influenceTrack[influence];
         }

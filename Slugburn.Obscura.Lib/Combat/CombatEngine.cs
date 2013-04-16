@@ -63,7 +63,10 @@ namespace Slugburn.Obscura.Lib.Combat
                 if (g.Ships.Count == 0)
                     continue;
                 var weapons = missiles ? g.Missiles : g.Cannons;
+                if (!weapons.Any())
+                    continue;
                 var damageRolls = weapons.Select(d => new DamageRoll {Damage = d, Roll = _random.Next(1, 6 + 1)}).ToArray();
+                _log.Log("\t\t{0} rolls: {1}", g.Ships.First(), string.Join(" ", damageRolls.Select(x=>x.Roll.ToString()).OrderByDescending(x => x)));
                 var targets = g.EnemyFaction.Ships.Select(x => new Target {Ship = x, Number = Math.Min(6, 6 - (g.Accuracy + x.Profile.Deflection))}).ToArray();
                 var hits = damageRolls.Where(x => x.Roll >= targets.Min(t => t.Number));
                 var damageDistribution = GetDamageDistribution(g, hits, targets).ToArray();

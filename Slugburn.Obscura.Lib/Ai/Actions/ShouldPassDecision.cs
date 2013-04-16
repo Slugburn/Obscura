@@ -14,6 +14,9 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
             var faction = player.Faction;
+
+            if (faction.Influence <= 1)
+                return new ActionDecisionResult(player.GetAction<PassAction>());
             
             if (faction.SpendingInfluenceWillBankrupt())
             {

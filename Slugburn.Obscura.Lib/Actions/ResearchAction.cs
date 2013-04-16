@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Actions
 {
@@ -25,7 +26,10 @@ namespace Slugburn.Obscura.Lib.Actions
             faction.Technologies.Add(tech);
             var cost = faction.CostFor(tech);
             faction.Science -= cost;
-            _log.Log("\t{0} discovered ({1} Science)", tech, cost);
+            _log.Log("\t{0} researched ({1} Science)", tech, cost);
+            var effectTech = tech as EffectTech;
+            if (effectTech != null)
+                effectTech.OnDiscovery(faction);
         }
 
         public bool IsValid(PlayerFaction faction)

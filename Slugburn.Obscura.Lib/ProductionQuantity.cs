@@ -1,3 +1,5 @@
+using System;
+
 namespace Slugburn.Obscura.Lib
 {
     public class ProductionQuantity
@@ -12,7 +14,12 @@ namespace Slugburn.Obscura.Lib
         public int this[ProductionType type]
         {
             get { return _amount[(int) type - 1]; }
-            set { _amount[(int) type - 1] = value; }
+            set
+            {
+                if (value<0)
+                    throw new ArgumentOutOfRangeException();
+                _amount[(int) type - 1] = value;
+            }
         }
     }
 }

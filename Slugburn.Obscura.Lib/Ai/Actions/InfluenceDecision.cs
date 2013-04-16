@@ -7,6 +7,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
     {
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
+            player.Faction.Colonize();
             player.InfluenceList = player.Faction.GetInfluencePlacementLocations()
                                          .Select(x => new InfluenceLocation {Location = x})
                                          .ToList();

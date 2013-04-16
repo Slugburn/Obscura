@@ -110,7 +110,7 @@ namespace Slugburn.Obscura.Lib.Ai
                            {
                                if (b.CombatEfficiencyFor(f) == 0)
                                    return b.CostFor(f)*1000;
-                               return b.CombatEfficiencyFor(f);
+                               return 0;
                            };
             }
         }

@@ -25,14 +25,4 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public abstract ShipType ShipType { get; }
     }
-
-    public enum ShipType
-    {
-        Interceptor,
-        Cruiser,
-        Dreadnought,
-        Starbase,
-        AncientShip,
-        GCDS
-    }
 }

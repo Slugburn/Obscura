@@ -7,12 +7,12 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
-    public class ResearchDecision : IDecision<IAction>
+    public class EconomicResearchDecision : IDecision<IAction>
     {
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
             var faction = player.Faction;
-            var techs = faction.Game.AvailableTechTiles.Except(faction.Technologies);
+            var techs = faction.AvailableResearchTech().Where(x=>!(x is PartTech));
             var canResearch = (from tech in techs where faction.CostFor(tech) <= faction.Science select tech);
             var picked = PickBestAvailableTech(faction, canResearch);
             player.TechToResearch = picked;

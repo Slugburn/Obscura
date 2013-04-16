@@ -125,8 +125,8 @@ namespace Slugburn.Obscura.Lib.Players
             var blueprints = new[] {Faction.Interceptor, Faction.Cruiser, Faction.Dreadnought, Faction.Starbase};
             var partsPool = Faction.GetAvailableShipParts().ToList();
             _idealBlueprints = blueprints.ToDictionary(x=>x, x=>_blueprintGenerator.GetBestParts(x, partsPool));
-            _log.Log("{0} updates ideal blueprints:", Faction);
-            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
+//            _log.Log("{0} updates ideal blueprints:", Faction);
+//            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
         }
 
         public ShipPart ChoosePartToReplace(ShipBlueprint blueprint)
@@ -163,7 +163,8 @@ namespace Slugburn.Obscura.Lib.Players
 
         public ProductionType ChooseColonizationType(ProductionType productionType)
         {
-            return productionType == ProductionType.Any ? ProductionType.Material : ProductionType.Science;
+            return ProductionType.Money;
+//            return productionType == ProductionType.Any ? ProductionType.Material : ProductionType.Science;
         }
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)

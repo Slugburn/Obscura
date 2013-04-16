@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Technology
@@ -119,12 +122,12 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech QuantumGrid
         {
-            get { return new Tech("Quantum Grid", 16, 8, TechCategory.Grid); }
+            get { return new EffectTech("Quantum Grid", 16, 8, TechCategory.Grid, faction => faction.Influence += 2); }
         }
 
         public static Tech Nanorobots
         {
-            get { return new Tech("Nanorobots", 2, 2, TechCategory.Nano); }
+            get { return new EffectTech("Nanorobots", 2, 2, TechCategory.Nano, faction=>faction.BuildCount++); }
         }
 
         public static Tech FusionDrive
@@ -134,7 +137,7 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech AdvancedRobotics
         {
-            get { return new Tech("Advanced Robotics", 6, 4, TechCategory.Nano); }
+            get { return new EffectTech("Advanced Robotics", 6, 4, TechCategory.Nano, faction => faction.Influence++); }
         }
 
         public static Tech Orbital
@@ -154,7 +157,13 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech ArtifactKey
         {
-            get { return new Tech("Artifact Key", 14, 7, TechCategory.Nano); }
+            get { return new EffectTech("Artifact Key", 14, 7, TechCategory.Nano, faction=>UseArtifactKey(faction)); }
+        }
+
+        private static void UseArtifactKey(PlayerFaction faction)
+        {
+            // TODO: Give choices
+            faction.Money += faction.Sectors.Count(s=>s.HasArtifact) * 5;
         }
 
         public static Tech WormholeGenerator
