@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Maps;
@@ -338,22 +339,11 @@ namespace Slugburn.Obscura.Lib.Factions
             return Money + GetProduction(ProductionType.Money) + GetUpkeep(influence);
         }
 
-        public decimal CombatSuccessRatio(Sector mySector, IEnumerable<Sector> enemySectors)
-        {
-            var friendlyRating = mySector.GetFriendlyShips(this).GetTotalRating();
-            var enemyRating = enemySectors.SelectMany(sector => sector.GetEnemyShips(this)).GetTotalRating();
-            var ratio = friendlyRating/enemyRating;
-            return ratio;
-        }
-
-        public decimal CombatSuccessRatio(Sector sector)
-        {
-            return CombatSuccessRatio(sector, new[] {sector});
-        }
-
         public Sector GetClosestSectorTo(Sector sector)
         {
             // assume that sector is adjacent to one of our sectors for now
+            if (sector.Owner == this)
+                return sector;
             return Sectors.FirstOrDefault(s => s.AdjacentSectors().Any(x => x == sector));
         }
 
@@ -382,6 +372,37 @@ namespace Slugburn.Obscura.Lib.Factions
                 Money += 1;
             if (tradeFor == ProductionType.Science)
                 Science += 1;
+        }
+
+        private static IList<Sector> GetShortestPath(PlayerFaction faction, Sector start, Sector destination, IEnumerable<Sector> path, ref int shortest)
+        {
+            path = path.Concat(new[]{start}).ToArray();
+            if (path.Count() > 10)
+                return null;
+            if (path.Count() >= shortest)
+                return null;
+            if (start == destination)
+            {
+                shortest = path.Count();
+                return path.ToList();
+            }
+            IEnumerable<Sector> thePath = null;
+            foreach (var adjacent in start.AdjacentSectors().Where(s=>s==destination || !s.GetEnemyShips(faction).Any()).Except(path))
+            {
+                var adjPath = GetShortestPath(faction, adjacent, destination, path, ref shortest);
+                if (adjPath != null && adjPath.Count <= shortest)
+                    thePath = adjPath;
+            }
+            return thePath != null ? thePath.ToList()  : new List<Sector>();
+        }
+
+        internal IList<Sector> GetShortestPath(Sector start, Sector destination)
+        {
+            if (start==destination)
+                return new Sector[0];
+            var shortest = Int32.MaxValue;
+            var shortestPath = GetShortestPath(this, start, destination, new Sector[0], ref shortest).Skip(1).ToList();
+            return shortestPath.Count > 0 ? shortestPath : null;
         }
     }
 }

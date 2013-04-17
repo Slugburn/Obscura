@@ -4,11 +4,11 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class ShouldPassDecision : IActionDecision
     {
-        private readonly UnderAttackDecision _underAttackDecision;
+        private readonly UnderAttackDecision _underAttack;
 
-        public ShouldPassDecision(UnderAttackDecision underAttackDecision)
+        public ShouldPassDecision(UnderAttackDecision underAttack)
         {
-            _underAttackDecision = underAttackDecision;
+            _underAttack = underAttack;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -28,7 +28,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             return faction.SpendingInfluenceWillBankrupt()
                        ? new ActionDecisionResult(player.GetAction<PassAction>())
-                       : new ActionDecisionResult(_underAttackDecision);
+                       : new ActionDecisionResult(_underAttack);
         }
     }
 }

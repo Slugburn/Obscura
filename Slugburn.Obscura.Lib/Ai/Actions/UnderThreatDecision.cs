@@ -1,18 +1,19 @@
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class UnderThreatDecision : IActionDecision
     {
         private readonly SafeDecision _safeDecision;
-        private readonly DefendRallyPointDecision _defendRallyPointDecision;
+        private readonly AssaultRallyPointDecision _assaultRallyPointDecision;
 
-        public UnderThreatDecision(SafeDecision safeDecision, DefendRallyPointDecision defendRallyPointDecision)
+        public UnderThreatDecision(SafeDecision safeDecision, AssaultRallyPointDecision assaultRallyPointDecision)
         {
             _safeDecision = safeDecision;
-            _defendRallyPointDecision = defendRallyPointDecision;
+            _assaultRallyPointDecision = assaultRallyPointDecision;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -29,14 +30,17 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             var mostNeedsDefending = (from location in threatenedSectors
                                       let ratio = faction.CombatSuccessRatio(location.sector, location.adjacent)
-                                      where ratio < 1.5m
+                                      where ratio < 0.5m
                                       orderby ratio
                                       select location.sector).FirstOrDefault();
             if (mostNeedsDefending == null)
                 return new ActionDecisionResult(_safeDecision);
 
+            player.ThreatPoint = mostNeedsDefending.AdjacentSectors().OrderByDescending(x => x.GetEnemyShips(faction).GetTotalRating()).First();
             player.RallyPoint = mostNeedsDefending;
-            return new ActionDecisionResult(_defendRallyPointDecision);
+            player.StagingPoint = mostNeedsDefending;
+
+            return new ActionDecisionResult(_assaultRallyPointDecision);
         }
     }
 }

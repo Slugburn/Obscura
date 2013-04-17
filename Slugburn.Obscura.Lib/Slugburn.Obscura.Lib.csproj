@@ -51,12 +51,11 @@
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
     <Compile Include="Ai\Actions\AttackDecision.cs" />
-    <Compile Include="Ai\Actions\AttackRallyPointDecision.cs" />
+    <Compile Include="Ai\Actions\AssaultRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\BuildDecision.cs" />
     <Compile Include="Ai\Actions\ExploreDecision.cs" />
     <Compile Include="Ai\Actions\IActionDecision.cs" />
     <Compile Include="Ai\Actions\ActionDecisionResult.cs" />
-    <Compile Include="Ai\Actions\DefendRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\ImproveFleetDecision.cs" />
     <Compile Include="Ai\Actions\InfluenceDecision.cs" />
     <Compile Include="Ai\Actions\EconomicResearchDecision.cs" />
@@ -95,10 +94,12 @@
     <Compile Include="Combat\DamageRoll.cs" />
     <Compile Include="Combat\Target.cs" />
     <Compile Include="Factions\AncientFaction.cs" />
+    <Compile Include="Factions\FactionExtensions.cs" />
     <Compile Include="Factions\IFaction.cs" />
     <Compile Include="ILog.cs" />
     <Compile Include="Maps\Facing.cs" />
     <Compile Include="Maps\MapCoord.cs" />
+    <Compile Include="Maps\MapExtensions.cs" />
     <Compile Include="Maps\MapLocation.cs" />
     <Compile Include="Maps\MapVisualizer.cs" />
     <Compile Include="Maps\PopulationSquare.cs" />

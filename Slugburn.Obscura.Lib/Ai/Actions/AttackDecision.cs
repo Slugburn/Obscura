@@ -1,54 +1,44 @@
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Extensions;
-using Slugburn.Obscura.Lib.Factions;
-using Slugburn.Obscura.Lib.Maps;
-using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class AttackDecision : IActionDecision
     {
-        private readonly AttackRallyPointDecision _attackRallyPointDecision;
+        private readonly AssaultRallyPointDecision _assaultRallyPointDecision;
+        private readonly ImproveFleetDecision _improveFleetDecision;
         private readonly ILog _log;
 
-        public AttackDecision(AttackRallyPointDecision attackRallyPointDecision, ILog log)
+        public AttackDecision(AssaultRallyPointDecision assaultRallyPointDecision, ImproveFleetDecision improveFleetDecision, ILog log)
         {
-            _attackRallyPointDecision = attackRallyPointDecision;
+            _assaultRallyPointDecision = assaultRallyPointDecision;
+            _improveFleetDecision = improveFleetDecision;
             _log = log;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
         {
             var faction = player.Faction;
-            var ancientSector = GetBestAncientSector(faction);
-            if (ancientSector != null)
+            var targets = faction.Game.Map.GetSectors().Where(s => s.Owner != faction).ToArray();
+            if (targets.Length == 0)
+                return new ActionDecisionResult(new PassAction());
+
+            var conquerable = targets.Where(faction.FleetCanConquer).ToArray();
+            if (conquerable.Any())
             {
-                _log.Log("{0} decides to attack Ancients in {1}", faction, ancientSector);
-                player.RallyPoint = ancientSector;
-                return new ActionDecisionResult(_attackRallyPointDecision);
+                // rank sectors according to proximity and value
+                var target = conquerable.OrderByDescending(faction.GetEnemySectorRating).First();
+                player.ThreatPoint = target;
+                player.RallyPoint = target;
+                _log.Log("{0} decides to conquer {1}", faction, target);
+                return new ActionDecisionResult(_assaultRallyPointDecision);
             }
-
-            var galacticCore = faction.Game.GalacticCore;
-            var pathToCore = MoveListGenerator.GetPath(faction, faction.HomeSector, galacticCore);
-            if (pathToCore != null && pathToCore.Count > 0)
+            else
             {
-                _log.Log("{0} decides to attack Galactice Core", faction);
-                player.RallyPoint = galacticCore;
-                return new ActionDecisionResult(_attackRallyPointDecision);
+                var target = targets.OrderByDescending(faction.GetEnemySectorRating).First();
+                player.StagingPoint = target;
+                return new ActionDecisionResult(_improveFleetDecision);
             }
-
-            return new ActionDecisionResult(new ExploreDecision());
-        }
-
-        private Sector GetBestAncientSector(PlayerFaction faction)
-        {
-            // for now, just look for ancient sectors that are adjacent to our sectors
-            var sectors = faction.Sectors
-                .SelectMany(s => s.AdjacentSectors()
-                    .Where(x => x.Ships.Any(ship => ship is AncientShip) && !x.GetFriendlyShips(faction).Any()))
-                    .Distinct().ToArray();
-            return sectors.Any() ? sectors.PickRandom() : null;
         }
     }
 }

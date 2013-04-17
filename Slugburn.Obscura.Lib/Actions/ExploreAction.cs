@@ -31,6 +31,8 @@ namespace Slugburn.Obscura.Lib.Actions
                 throw new ArgumentException(string.Format("{0} is not a valid location to place a sector because there are no free adjacent wormholes", location));
             }
             var sector = faction.Game.GetSectorFor(location);
+            if (sector==null)
+                throw new InvalidOperationException(string.Format("No sectors are available to place at {0}", location));
             if (sector.HasDiscovery)
                 sector.DiscoveryTile = faction.Game.DiscoveryTiles.Draw();
             faction.Game.Ancients.CreateShipsFor(sector);

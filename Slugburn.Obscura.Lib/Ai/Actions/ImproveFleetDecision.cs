@@ -32,8 +32,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
             if (build!= null)
             {
-                var closestSectorToRallyPoint = faction.GetClosestSectorTo(player.RallyPoint);
-                player.BuildList = _buildListGenerator.Generate(faction, new[] { closestSectorToRallyPoint }, BuildListGenerator.RateAttackEfficency);
+                player.BuildList = _buildListGenerator.Generate(faction, new[] {player.StagingPoint}, BuildListGenerator.RateAttackEfficency);
                 
                 // don't build unless we can fully utilize the build action
                 if (player.BuildList != null && player.BuildList.Count == faction.BuildCount)
@@ -73,7 +72,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             }
 
             if (possibleActions.Count == 0)
-                return new ActionDecisionResult(new ExploreDecision());
+                return new ActionDecisionResult(new PassAction());
 
             // return action with highest rating
             possibleActions.Each(x => _log.Log("\t\t{0} [{1:n2}]", x.Action, x.Rating));

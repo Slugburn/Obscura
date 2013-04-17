@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Linq;
+using NUnit.Framework;
 using Ninject;
 using Ninject.Extensions.Conventions;
 using Slugburn.Obscura.Lib;
@@ -16,7 +17,7 @@ namespace Slugburn.Obscura.Test
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
             var game = kernel.Get<Game>();
-            var factions = new[] { kernel.Get<PlayerFaction>(), kernel.Get<PlayerFaction>() };
+            var factions = Enumerable.Range(0, 4).Select(x => kernel.Get<PlayerFaction>()).ToArray();
             
             // Act
             game.Setup(factions);

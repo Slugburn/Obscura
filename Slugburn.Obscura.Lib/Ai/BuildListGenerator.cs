@@ -20,11 +20,12 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public IList<BuildLocation> Generate(PlayerFaction faction, IEnumerable<Sector> validLocations, Func<PlayerFaction, IBuilder, decimal> builderRating )
         {
-            var builders = _builders.Where(b => b.IsBuildAvailable(faction));
-            var builderStates = builders.Select(b => CreateBuilderState(faction, validLocations, b));
+            var builders = _builders.Where(b => b.IsBuildAvailable(faction)).ToArray();
+            var builderStates = builders.Select(b => CreateBuilderState(faction, validLocations, b)).ToArray();
             var buildLists = Generate(faction.BuildCount, faction.Material, builderStates.ToArray());
-            var bestList = buildLists.OrderByDescending(x => x.Sum(y => builderRating(faction, y.Builder))).FirstOrDefault();
-            return bestList;
+            var rated = buildLists.Select(x => new {list = x, rating = x.Sum(y => builderRating(faction, y.Builder))}).ToArray();
+            var best = rated.Where(x=>x.rating> 0).OrderByDescending(x => x.rating).FirstOrDefault();
+            return best != null ? best.list : null;
         }
 
         private List<List<BuildLocation>> Generate(int buildCount, int material, IEnumerable<BuilderState> builderStates)
@@ -36,35 +37,37 @@ namespace Slugburn.Obscura.Lib.Ai
                 var buildLocation = new BuildLocation {Builder = state.Builder, Location = state.PlacementLocations.PickRandom()};
                 var list = new List<BuildLocation> {buildLocation};
                 lists.Add(list);
-                if (buildCount>1)
-                {
-                    var updatedStates = validStates.ToList();
-                    updatedStates.Remove(state);
-                    updatedStates.Add(new BuilderState
-                                          {
-                                              Builder = state.Builder,
-                                              Cost = state.Cost,
-                                              NumberAvailable = state.NumberAvailable - 1,
-                                              PlacementLocations = state.Builder.OnePerSector
-                                                                       ? state.PlacementLocations.Except(new[] {buildLocation.Location})
-                                                                       : state.PlacementLocations
-                                          });
-                    var additional = Generate(buildCount - 1, material - state.Cost, updatedStates);
-                    foreach (var a in additional)
-                        a.Add(buildLocation);
-                    lists.AddRange(additional);
-                }
+                if (buildCount == 0) 
+                    continue;
+                var updatedStates = validStates.ToList();
+                updatedStates.Remove(state);
+                updatedStates.Add(new BuilderState
+                    {
+                        Builder = state.Builder,
+                        Cost = state.Cost,
+                        NumberAvailable = state.NumberAvailable - 1,
+                        PlacementLocations = state.Builder.OnePerSector
+                                                 ? state.PlacementLocations.Except(new[] {buildLocation.Location})
+                                                 : state.PlacementLocations
+                    });
+                var additional = Generate(buildCount - 1, material - state.Cost, updatedStates);
+                foreach (var a in additional)
+                    a.Add(buildLocation);
+                lists.AddRange(additional);
             }
             return lists;
         }
 
         private static BuilderState CreateBuilderState(PlayerFaction faction, IEnumerable<Sector> validLocations, IBuilder b)
         {
+            var locations = validLocations.ToArray();
+            if (locations.Any(x=>x==null))
+                throw new ArgumentException("Null locations are not valid");
             return new BuilderState
                        {
                            Builder=b, 
                            Cost = b.CostFor(faction), 
-                           PlacementLocations = validLocations.Where(b.IsValidPlacementLocation),
+                           PlacementLocations = locations.Where(b.IsValidPlacementLocation),
                            NumberAvailable = b is IShipBuilder ? ((IShipBuilder)b).MaximumBuildableFor(faction) : Int32.MaxValue
                        };
         }

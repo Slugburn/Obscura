@@ -80,7 +80,7 @@ namespace Slugburn.Obscura.Lib.Combat
                         // Remove from enemy faction list
                         g.EnemyFaction.Ships.Remove(ship);
                         // Remove from ship group
-                        groups.Single(grp => grp.ShipType == ship.ShipType).Ships.Remove(ship);
+                        groups.Single(grp => grp.Faction == g.EnemyFaction.Faction && grp.ShipType == ship.ShipType).Ships.Remove(ship);
                         // Remove from map
                         ship.Sector.Ships.Remove(ship);
                         // Remove from faction list

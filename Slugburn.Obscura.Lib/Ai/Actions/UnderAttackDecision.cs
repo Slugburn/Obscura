@@ -1,17 +1,18 @@
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class UnderAttackDecision : IActionDecision
     {
         private readonly UnderThreatDecision _underThreatDecision;
-        private readonly DefendRallyPointDecision _defendRallyPointDecision;
+        private readonly AssaultRallyPointDecision _assaultRallyPointDecision;
 
-        public UnderAttackDecision(UnderThreatDecision underThreatDecision, DefendRallyPointDecision defendRallyPointDecision)
+        public UnderAttackDecision(UnderThreatDecision underThreatDecision, AssaultRallyPointDecision assaultRallyPointDecision)
         {
             _underThreatDecision = underThreatDecision;
-            _defendRallyPointDecision = defendRallyPointDecision;
+            _assaultRallyPointDecision = assaultRallyPointDecision;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -26,8 +27,10 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       select sector).FirstOrDefault();
             if (mostNeedsDefending == null)
                 return new ActionDecisionResult(_underThreatDecision);
+            player.ThreatPoint = mostNeedsDefending;
             player.RallyPoint = mostNeedsDefending;
-            return new ActionDecisionResult(_defendRallyPointDecision);
+            player.StagingPoint = faction.GetClosestSectorTo(mostNeedsDefending);
+            return new ActionDecisionResult(_assaultRallyPointDecision);
         }
     }
 }

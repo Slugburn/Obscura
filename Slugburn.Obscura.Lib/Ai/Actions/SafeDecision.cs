@@ -28,13 +28,13 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var faction = player.Faction;
             if (player.GetAction<ResearchAction>() != null && faction.AvailableResearchTech().Any(x=>!(x is PartTech)))
                 return new ActionDecisionResult(_economicResearchDecision);
-            if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
-                return new ActionDecisionResult(_buildDecision);
             if (player.GetAction<InfluenceAction>() != null && faction.GetInfluencePlacementLocations().Any())
                 return new ActionDecisionResult(new InfluenceDecision());
-            return new ActionDecisionResult(_attackDecision);
+            if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
+                return new ActionDecisionResult(_buildDecision);
             if (player.GetAction<ExploreAction>() != null)
                 return new ActionDecisionResult(_exploreDecision);
+            return new ActionDecisionResult(_attackDecision);
         }
     }
 }

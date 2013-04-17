@@ -59,6 +59,9 @@ namespace Slugburn.Obscura.Lib.Players
             return _actionDecision.GetResult(this);
         }
 
+        public Sector ThreatPoint { get; set; }
+        public Sector RallyPoint { get; set; }
+        public Sector StagingPoint { get; set; }
         public IEnumerable<IAction> ValidActions { get; set; }
         public IList<ShipMove> MoveList { get; set; }
         public IList<BuildLocation> BuildList { get; set; }
@@ -163,8 +166,11 @@ namespace Slugburn.Obscura.Lib.Players
 
         public ProductionType ChooseColonizationType(ProductionType productionType)
         {
-            return ProductionType.Money;
-//            return productionType == ProductionType.Any ? ProductionType.Material : ProductionType.Science;
+            var possible = productionType == ProductionType.Orbital
+                               ? new[] {ProductionType.Money, ProductionType.Science,}
+                               : new[] {ProductionType.Material, ProductionType.Money, ProductionType.Science,};
+            var maxIdle = possible.Max(x => Faction.IdlePopulation[x]);
+            return possible.Where(x=>Faction.IdlePopulation[x]==maxIdle).PickRandom();
         }
 
         public PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships)
@@ -255,6 +261,5 @@ namespace Slugburn.Obscura.Lib.Players
 
         public IList<InfluenceLocation> InfluenceList { get; set; }
 
-        public Sector RallyPoint { get; set; }
     }
 }
