@@ -40,14 +40,15 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return Blueprint.Profile; }
         }
 
-        public override string ToString()
-        {
-            return Blueprint.ToString();
-        }
-
         public override ShipType ShipType
         {
             get { return Blueprint.ShipType; }
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} - {1}", Blueprint, Profile);
+        }
+
     }
 }

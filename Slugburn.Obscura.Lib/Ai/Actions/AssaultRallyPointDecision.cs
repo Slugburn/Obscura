@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Ai.Generators;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -8,13 +10,28 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
     public class AssaultRallyPointDecision : IActionDecision
     {
         private readonly MoveListGenerator _moveListGenerator;
+        private readonly UpgradeListGenerator _upgradeListGenerator;
+        private readonly BuildListGenerator _buildListGenerator;
+        private readonly ResearchListGenerator _researchListGenerator;
         private readonly ImproveFleetDecision _improveFleetDecision;
+        private readonly DefendOwnSectorDecision _defendOwnSectorDecision;
         private readonly ILog _log;
 
-        public AssaultRallyPointDecision(MoveListGenerator moveListGenerator, ImproveFleetDecision improveFleetDecision, ILog log)
+        public AssaultRallyPointDecision(
+            MoveListGenerator moveListGenerator, 
+            UpgradeListGenerator upgradeListGenerator,
+            BuildListGenerator buildListGenerator,
+            ResearchListGenerator researchListGenerator,
+            ImproveFleetDecision improveFleetDecision, 
+            DefendOwnSectorDecision defendOwnSectorDecision, 
+            ILog log)
         {
             _moveListGenerator = moveListGenerator;
+            _upgradeListGenerator = upgradeListGenerator;
+            _buildListGenerator = buildListGenerator;
+            _researchListGenerator = researchListGenerator;
             _improveFleetDecision = improveFleetDecision;
+            _defendOwnSectorDecision = defendOwnSectorDecision;
             _log = log;
         }
 
@@ -29,31 +46,37 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(_improveFleetDecision);
             }
 
-            player.MoveList = _moveListGenerator.Generate(player).ToList();
-            if (!player.MoveList.Any())
-                return new ActionDecisionResult(player.GetAction<PassAction>());
+            if (player.RallyPoint == player.StagingPoint)
+                return new ActionDecisionResult(_defendOwnSectorDecision);
 
-            if (player.ThreatPoint == player.RallyPoint && player.ThreatPoint.Owner != faction)
+            if (player.GetActionsBeforeBankruptcy() < 2)
             {
-                // can we move enough ships to win on this round?
-                // if not, redirect ships to a nearby rally point
-                var shipsAtDestinations = player.MoveList.Take(faction.GetActionsBeforeBankruptcy() * faction.MoveCount)
-                                                              .GroupBy(x => x.Ship)
-                                                              .Select(g => new { Ship = g.Key, Final = g.Last().Moves })
-                                                              .Where(x => x.Final.Last() == player.RallyPoint)
-                                                              .Select(x => x.Ship)
-                                                              .Concat(player.RallyPoint.GetFriendlyShips(faction));
-                var afterMoveRating = shipsAtDestinations.GetTotalRating();
-
-                var enemyRating = faction.GetEnemyRatingFor(player.ThreatPoint);
-                if (afterMoveRating / enemyRating < 2.0m)
-                {
-                    player.RallyPoint = faction.GetClosestSectorTo(player.ThreatPoint);
-                    player.MoveList = _moveListGenerator.Generate(player);
-                }
+                var oneActionRatings = new[]
+                                        {
+                                            new ActionRating(player.GetAction<MoveAction>(), _moveListGenerator.Rate(player)),
+                                            new ActionRating(player.GetAction<UpgradeAction>(), _upgradeListGenerator.RateRallyPoint(player)),
+                                        };
+                return oneActionRatings.ChooseBest(_log);
             }
 
-            return new ActionDecisionResult(player.GetAction<MoveAction>());
+            var twoActionRatings = new[]
+                                       {
+                                           // Move + Move
+                                           new ActionRating(player.GetAction<MoveAction>(), _moveListGenerator.Rate(player, faction.MoveCount*2)),
+
+                                           // Upgrade + Upgrade
+                                           new ActionRating(player.GetAction<UpgradeAction>(), _upgradeListGenerator.RateRallyPoint(player, faction.UpgradeCount*2)),
+                                           
+                                           // Upgrade + Move
+                                           new ActionRating(player.GetAction<UpgradeAction>(), _upgradeListGenerator.RateForMove(player, _moveListGenerator)),
+
+                                           // Build + Move
+                                           new ActionRating(player.GetAction<BuildAction>(), _buildListGenerator.Rate(player, BuildListGenerator.RateAttackEfficency)),
+
+                                           // Research + Upgrade
+                                           new ActionRating(player.GetAction<ResearchAction>(), _researchListGenerator.RateRallyPointForUpgrade(player))
+                                       };
+            return twoActionRatings.ChooseBest(_log);
         }
     }
 }

@@ -18,12 +18,9 @@
   <ProxyProcessPath></ProxyProcessPath>
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>Slugburn.Obscura.Test.Actions.ExploreActionTest.WhenUndefendedSectorIsFound(False)</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>Slugburn.Obscura.Test.Actions.ExploreActionTest.WhenUndefendedSectorIsFound(True)</TestName>
-    </NamedTestSelector>
+    <RegexTestSelector>
+      <RegularExpression>Slugburn\.Obscura\.Test\.Actions\.ExploreActionTest\..*</RegularExpression>
+    </RegexTestSelector>
   </IgnoredTests>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution</HiddenWarnings>
 </ProjectConfiguration>

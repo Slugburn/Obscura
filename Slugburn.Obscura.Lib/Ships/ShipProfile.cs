@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -42,10 +43,27 @@ namespace Slugburn.Obscura.Lib.Ships
             {
                 var cannonRating = Cannons.Sum();
                 var missileRating = Missiles != null ? Missiles.Sum() : 0;
-                var offenseMultiplier = (1 + Accuracy*1.1m + Initiative*.25m);
+                var offenseMultiplier = (1 + Accuracy*1.1m + Initiative*Accuracy*.25m);
                 var defenseMultipler = (1 + Structure)* (1 - Deflection);
                 return cannonRating*offenseMultiplier*defenseMultipler + missileRating*offenseMultiplier + Move;
             }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("I" + Initiative);
+            sb.Append("M" + Move);
+            sb.Append("S" + Structure);
+            if (Accuracy > 0)
+                sb.Append("A+" + Accuracy);
+            if (Deflection < 0)
+                sb.Append("D" + Deflection);
+            if (Cannons.Any())
+                sb.Append("[" + string.Join("", Cannons) + "]");
+            if (Missiles.Any())
+                sb.Append("<" + string.Join("", Missiles) + ">");
+            return sb.ToString();
         }
     }
 }

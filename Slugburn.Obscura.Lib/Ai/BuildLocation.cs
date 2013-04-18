@@ -8,5 +8,10 @@ namespace Slugburn.Obscura.Lib.Ai
         public IBuilder Builder { get; set; }
 
         public Sector Location { get; set; }
+
+        public decimal Rating
+        {
+            get { return Builder.CombatRatingFor(Location.Owner); }
+        }
     }
 }

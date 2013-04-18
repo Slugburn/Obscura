@@ -6,6 +6,7 @@ using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Combat
 {
@@ -18,6 +19,34 @@ namespace Slugburn.Obscura.Lib.Combat
         {
             _random = random;
             _log = log;
+        }
+
+        public void ResolveCombatPhase(IList<Sector> sectors)
+        {
+            var combatSectors = sectors
+                .Where(s => s.Ships.GroupBy(ship => ship.Faction).Count() > 1)
+                .OrderByDescending(sector => sector.Id)
+                .ToList();
+            foreach (var sector in combatSectors)
+            {
+                ResolveSectorCombat(sector);
+                var winner = sector.Ships.Select(ship => ship.Faction).Distinct().SingleOrDefault();
+                if (winner != null)
+                    _log.Log("{0} wins combat.", winner);
+            }
+            sectors.Each(ResolveBombing);
+            ClaimSectors(sectors);
+        }
+
+        private static void ClaimSectors(IEnumerable<Sector> sectors)
+        {
+            sectors.Where(x => x.Owner == null && x.Ships.Any(ship => ship is PlayerShip))
+                .Each(x =>
+                          {
+                              var faction = x.Ships.Select(ship => ship.Faction).Cast<PlayerFaction>().First();
+                              if (faction.Player.ChooseToClaimSector(x))
+                                  faction.ClaimSector(x);
+                          });
         }
 
         public void ResolveSectorCombat(Sector sector)
@@ -35,6 +64,63 @@ namespace Slugburn.Obscura.Lib.Combat
                 cf2.HasInitiative = true;
                 ResolveFactionCombat(cf1, cf2);
             }
+        }
+
+        public void ResolveBombing(Sector sector)
+        {
+            if (sector.Owner == null || sector.Ships.All(x => x.Faction == sector.Owner)) 
+                return;
+            var attacker = sector.Ships.Select(x => x.Faction).Cast<PlayerFaction>().Distinct().Single();
+            var populatedSquares = sector.Squares.Where(x => x.Owner != null).ToArray();
+            if (!populatedSquares.Any())
+            {
+                ConquerSector(sector);
+            }
+            else if (attacker.HasTechnology(Tech.NeutronBombs))
+            {
+                _log.Log("{0} destroys all population in {1} with Neutron Bombs", attacker, sector);
+                ConquerSector(sector);
+            }
+            else
+            {
+                var damage = sector.Ships.Sum(ship => ship.Cannons.Sum(x => RollDamageDie() >= GetTargetNumber(ship.Accuracy, 0) ? x : 0));
+                if (damage == 0)
+                {
+                    _log.Log("{0}'s bombing in {1} is ineffective", attacker, sector);
+                    return;
+                }
+                if (damage >= populatedSquares.Length)
+                {
+                    _log.Log("{0} destroys all population in {1} with bombing", attacker, sector);
+                    ConquerSector(sector);
+                }
+                else
+                {
+                    var destroyedSquares = attacker.Player.ChoosePopulationToDestroy(sector, populatedSquares, damage).ToArray();
+                    if (destroyedSquares.Length != damage || destroyedSquares.Except(populatedSquares).Any())
+                        throw new InvalidOperationException("An invalid list of population to destroy was selected by the player.");
+                    DestroyPopulation(destroyedSquares);
+                }
+            }
+        }
+
+        private void ConquerSector(Sector sector)
+        {
+            var populatedSquares = sector.Squares.Where(x => x.Owner != null).ToArray();
+            DestroyPopulation(populatedSquares);
+            sector.Owner.RelinquishSector(sector);
+        }
+
+        private void DestroyPopulation(PopulationSquare[] squares)
+        {
+            foreach (var square in squares)
+            {
+                var prodType = square.ProductionType;
+                if (prodType == ProductionType.Orbital || prodType == ProductionType.Any)
+                    prodType = square.Owner.Player.ChooseGraveyard(prodType);
+                square.Owner.Graveyard[prodType]++;
+            }
+            squares.Each(x => x.Owner = null);
         }
 
         private void ResolveFactionCombat(CombatFaction faction1, CombatFaction faction2)
@@ -65,9 +151,9 @@ namespace Slugburn.Obscura.Lib.Combat
                 var weapons = missiles ? g.Missiles : g.Cannons;
                 if (!weapons.Any())
                     continue;
-                var damageRolls = weapons.Select(d => new DamageRoll {Damage = d, Roll = _random.Next(1, 6 + 1)}).ToArray();
-                _log.Log("\t\t{0} rolls: {1}", g.Ships.First(), string.Join(" ", damageRolls.Select(x=>x.Roll.ToString()).OrderByDescending(x => x)));
-                var targets = g.EnemyFaction.Ships.Select(x => new Target {Ship = x, Number = Math.Min(6, 6 - (g.Accuracy + x.Profile.Deflection))}).ToArray();
+                var damageRolls = weapons.Select(d => new DamageRoll {Damage = d, Roll = RollDamageDie()}).ToArray();
+                _log.Log("\t\t{0} rolls: {1}", g.Ships.First(), String.Join(" ", damageRolls.Select(x=>x.Roll.ToString()).OrderByDescending(x => x)));
+                var targets = g.EnemyFaction.Ships.Select(x => new Target {Ship = x, Number = GetTargetNumber(g.Accuracy, x.Profile.Deflection)}).ToArray();
                 var hits = damageRolls.Where(x => x.Roll >= targets.Min(t => t.Number));
                 var damageDistribution = GetDamageDistribution(g, hits, targets).ToArray();
                 foreach (var target in damageDistribution)
@@ -94,6 +180,16 @@ namespace Slugburn.Obscura.Lib.Combat
                     }
                 }
             }
+        }
+
+        private int RollDamageDie()
+        {
+            return _random.Next(1, 6 + 1);
+        }
+
+        private static int GetTargetNumber(int accuracy, int deflection)
+        {
+            return Math.Min(6, 6 - (accuracy + deflection));
         }
 
         private static IEnumerable<Target> GetDamageDistribution(ShipGroup shipGroup, IEnumerable<DamageRoll> hits, IEnumerable<Target> targets)

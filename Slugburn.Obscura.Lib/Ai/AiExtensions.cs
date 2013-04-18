@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Ai.Actions;
+using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
@@ -35,7 +37,7 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public static decimal GetEnemySectorRating(this PlayerFaction faction, Sector sector)
         {
-            decimal value = sector.Vp + sector.Squares.Count + (sector.DiscoveryTile != null ? 2 : 0);
+            decimal value = sector.GetSectorRating();
             var distance = faction.Sectors.Min(x =>
                 {
                     var shortest = faction.GetShortestPath(x, sector);
@@ -44,6 +46,12 @@ namespace Slugburn.Obscura.Lib.Ai
             if (distance > 3) return 0;
             var defenseRating = faction.GetEnemyRatingFor(sector);
             return value*100/defenseRating/(distance + 1);
+        }
+
+        public static int GetSectorRating(this Sector sector)
+        {
+            return sector.Vp + sector.Squares.Count + (sector.DiscoveryTile != null ? 2 : 0) +
+                   sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCenterDefenseSystem ? 3 : 0);
         }
 
         public static decimal CombatSuccessRatio(this PlayerFaction playerFaction, Sector mySector, IEnumerable<Sector> enemySectors)
@@ -62,6 +70,47 @@ namespace Slugburn.Obscura.Lib.Ai
         {
             var rating = sector.GetEnemyShips(faction).GetTotalRating();
             return rating > 1 ? rating : 1;
+        }
+
+        public static DecisionResult<IAction> ChooseBest(this IEnumerable<ActionRating> actionRatings, ILog log)
+        {
+            var possibleActions = actionRatings.Where(x => x.Action != null && x.Rating > 0).ToList();
+            if (!possibleActions.Any())
+                return new ActionDecisionResult(new ExploreDecision());
+
+            possibleActions.Each(x => log.Log("\t\t{0} [{1:n2}]", x.Action, x.Rating));
+            var bestRating = possibleActions.Max(x => x.Rating);
+            var action = possibleActions.Where(x=>x.Rating==bestRating).PickRandom().Action;
+            return new ActionDecisionResult(action);
+        }
+
+        public static bool SpendingInfluenceWillBankrupt(this IAiPlayer player)
+        {
+            var faction = player.Faction;
+            if (faction.Influence == 0)
+                return true;
+            var income = faction.GetIncomeForInfluence(faction.Influence - 1) + GetEmergencyIncome(player);
+
+            return income < 0;
+        }
+
+        private static int GetEmergencyIncome(IAiPlayer player)
+        {
+            var faction = player.Faction;
+            if (faction.Game.Round == 10 || faction.Sectors.Any(x=>x.GetEnemyShips(faction).Any()))
+            {
+                return faction.Material/faction.TradeRatio + faction.Science/faction.TradeRatio;
+            }
+            return 0;
+        }
+
+        public static int GetActionsBeforeBankruptcy(this IAiPlayer player)
+        {
+            var faction = player.Faction;
+            var actions = 0;
+            while (faction.GetIncomeForInfluence(faction.Influence - actions) + GetEmergencyIncome(player) >= 0)
+                actions++;
+            return actions;
         }
     }
 }

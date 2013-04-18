@@ -28,6 +28,7 @@ namespace Slugburn.Obscura.Lib.Players
         }
 
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
+        private Sector _stagingPoint;
 
         public PlayerFaction Faction { get; set; }
 
@@ -35,7 +36,7 @@ namespace Slugburn.Obscura.Lib.Players
         {
             var sectoryProducesMoney = sector.Squares.Any(x => x.ProductionType == ProductionType.Money
                                                                && (!x.Advanced || Faction.HasTechnology(Tech.AdvancedEconomy)));
-            return sectoryProducesMoney || !Faction.SpendingInfluenceWillBankrupt();
+            return sectoryProducesMoney || !this.SpendingInfluenceWillBankrupt();
         }
 
         public bool ChooseToUseDiscovery(Discovery discoveryTile)
@@ -61,12 +62,22 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Sector ThreatPoint { get; set; }
         public Sector RallyPoint { get; set; }
-        public Sector StagingPoint { get; set; }
         public IEnumerable<IAction> ValidActions { get; set; }
         public IList<ShipMove> MoveList { get; set; }
         public IList<BuildLocation> BuildList { get; set; }
         public Tech TechToResearch { get; set; }
         public IList<BlueprintUpgrade> UpgradeList { get; set; }
+
+        public Sector StagingPoint
+        {
+            get { return _stagingPoint; }
+            set
+            {
+                if (value != null && value.Owner != Faction)
+                    throw new ArgumentException(string.Format("{0} is not a valid staging point for {1}", value, Faction));
+                _stagingPoint = value;
+            }
+        }
 
         public IList<ShipPart> GetIdealPartList(ShipBlueprint blueprint)
         {
@@ -84,7 +95,7 @@ namespace Slugburn.Obscura.Lib.Players
         public MapLocation ChooseSectorLocation(IEnumerable<MapLocation> availableLocations)
         {
             var locations = availableLocations.ToList();
-            var closestDistance = locations.Min(loc1 => loc1.DistanceFromCenter);
+            var closestDistance = locations.Min(loc => loc.DistanceFromCenter);
             var closest = locations.Where(loc => loc.DistanceFromCenter == closestDistance);
             return closest.PickRandom();
         }
@@ -109,18 +120,15 @@ namespace Slugburn.Obscura.Lib.Players
         public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
         {
             var location = BuildList[0].Location;
-            if (validPlacementLocations.All(x => x != location))
-                throw new InvalidOperationException(string.Format("Placing {0} at {1} is not valid.", built, location));
             BuildList.RemoveAt(0);
             return location;
         }
 
         public ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints)
         {
-            var blueprint = UpgradeList[0].Blueprint;
-            if (blueprints.All(x => x != blueprint))
-                throw new InvalidOperationException(string.Format("{0} is not valid to upgrade", blueprint));
-            return blueprint;
+            if (UpgradeList.Count == 0)
+                return null;
+            return UpgradeList[0].Blueprint;
         }
 
         private void UpdateIdealBlueprints()
@@ -160,15 +168,14 @@ namespace Slugburn.Obscura.Lib.Players
             }
             else
             {
-                throw new NotImplementedException();
+                var toAbandon = Faction.Sectors.OrderBy(x => x.GetSectorRating()).First();
+                Faction.AbandonSector(toAbandon);
             }
         }
 
         public ProductionType ChooseColonizationType(ProductionType productionType)
         {
-            var possible = productionType == ProductionType.Orbital
-                               ? new[] {ProductionType.Money, ProductionType.Science,}
-                               : new[] {ProductionType.Material, ProductionType.Money, ProductionType.Science,};
+            var possible = productionType.GetProductionTypes();
             var maxIdle = possible.Max(x => Faction.IdlePopulation[x]);
             return possible.Where(x=>Faction.IdlePopulation[x]==maxIdle).PickRandom();
         }
@@ -259,7 +266,30 @@ namespace Slugburn.Obscura.Lib.Players
             return location;
         }
 
+        public IEnumerable<PopulationSquare> ChoosePopulationToDestroy(Sector sector, PopulationSquare[] populatedSquares, int damage)
+        {
+            var squares = populatedSquares.Shuffle();
+            return squares.Draw(damage);
+        }
+
+        private ProductionType GetLeastIdlePopulationType(ProductionType prodType)
+        {
+            var choices = prodType.GetProductionTypes();
+            var min = choices.Min(x => Faction.IdlePopulation[x]);
+            return choices.Where(x => Faction.IdlePopulation[x] == min).PickRandom();
+        }
+
+        public ProductionType ChooseGraveyard(ProductionType prodType)
+        {
+            return GetLeastIdlePopulationType(prodType);
+        }
+
         public IList<InfluenceLocation> InfluenceList { get; set; }
+
+        public ProductionType ChooseProductionToAbandon(ProductionType prodType)
+        {
+            return GetLeastIdlePopulationType(prodType);
+        }
 
     }
 }

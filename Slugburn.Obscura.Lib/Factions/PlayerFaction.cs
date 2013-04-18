@@ -6,6 +6,7 @@ using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Combat;
+using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
@@ -26,6 +27,7 @@ namespace Slugburn.Obscura.Lib.Factions
         protected PlayerFaction()
         {
             IdlePopulation = new ProductionQuantity();
+            Graveyard = new ProductionQuantity();
             Sectors = new List<Sector>();
             Ships = new List<PlayerShip>();
             Technologies = new List<Tech>();
@@ -44,6 +46,7 @@ namespace Slugburn.Obscura.Lib.Factions
         public List<Sector> Sectors { get; set; }
 
         private IFactionType _factionType;
+        private int _buildCount;
 
         public string Name { get { return _factionType != null ? _factionType.Name : null; } }
 
@@ -179,11 +182,15 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public IList<Tech> Technologies { get; private set; }
 
-        public int BuildCount { get; set; }
+        public int BuildCount
+        {
+            get { return Passed ? 1 : _buildCount; }
+            set { _buildCount = value; }
+        }
 
         public int UpgradeCount
         {
-            get { return 2; }
+            get { return Passed ? 1 : 2; }
         }
 
         public IEnumerable<ShipBlueprint> Blueprints
@@ -195,7 +202,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public int MoveCount
         {
-            get { return 3; }
+            get { return  Passed ? 1 : 3; }
         }
 
         public int MaxColonyShips { get; set; }
@@ -217,17 +224,11 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public Sector HomeSector { get { return Game.GetSectorById(HomeSectorId); } }
 
-        public int GetActionsBeforeBankruptcy()
-        {
-            var actions = 0;
-            while (GetIncomeForInfluence(Influence - actions) >= 0)
-                actions++;
-            return actions;
-        }
+        public ProductionQuantity Graveyard { get; private set; }
 
         public virtual int CostFor(Tech tech)
         {
-            var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8,-8};
+            var techDiscount = new[] {0, -1, -2, -3, -4, -6, -8, -8, -8};
             var discounted = tech.Cost + techDiscount[Technologies.Count(t => t.Category == tech.Category)];
             return discounted > tech.MinCost ? discounted : tech.MinCost;
         }
@@ -275,7 +276,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             square.Owner = this;
             IdlePopulation[productionType]--;
-            _log.Log("\t{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
+            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
         }
 
         private bool CanColonize(PopulationSquare square)
@@ -308,9 +309,9 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public static int GetUpkeep(int influence)
         {
-            if (influence < 0 || influence > 15)
+            if (influence < 0 || influence > 16)
                 throw new Exception(String.Format("Influence {0} is not valid.", influence));
-            var influenceTrack = new[] {-30, -25, -21, -17, -13, -10, -7, -5, -3, -2, -1, 0, 0, 0, 0, 0};
+            var influenceTrack = new[] {-30, -25, -21, -17, -13, -10, -7, -5, -3, -2, -1, 0, 0, 0, 0, 0, 0};
             return influenceTrack[influence];
         }
 
@@ -319,6 +320,11 @@ namespace Slugburn.Obscura.Lib.Factions
             Passed = false;
             Influence += ActionsTaken;
             ActionsTaken = 0;
+            foreach (var prodType in new[]{ProductionType.Material, ProductionType.Material, ProductionType.Science})
+            {
+                IdlePopulation[prodType] += Graveyard[prodType];
+                Graveyard[prodType] = 0;
+            }
             ColonyShips = MaxColonyShips;
         }
 
@@ -327,24 +333,24 @@ namespace Slugburn.Obscura.Lib.Factions
             return Technologies.Any(x=> Equals(x, tech));
         }
 
-        public bool SpendingInfluenceWillBankrupt()
-        {
-            if (Influence == 1)
-                return true;
-            return GetIncomeForInfluence(Influence - 1) < 0;
-        }
-
-        private int GetIncomeForInfluence(int influence)
+        public int GetIncomeForInfluence(int influence)
         {
             return Money + GetProduction(ProductionType.Money) + GetUpkeep(influence);
         }
 
         public Sector GetClosestSectorTo(Sector sector)
         {
-            // assume that sector is adjacent to one of our sectors for now
             if (sector.Owner == this)
                 return sector;
-            return Sectors.FirstOrDefault(s => s.AdjacentSectors().Any(x => x == sector));
+            var myAdjacent = sector.AdjacentSectors().Where(x => x.Owner == this).ToList();
+            if (myAdjacent.Count > 0)
+                return myAdjacent.PickRandom();
+            var closest = (from x in Sectors
+                          let path = GetShortestPath(x, sector)
+                          where path != null
+                          orderby path.Count
+                          select x).FirstOrDefault();
+            return closest;
         }
 
         public Sector[] GetInfluencePlacementLocations()
@@ -352,7 +358,7 @@ namespace Slugburn.Obscura.Lib.Factions
             // valid placement locations include any unclaimed sectors adjacent to my sectors or ships
             // that do not have enemy ships
             return Sectors.SelectMany(x => x.AdjacentSectors())
-                          .Concat(Ships.SelectMany(x => x.Sector.AdjacentSectors()))
+                          .Concat(Ships.SelectMany(x => x.Sector.AdjacentSectors().Concat(new [] {x.Sector})))
                           .Distinct()
                           .Where(x => x.Owner == null && !x.GetEnemyShips(this).Any())
                           .ToArray();
@@ -403,6 +409,27 @@ namespace Slugburn.Obscura.Lib.Factions
             var shortest = Int32.MaxValue;
             var shortestPath = GetShortestPath(this, start, destination, new Sector[0], ref shortest).Skip(1).ToList();
             return shortestPath.Count > 0 ? shortestPath : null;
+        }
+
+        public void RelinquishSector(Sector sector)
+        {
+            sector.Owner = null;
+            Sectors.Remove(sector);
+            Influence++;
+        }
+
+        public void AbandonSector(Sector sector)
+        {
+            _log.Log("{0} abandons {1}", this, sector);
+            foreach (var square in sector.Squares.Where(x => x.Owner != null))
+            {
+                square.Owner = null;
+                var prodType = square.ProductionType;
+                if (prodType==ProductionType.Orbital || prodType==ProductionType.Any)
+                    prodType = Player.ChooseProductionToAbandon(prodType);
+                IdlePopulation[prodType]++;
+            }
+            RelinquishSector(sector);
         }
     }
 }

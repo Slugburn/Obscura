@@ -6,13 +6,17 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class UnderAttackDecision : IActionDecision
     {
-        private readonly UnderThreatDecision _underThreatDecision;
+        private readonly SafeDecision _safeDecision;
         private readonly AssaultRallyPointDecision _assaultRallyPointDecision;
+        private readonly DefendOwnSectorDecision _defendOwnSectorDecision;
+        private readonly ILog _log;
 
-        public UnderAttackDecision(UnderThreatDecision underThreatDecision, AssaultRallyPointDecision assaultRallyPointDecision)
+        public UnderAttackDecision(SafeDecision safeDecision, AssaultRallyPointDecision assaultRallyPointDecision, DefendOwnSectorDecision defendOwnSectorDecision, ILog log)
         {
-            _underThreatDecision = underThreatDecision;
+            _safeDecision = safeDecision;
             _assaultRallyPointDecision = assaultRallyPointDecision;
+            _defendOwnSectorDecision = defendOwnSectorDecision;
+            _log = log;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -26,10 +30,19 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       orderby ratio
                                       select sector).FirstOrDefault();
             if (mostNeedsDefending == null)
-                return new ActionDecisionResult(_underThreatDecision);
+                return new ActionDecisionResult(_safeDecision);
+            
             player.ThreatPoint = mostNeedsDefending;
             player.RallyPoint = mostNeedsDefending;
             player.StagingPoint = faction.GetClosestSectorTo(mostNeedsDefending);
+
+            if (player.ThreatPoint.Owner == player.Faction)
+            {
+                _log.Log("{0} decides to defend {1} from attack by {2}", faction, mostNeedsDefending, mostNeedsDefending.GetEnemyShips(faction).First().Faction);
+                return new ActionDecisionResult(_defendOwnSectorDecision);
+            }
+
+            _log.Log("{0} decides to continue assault on {1}", faction, mostNeedsDefending);
             return new ActionDecisionResult(_assaultRallyPointDecision);
         }
     }

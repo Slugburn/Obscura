@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
+using Slugburn.Obscura.Lib.Ai.Generators;
 using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai.Actions
@@ -22,7 +23,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var faction = player.Faction;
             if (faction.HasTechnology(Tech.Orbital) || faction.HasTechnology(Tech.Monolith))
             {
-                var buildList = _generator.Generate(faction, faction.Sectors, BuildListGenerator.RateEconomicEfficiency);
+                var buildList = _generator.Generate(player, faction.Sectors, BuildListGenerator.RateEconomicEfficiency);
                 if (buildList != null)
                 {
                     player.BuildList = buildList;

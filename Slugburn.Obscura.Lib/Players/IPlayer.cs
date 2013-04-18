@@ -36,5 +36,8 @@ namespace Slugburn.Obscura.Lib.Players
         void AfterUpgradeCompleted();
         InfluenceDirection ChooseInfluenceDirection();
         Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations);
+        IEnumerable<PopulationSquare> ChoosePopulationToDestroy(Sector sector, PopulationSquare[] populatedSquares, int damage);
+        ProductionType ChooseProductionToAbandon(ProductionType prodType);
+        ProductionType ChooseGraveyard(ProductionType prodType);
     }
 }

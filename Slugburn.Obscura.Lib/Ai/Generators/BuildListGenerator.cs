@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Slugburn.Obscura.Lib.Ai.Actions;
+using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 
-namespace Slugburn.Obscura.Lib.Ai
+namespace Slugburn.Obscura.Lib.Ai.Generators
 {
     public class BuildListGenerator
     {
@@ -18,9 +18,11 @@ namespace Slugburn.Obscura.Lib.Ai
             _builders = builders;
         }
 
-        public IList<BuildLocation> Generate(PlayerFaction faction, IEnumerable<Sector> validLocations, Func<PlayerFaction, IBuilder, decimal> builderRating )
+        public IList<BuildLocation> Generate(IAiPlayer player, IEnumerable<Sector> validLocations, Func<PlayerFaction, IBuilder, decimal> builderRating )
         {
-            var builders = _builders.Where(b => b.IsBuildAvailable(faction)).ToArray();
+            var faction = player.Faction;
+            var builders = _builders.Where(b => b.IsBuildAvailable(faction)).ToList();
+
             var builderStates = builders.Select(b => CreateBuilderState(faction, validLocations, b)).ToArray();
             var buildLists = Generate(faction.BuildCount, faction.Material, builderStates.ToArray());
             var rated = buildLists.Select(x => new {list = x, rating = x.Sum(y => builderRating(faction, y.Builder))}).ToArray();
@@ -92,7 +94,7 @@ namespace Slugburn.Obscura.Lib.Ai
                              }; }
         }
 
-        public static Func<PlayerFaction,IBuilder, decimal> RateAttackEfficency
+        public static Func<PlayerFaction, IBuilder, decimal> RateAttackEfficency
         {
             get
             {
@@ -116,6 +118,16 @@ namespace Slugburn.Obscura.Lib.Ai
                                return 0;
                            };
             }
+        }
+
+        public decimal Rate(IAiPlayer player, Func<PlayerFaction, IBuilder, decimal> rateEfficiency)
+        {
+            if (player.GetAction<BuildAction>() == null) 
+                return 0;
+            player.BuildList = Generate(player, new[] {player.StagingPoint}, rateEfficiency);
+            if (player.BuildList == null)
+                return 0;
+            return player.BuildList.Sum(x => x.Rating);
         }
     }
 

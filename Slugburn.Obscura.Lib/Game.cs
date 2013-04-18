@@ -112,7 +112,7 @@ namespace Slugburn.Obscura.Lib
 
         public IList<Tech> TechTiles { get; set; }
 
-        protected int Round { get; set; }
+        public int Round { get; set; }
 
         public Sector GalacticCore
         {
@@ -183,22 +183,7 @@ namespace Slugburn.Obscura.Lib
 
         private void StartCombatPhase()
         {
-            var combatSectors = Map.GetSectors()
-                .Where(s => s.Ships.GroupBy(ship => ship.Faction).Count() > 1)
-                .OrderByDescending(sector => sector.Id)
-                .ToList();
-            foreach (var sector in combatSectors)
-            {
-                _combatEngine.ResolveSectorCombat(sector);
-                var winner = sector.Ships.Select(ship=>ship.Faction).Distinct().SingleOrDefault();
-                if (winner!=null)
-                {
-                    _log.Log("{0} wins combat.", winner);
-                    var playerWinner = winner as PlayerFaction;
-                    if (sector.Owner != null && playerWinner != null && playerWinner.Player.ChooseToClaimSector(sector))
-                        playerWinner.ClaimSector(sector);
-                }
-            }
+            _combatEngine.ResolveCombatPhase(Map.GetSectors().ToArray());
         }
 
         private void StartUpkeepPhase()

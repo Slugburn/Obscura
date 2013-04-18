@@ -72,7 +72,7 @@ namespace Slugburn.Obscura.Lib.Actions
         public bool IsValid(PlayerFaction faction)
         {
             var moveable = GetMoveableShips(faction);
-            return moveable.Any(ship=>GetValidDestinations(ship).Any());
+            return faction.Influence > 0 && moveable.Any(ship=>GetValidDestinations(ship).Any());
         }
     }
 }

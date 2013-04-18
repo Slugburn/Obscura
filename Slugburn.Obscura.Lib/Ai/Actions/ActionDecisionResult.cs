@@ -11,8 +11,6 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 
         public ActionDecisionResult(IAction result) : base(result)
         {
-            if (result == null)
-                throw new ArgumentNullException();
         }
     }
 }

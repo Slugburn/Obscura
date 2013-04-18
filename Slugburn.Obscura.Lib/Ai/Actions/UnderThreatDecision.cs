@@ -7,13 +7,15 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class UnderThreatDecision : IActionDecision
     {
-        private readonly SafeDecision _safeDecision;
+        private readonly AttackDecision _attackDecision;
         private readonly AssaultRallyPointDecision _assaultRallyPointDecision;
+        private readonly ILog _log;
 
-        public UnderThreatDecision(SafeDecision safeDecision, AssaultRallyPointDecision assaultRallyPointDecision)
+        public UnderThreatDecision(AttackDecision safeDecision, AssaultRallyPointDecision assaultRallyPointDecision, ILog log)
         {
-            _safeDecision = safeDecision;
+            _attackDecision = safeDecision;
             _assaultRallyPointDecision = assaultRallyPointDecision;
+            _log = log;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -34,9 +36,13 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                                       orderby ratio
                                       select location.sector).FirstOrDefault();
             if (mostNeedsDefending == null)
-                return new ActionDecisionResult(_safeDecision);
+                return new ActionDecisionResult(_attackDecision);
 
-            player.ThreatPoint = mostNeedsDefending.AdjacentSectors().OrderByDescending(x => x.GetEnemyShips(faction).GetTotalRating()).First();
+            var threatPoint = mostNeedsDefending.AdjacentSectors().OrderByDescending(x => x.GetEnemyShips(faction).GetTotalRating()).First();
+
+            _log.Log("{0} feels threatened by {1} in {2}", faction, threatPoint.Owner, mostNeedsDefending);
+
+            player.ThreatPoint = threatPoint;
             player.RallyPoint = mostNeedsDefending;
             player.StagingPoint = mostNeedsDefending;
 

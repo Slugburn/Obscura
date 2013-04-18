@@ -9,18 +9,18 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
         private readonly EconomicResearchDecision _economicResearchDecision;
         private readonly BuildDecision _buildDecision;
         private readonly ExploreDecision _exploreDecision;
-        private readonly AttackDecision _attackDecision;
+        private readonly UnderThreatDecision _underThreatDecision;
 
         public SafeDecision(
             EconomicResearchDecision economicResearchDecision, 
             BuildDecision buildDecision, 
             ExploreDecision exploreDecision, 
-            AttackDecision attackDecision)
+            UnderThreatDecision underThreatDecision)
         {
             _economicResearchDecision = economicResearchDecision;
             _buildDecision = buildDecision;
             _exploreDecision = exploreDecision;
-            _attackDecision = attackDecision;
+            _underThreatDecision = underThreatDecision;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -32,9 +32,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
                 return new ActionDecisionResult(new InfluenceDecision());
             if (player.GetAction<BuildAction>() != null && faction.Material >= 13)
                 return new ActionDecisionResult(_buildDecision);
-            if (player.GetAction<ExploreAction>() != null)
-                return new ActionDecisionResult(_exploreDecision);
-            return new ActionDecisionResult(_attackDecision);
+            return new ActionDecisionResult(_underThreatDecision);
         }
     }
 }

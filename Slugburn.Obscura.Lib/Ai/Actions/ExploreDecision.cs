@@ -5,11 +5,8 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
 {
     public class ExploreDecision : IActionDecision
     {
-        private readonly AttackDecision _attackDecision;
-
-        public ExploreDecision(AttackDecision attackDecision)
+        public ExploreDecision()
         {
-            _attackDecision = attackDecision;
         }
 
         public DecisionResult<IAction> Decide(IAiPlayer player)
@@ -17,7 +14,7 @@ namespace Slugburn.Obscura.Lib.Ai.Actions
             var explore = player.GetAction<ExploreAction>();
             if (explore != null)
                 return new ActionDecisionResult(explore);
-            return new ActionDecisionResult(_attackDecision);
+            return new ActionDecisionResult(player.GetAction<PassAction>());
         }
     }
 }

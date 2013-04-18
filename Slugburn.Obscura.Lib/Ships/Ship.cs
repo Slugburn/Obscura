@@ -24,5 +24,15 @@ namespace Slugburn.Obscura.Lib.Ships
         }
 
         public abstract ShipType ShipType { get; }
+
+        public int Accuracy
+        {
+            get { return Profile.Accuracy; }
+        }
+
+        public int[] Cannons
+        {
+            get { return Profile.Cannons; }
+        }
     }
 }

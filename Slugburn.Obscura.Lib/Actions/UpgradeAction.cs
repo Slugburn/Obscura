@@ -56,7 +56,7 @@ namespace Slugburn.Obscura.Lib.Actions
 
         public bool IsValid(PlayerFaction faction)
         {
-            return !faction.Passed && faction.Influence > 0;
+            return faction.Influence > 0;
         }
     }
 }

@@ -50,9 +50,11 @@
     <Compile Include="Actions\PassAction.cs" />
     <Compile Include="Actions\ResearchAction.cs" />
     <Compile Include="Actions\UpgradeAction.cs" />
+    <Compile Include="Ai\Actions\ActionRating.cs" />
     <Compile Include="Ai\Actions\AttackDecision.cs" />
     <Compile Include="Ai\Actions\AssaultRallyPointDecision.cs" />
     <Compile Include="Ai\Actions\BuildDecision.cs" />
+    <Compile Include="Ai\Actions\DefendOwnSectorDecision.cs" />
     <Compile Include="Ai\Actions\ExploreDecision.cs" />
     <Compile Include="Ai\Actions\IActionDecision.cs" />
     <Compile Include="Ai\Actions\ActionDecisionResult.cs" />
@@ -65,16 +67,17 @@
     <Compile Include="Ai\Actions\UnderThreatDecision.cs" />
     <Compile Include="Ai\AiExtensions.cs" />
     <Compile Include="Ai\BlueprintUpgrade.cs" />
-    <Compile Include="Ai\BuildListGenerator.cs" />
     <Compile Include="Ai\BuildLocation.cs" />
     <Compile Include="Ai\DecisionExtensions.cs" />
     <Compile Include="Ai\DecisionResult.cs" />
+    <Compile Include="Ai\Generators\BuildListGenerator.cs" />
+    <Compile Include="Ai\Generators\MoveListGenerator.cs" />
+    <Compile Include="Ai\Generators\ResearchListGenerator.cs" />
+    <Compile Include="Ai\Generators\UpgradeListGenerator.cs" />
     <Compile Include="Ai\IAiPlayer.cs" />
     <Compile Include="Ai\IDecision.cs" />
     <Compile Include="Ai\InfluenceLocation.cs" />
-    <Compile Include="Ai\MoveListGenerator.cs" />
     <Compile Include="Ai\ShipMove.cs" />
-    <Compile Include="Ai\UpgradeListGenerator.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\BuildExtensions.cs" />
     <Compile Include="Builders\CruiserBuilder.cs" />
@@ -140,6 +143,7 @@
     <Compile Include="Technology\TechCategory.cs" />
     <Compile Include="Technology\TechCatalog.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
