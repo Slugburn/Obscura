@@ -22,11 +22,18 @@ namespace Slugburn.Obscura.Lib.Actions
         public void Do(PlayerFaction faction)
         {
             var tech = faction.Player.ChooseResearch(faction.AvailableResearchTech());
-            faction.Game.AvailableTechTiles.Remove(tech);
-            faction.Technologies.Add(tech);
+            
+            ClaimTech(faction, tech);
+
             var cost = faction.CostFor(tech);
             faction.Science -= cost;
-            _log.Log("\t{0} researched ({1} Science)", tech, cost);
+            _log.Log("\t{0} obtained ({1} Science)", tech, cost);
+        }
+
+        public void ClaimTech(PlayerFaction faction, Tech tech)
+        {
+            faction.Game.AvailableTechTiles.Remove(tech);
+            faction.Technologies.Add(tech);
             var effectTech = tech as EffectTech;
             if (effectTech != null)
                 effectTech.OnDiscovery(faction);

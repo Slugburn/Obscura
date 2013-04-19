@@ -41,7 +41,7 @@ namespace Slugburn.Obscura.Lib.Players
 
         public bool ChooseToUseDiscovery(Discovery discoveryTile)
         {
-            return false;
+            return true;
         }
 
         public IFactionType ChooseFaction(IEnumerable<IFactionType> availableFactions)
@@ -119,6 +119,8 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
         {
+            if (BuildList.Count == 0)
+                return StagingPoint;
             var location = BuildList[0].Location;
             BuildList.RemoveAt(0);
             return location;
@@ -140,12 +142,12 @@ namespace Slugburn.Obscura.Lib.Players
 //            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
         }
 
-        public ShipPart ChoosePartToReplace(ShipBlueprint blueprint)
+        public ShipPart ChoosePartToReplace(ShipBlueprint blueprint, IEnumerable<ShipPart> validReplacements)
         {
             return UpgradeList[0].Replace;
         }
 
-        public ShipPart ChooseUpgrade(ShipBlueprint blueprint)
+        public ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> validUpgrades)
         {
             return UpgradeList[0].Upgrade;
         }
@@ -282,6 +284,24 @@ namespace Slugburn.Obscura.Lib.Players
         public ProductionType ChooseGraveyard(ProductionType prodType)
         {
             return GetLeastIdlePopulationType(prodType);
+        }
+
+        public Tech ChooseDiscoveredTech(IEnumerable<Tech> techs)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ShipBlueprint ChooseBlueprintToUpgradeWithDiscoveredPart(IEnumerable<ShipBlueprint> upgradeableBlueprints)
+        {
+            var blueprints = upgradeableBlueprints.ToArray();
+            var shipsByBlueprint = Faction.Ships.Where(x => blueprints.Contains(x.Blueprint)).GroupBy(x=>x.Blueprint).ToArray();
+            if (shipsByBlueprint.Any())
+            {
+                var maxCount = shipsByBlueprint.Max(g => g.Count());
+                return shipsByBlueprint.Where(g => g.Count() == maxCount).PickRandom().Key;
+            }
+            var bestRating = blueprints.Max(bp => bp.Efficiency);
+            return blueprints.Where(bp => bp.Efficiency == bestRating).PickRandom();
         }
 
         public IList<InfluenceLocation> InfluenceList { get; set; }

@@ -24,8 +24,8 @@ namespace Slugburn.Obscura.Lib.Players
         IBuilder ChooseBuilder(IEnumerable<IBuilder> validBuilders);
         Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations);
         ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints);
-        ShipPart ChoosePartToReplace(ShipBlueprint blueprint);
-        ShipPart ChooseUpgrade(ShipBlueprint blueprint);
+        ShipPart ChoosePartToReplace(ShipBlueprint blueprint, IEnumerable<ShipPart> validReplacements);
+        ShipPart ChooseUpgrade(ShipBlueprint blueprint, IEnumerable<ShipPart> validUpgrades);
         PopulationSquare ChooseColonizationLocation(List<PopulationSquare> validSquares);
         void HandleBankruptcy();
         ProductionType ChooseColonizationType(ProductionType productionType);
@@ -39,5 +39,7 @@ namespace Slugburn.Obscura.Lib.Players
         IEnumerable<PopulationSquare> ChoosePopulationToDestroy(Sector sector, PopulationSquare[] populatedSquares, int damage);
         ProductionType ChooseProductionToAbandon(ProductionType prodType);
         ProductionType ChooseGraveyard(ProductionType prodType);
+        Tech ChooseDiscoveredTech(IEnumerable<Tech> techs);
+        ShipBlueprint ChooseBlueprintToUpgradeWithDiscoveredPart(IEnumerable<ShipBlueprint> upgradeableBlueprints);
     }
 }

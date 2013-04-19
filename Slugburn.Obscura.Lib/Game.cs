@@ -232,6 +232,11 @@ namespace Slugburn.Obscura.Lib
         {
             return Sectors[sectorId];
         }
+
+        public T GetAction<T>() where T : IAction
+        {
+            return (T) _actions.Single(x => x is T);
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
@@ -32,6 +33,11 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return Profile.Rating; }
         }
 
+        public decimal Efficiency
+        {
+            get { return Rating/Cost; }
+        }
+
         public ShipType ShipType { get; set; }
 
         public override string ToString()
@@ -55,11 +61,33 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public void Upgrade(ShipPart upgrade, ShipPart replace)
         {
-            if (replace != null)
-                Parts.Remove(replace);
-            Parts.Add(upgrade);
+            Parts = Upgrade(Parts, upgrade, replace);
             if (!IsPartListValid(Parts))
-                throw new Exception(string.Format("Ship blueprint part list is not valid: {0} [{1}]", string.Join(",", Parts), PartSpaces));
+                throw new Exception(String.Format("Ship blueprint part list is not valid: {0} [{1}]", String.Join(",", Parts), PartSpaces));
+        }
+
+        public List<ShipPart> Upgrade(IEnumerable<ShipPart> parts, ShipPart upgrade, ShipPart replace)
+        {
+            var newParts = parts.ToList();
+            if (replace != null)
+                newParts.Remove(replace);
+            newParts.Add(upgrade);
+            return newParts;
+        }
+
+        public bool CanUpgradeReplacePart(ShipPart upgrade, ShipPart replace)
+        {
+            return IsPartListValid(Upgrade(Parts, upgrade, replace));
+        }
+
+        public IEnumerable<ShipPart> GetValidPartsToReplace(ShipPart upgrade)
+        {
+            return Parts.Concat(new ShipPart[] { null }).Where(replace => CanUpgradeReplacePart(upgrade, replace));
+        }
+
+        public bool CanUsePartToUpgrade(ShipPart upgrade)
+        {
+            return GetValidPartsToReplace(upgrade).Any();
         }
     }
 }

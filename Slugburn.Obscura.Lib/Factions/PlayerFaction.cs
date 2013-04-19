@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ai;
-using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Maps;
@@ -18,7 +15,7 @@ namespace Slugburn.Obscura.Lib.Factions
     {
         private readonly ILog _log;
 
-        public PlayerFaction(ILog log, IList<IBuilder> builders, IPlayer player) : this()
+        public PlayerFaction(ILog log, IPlayer player) : this()
         {
             _log = log;
             Player = player;
@@ -31,6 +28,7 @@ namespace Slugburn.Obscura.Lib.Factions
             Sectors = new List<Sector>();
             Ships = new List<PlayerShip>();
             Technologies = new List<Tech>();
+            DiscoveredParts = new List<ShipPart>();
         }
 
         public override string ToString()
@@ -114,21 +112,21 @@ namespace Slugburn.Obscura.Lib.Factions
             Sectors.Add(sector);
             sector.Owner = this;
             Influence--;
-            if (sector.HasDiscovery )
+            if (sector.DiscoveryTile == null) 
+                return;
+            
+            var tile = sector.DiscoveryTile;
+            _log.Log("{0} discovers {1}", this, tile);
+
+            sector.DiscoveryTile = null;
+
+            if (Player.ChooseToUseDiscovery(tile))
             {
-                var tile = sector.DiscoveryTile;
-                _log.Log("{0} discovers {1}", this, tile);
-
-                sector.DiscoveryTile = null;
-
-                if (Player.ChooseToUseDiscovery(tile))
-                {
-                    tile.Use(this);
-                }
-                else
-                {
-                    this.Vp += 2;
-                }
+                tile.Use(this);
+            }
+            else
+            {
+                this.Vp += 2;
             }
         }
 
@@ -177,7 +175,12 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual IEnumerable<Tech> AvailableResearchTech()
         {
-            return Game.AvailableTechTiles.Where(tech=>CostFor(tech) <= Science && !Technologies.Contains(tech));
+            return UnknownTech().Where(tech=>CostFor(tech) <= Science);
+        }
+
+        public virtual IEnumerable<Tech> UnknownTech()
+        {
+            return Game.AvailableTechTiles.Except(Technologies);
         }
 
         public IList<Tech> Technologies { get; private set; }
@@ -225,6 +228,8 @@ namespace Slugburn.Obscura.Lib.Factions
         public Sector HomeSector { get { return Game.GetSectorById(HomeSectorId); } }
 
         public ProductionQuantity Graveyard { get; private set; }
+
+        public List<ShipPart> DiscoveredParts { get; private set; }
 
         public virtual int CostFor(Tech tech)
         {
@@ -430,6 +435,11 @@ namespace Slugburn.Obscura.Lib.Factions
                 IdlePopulation[prodType]++;
             }
             RelinquishSector(sector);
+        }
+
+        public void Log(string messageFormat, params object[] args)
+        {
+            _log.Log(messageFormat, args);
         }
     }
 }
