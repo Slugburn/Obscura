@@ -41,5 +41,6 @@ namespace Slugburn.Obscura.Lib.Players
         ProductionType ChooseGraveyard(ProductionType prodType);
         Tech ChooseDiscoveredTech(IEnumerable<Tech> techs);
         ShipBlueprint ChooseBlueprintToUpgradeWithDiscoveredPart(IEnumerable<ShipBlueprint> upgradeableBlueprints);
+        void BeforeUpgradeWithDiscoveredPart(ShipPart part);
     }
 }

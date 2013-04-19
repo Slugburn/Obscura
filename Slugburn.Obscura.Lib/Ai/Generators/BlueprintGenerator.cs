@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
+using Slugburn.Obscura.Lib.Ships;
 
-namespace Slugburn.Obscura.Lib.Ships
+namespace Slugburn.Obscura.Lib.Ai.Generators
 {
     public class BlueprintGenerator
     {

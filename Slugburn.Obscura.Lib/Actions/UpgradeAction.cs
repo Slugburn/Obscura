@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -78,18 +77,26 @@ namespace Slugburn.Obscura.Lib.Actions
         {
             // TODO: Integrate with main upgrade logic
             faction.DiscoveredParts.Add(upgrade);
+            faction.Player.BeforeUpgradeWithDiscoveredPart(upgrade);
+
             var upgradeableBlueprints = faction.Blueprints.Where(bp => bp.CanUsePartToUpgrade(upgrade)).ToArray();
             if (!upgradeableBlueprints.Any())
                 return;
+            
             var blueprint = faction.Player.ChooseBlueprintToUpgradeWithDiscoveredPart(upgradeableBlueprints);
             if (blueprint == null)
                 return;
+            if (upgradeableBlueprints.All(x => blueprint != x))
+                throw new InvalidOperationException(string.Format("{0} can not be used to upgrade {1}", upgrade, blueprint));
+
             var validReplacements = blueprint.GetValidPartsToReplace(upgrade).ToArray();
             var replace = faction.Player.ChoosePartToReplace(blueprint, validReplacements);
             if (validReplacements.All(x=>!(replace==null && x==null || replace != null && replace.Equals(x))))
-                throw new InvalidOperationException("{0}: {1} can not be replaced with {2} ");
+                throw new InvalidOperationException(string.Format("{0}: {1} can not be replaced with {2}", blueprint, replace, upgrade));
 
             blueprint.Upgrade(upgrade, replace);
+            faction.DiscoveredParts.Remove(upgrade);
+
             _log.Log("\t{0} {1}: {2}", faction, blueprint, blueprint.Parts.ListToString());
         }
     }

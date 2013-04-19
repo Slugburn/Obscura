@@ -4,6 +4,7 @@ using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Ai.Actions;
+using Slugburn.Obscura.Lib.Ai.Generators;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
@@ -17,12 +18,14 @@ namespace Slugburn.Obscura.Lib.Players
     public class RandomPlayer : IAiPlayer
     {
         private readonly BlueprintGenerator _blueprintGenerator;
+        private readonly UpgradeListGenerator _upgradeListGenerator;
         private readonly IActionDecision _actionDecision;
         private readonly ILog _log;
 
-        public RandomPlayer(BlueprintGenerator blueprintGenerator, ShouldPassDecision actionDecision, ILog log)
+        public RandomPlayer(BlueprintGenerator blueprintGenerator, UpgradeListGenerator upgradeListGenerator, ShouldPassDecision actionDecision, ILog log)
         {
             _blueprintGenerator = blueprintGenerator;
+            _upgradeListGenerator = upgradeListGenerator;
             _actionDecision = actionDecision;
             _log = log;
         }
@@ -102,8 +105,8 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Tech ChooseResearch(IEnumerable<Tech> availableTech)
         {
-            if (!availableTech.Any(x=>x.Equals(TechToResearch)))
-                throw new InvalidOperationException("Selected research technology is not valid.");
+            if (!availableTech.Any(x => x.Equals(TechToResearch)))
+                throw new InvalidOperationException(string.Format("Researching {0} is not valid.", TechToResearch));
             return TechToResearch;
         }
 
@@ -139,7 +142,7 @@ namespace Slugburn.Obscura.Lib.Players
             var partsPool = Faction.GetAvailableShipParts().ToList();
             _idealBlueprints = blueprints.ToDictionary(x=>x, x=>_blueprintGenerator.GetBestParts(x, partsPool));
 //            _log.Log("{0} updates ideal blueprints:", Faction);
-//            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
+            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
         }
 
         public ShipPart ChoosePartToReplace(ShipBlueprint blueprint, IEnumerable<ShipPart> validReplacements)
@@ -288,20 +291,12 @@ namespace Slugburn.Obscura.Lib.Players
 
         public Tech ChooseDiscoveredTech(IEnumerable<Tech> techs)
         {
-            throw new NotImplementedException();
+            return techs.PickRandom();
         }
 
         public ShipBlueprint ChooseBlueprintToUpgradeWithDiscoveredPart(IEnumerable<ShipBlueprint> upgradeableBlueprints)
         {
-            var blueprints = upgradeableBlueprints.ToArray();
-            var shipsByBlueprint = Faction.Ships.Where(x => blueprints.Contains(x.Blueprint)).GroupBy(x=>x.Blueprint).ToArray();
-            if (shipsByBlueprint.Any())
-            {
-                var maxCount = shipsByBlueprint.Max(g => g.Count());
-                return shipsByBlueprint.Where(g => g.Count() == maxCount).PickRandom().Key;
-            }
-            var bestRating = blueprints.Max(bp => bp.Efficiency);
-            return blueprints.Where(bp => bp.Efficiency == bestRating).PickRandom();
+            return UpgradeList != null && UpgradeList.Count > 0 ? UpgradeList.First().Blueprint : null;
         }
 
         public IList<InfluenceLocation> InfluenceList { get; set; }
@@ -309,6 +304,12 @@ namespace Slugburn.Obscura.Lib.Players
         public ProductionType ChooseProductionToAbandon(ProductionType prodType)
         {
             return GetLeastIdlePopulationType(prodType);
+        }
+
+        public void BeforeUpgradeWithDiscoveredPart(ShipPart upgrade)
+        {
+            UpdateIdealBlueprints();
+            UpgradeList = _upgradeListGenerator.GenerateForDiscoveredPart(this, upgrade);
         }
 
     }

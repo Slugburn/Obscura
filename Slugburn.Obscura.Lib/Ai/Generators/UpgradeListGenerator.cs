@@ -25,6 +25,17 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                 .FirstOrDefault();
         }
 
+        public IList<BlueprintUpgrade> GenerateForDiscoveredPart(IAiPlayer player, ShipPart upgrade)
+        {
+            var faction = player.Faction;
+            var blueprintsToUpgrade = new List<ShipBlueprint> { faction.Interceptor, faction.Cruiser, faction.Dreadnought };
+            var upgrades = GetAllPossibleUpgrades(player, faction.Ships, blueprintsToUpgrade);
+            var sets = GetPossibleUpgradeSets(1, upgrades);
+            // Get the set with the best possible rating improvement
+            var bestSet = sets.OrderByDescending(set => set.Sum(x => x.RatingImprovement)).FirstOrDefault();
+            return bestSet != null && Equals(bestSet[0].Upgrade, upgrade) ? bestSet : null;
+        }
+
         private static IEnumerable<List<BlueprintUpgrade>> GetPossibleUpgradeSets(int remainingPicks, List<BlueprintUpgrade> upgrades)
         {
             var sets = new List<List<BlueprintUpgrade>>();
@@ -68,7 +79,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                         item.Replace = ChoosePartToReplace(current, ideal);
                         item.After.Remove(item.Replace);
                     }
-                    item.RatingImprovement = (shipCount+0.0m)*(ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
+                    item.RatingImprovement = (shipCount+0.1m)*(ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
                     upgrades.Add(item);
                     current = item.After;
                 }
@@ -103,7 +114,8 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
 
         public decimal RateRallyPoint(IAiPlayer player, int upgradeCount)
         {
-            return _Rate(player, upgradeCount, player.RallyPoint.GetFriendlyShips(player.Faction).ToArray());
+            return _Rate(player, player.Faction.UpgradeCount, player.Faction.Ships.ToArray());
+            //            return _Rate(player, upgradeCount, player.RallyPoint.GetFriendlyShips(player.Faction).ToArray());
         }
 
         public decimal RateFleet(IAiPlayer player)
@@ -139,5 +151,6 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                 return 0;
             return player.UpgradeList.Sum(x => x.RatingImprovement);
         }
+
     }
 }

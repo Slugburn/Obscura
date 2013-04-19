@@ -84,7 +84,7 @@ namespace Slugburn.Obscura.Lib
         {
             faction.Game.GetAction<UpgradeAction>().UpgradeUsingDiscoveredPart(faction, part);
         }
-
+        
         private static Discovery AxiomComputer()
         {
             // +3 accuracy

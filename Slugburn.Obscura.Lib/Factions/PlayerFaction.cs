@@ -240,7 +240,11 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public IEnumerable<ShipPart> GetAvailableShipParts()
         {
-            return PartFactory.GetBasicParts().Concat(Technologies.Where(t => t is PartTech).Cast<PartTech>().Select(x => x.CreatePart()));
+            return
+                PartFactory.GetBasicParts()
+                    .Concat(Technologies.Where(t => t is PartTech).Cast<PartTech>()
+                                .Select(x => x.CreatePart()))
+                    .Concat(DiscoveredParts);
         }
 
         public void UpkeepPhase()

@@ -9,6 +9,7 @@ using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Ships;
+using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Ai
 {
@@ -37,7 +38,7 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public static decimal GetEnemySectorRating(this PlayerFaction faction, Sector sector)
         {
-            decimal value = sector.GetSectorRating();
+            decimal value = sector.GetSectorRating() ^ 2;
             var distance = faction.Sectors.Min(x =>
                 {
                     var shortest = faction.GetShortestPath(x, sector);
@@ -50,8 +51,13 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public static int GetSectorRating(this Sector sector)
         {
-            return sector.Vp + sector.Squares.Count + (sector.DiscoveryTile != null ? 2 : 0) +
-                   sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCenterDefenseSystem ? 3 : 0);
+            var rating = sector.Vp 
+                + sector.Squares.Count 
+                + (sector.DiscoveryTile != null ? 2 : 0) 
+                + sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCenterDefenseSystem ? 3 : 0);
+            if (rating < 3)
+                return 1;
+            return rating;
         }
 
         public static decimal CombatSuccessRatio(this PlayerFaction playerFaction, Sector mySector, IEnumerable<Sector> enemySectors)
@@ -93,17 +99,21 @@ namespace Slugburn.Obscura.Lib.Ai
 
             return income < 0;
         }
-
+        
         private static int GetEmergencyIncome(IAiPlayer player)
         {
             var faction = player.Faction;
-            if (faction.Game.Round == 10 || faction.Sectors.Any(x=>x.GetEnemyShips(faction).Any()))
+            if (faction.Game.Round == 10)
             {
-                return faction.Material/faction.TradeRatio + faction.Science/faction.TradeRatio;
+                return (faction.Material)/faction.TradeRatio + (faction.Science)/faction.TradeRatio;
+            }
+            if(faction.Sectors.Any(x=>x.GetEnemyShips(faction).Any()))
+            {
+                return (faction.Material - 5) / faction.TradeRatio + (faction.Science - 5) / faction.TradeRatio;
             }
             return 0;
         }
-
+        
         public static int GetActionsBeforeBankruptcy(this IAiPlayer player)
         {
             var faction = player.Faction;
@@ -111,6 +121,16 @@ namespace Slugburn.Obscura.Lib.Ai
             while (faction.GetIncomeForInfluence(faction.Influence - actions) + GetEmergencyIncome(player) >= 0)
                 actions++;
             return actions;
+        }
+
+        public static bool IsEconomic(this Tech x)
+        {
+            return !IsMilitary(x);
+        }
+
+        public static bool IsMilitary(this Tech x)
+        {
+            return x is PartTech || Equals(x, Tech.NeutronBombs) || Equals(x, Tech.WormholeGenerator);
         }
     }
 }

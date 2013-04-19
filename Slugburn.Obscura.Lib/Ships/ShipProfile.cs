@@ -42,10 +42,10 @@ namespace Slugburn.Obscura.Lib.Ships
             get
             {
                 var cannonRating = Cannons.Sum();
-                var missileRating = Missiles != null ? Missiles.Sum() : 0;
-                var offenseMultiplier = (1 + Accuracy*1.1m + Initiative*Accuracy*.25m);
-                var defenseMultipler = (1 + Structure)* (1 - Deflection);
-                return cannonRating*offenseMultiplier*defenseMultipler + missileRating*offenseMultiplier + Move;
+                var missileRating = Missiles != null ? Missiles.Sum() : 0m;
+                var offenseMultiplier = (1m + Accuracy * (1m+ Initiative/10m) + Initiative/10m);
+                var defenseMultipler = (1m + Structure)* (1m - Deflection);
+                return (cannonRating*offenseMultiplier*defenseMultipler + missileRating*offenseMultiplier) * (1m+Move/3m) * (1m+Energy/10m);
             }
         }
 

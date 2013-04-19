@@ -127,7 +127,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             player.BuildList = Generate(player, new[] {player.StagingPoint}, rateEfficiency);
             if (player.BuildList == null)
                 return 0;
-            return player.BuildList.Sum(x => x.Rating);
+            return player.BuildList.Sum(x => x.Rating)*((decimal) player.BuildList.Count/player.Faction.BuildCount);
         }
     }
 

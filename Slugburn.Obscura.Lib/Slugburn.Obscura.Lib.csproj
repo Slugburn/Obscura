@@ -70,6 +70,7 @@
     <Compile Include="Ai\BuildLocation.cs" />
     <Compile Include="Ai\DecisionExtensions.cs" />
     <Compile Include="Ai\DecisionResult.cs" />
+    <Compile Include="Ai\Generators\BlueprintGenerator.cs" />
     <Compile Include="Ai\Generators\BuildListGenerator.cs" />
     <Compile Include="Ai\Generators\MoveListGenerator.cs" />
     <Compile Include="Ai\Generators\ResearchListGenerator.cs" />
@@ -125,7 +126,6 @@
     <Compile Include="ProductionType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ships\AncientShip.cs" />
-    <Compile Include="Ships\BlueprintGenerator.cs" />
     <Compile Include="Ships\GalacticCenterDefenseSystem.cs" />
     <Compile Include="Ships\PartFactory.cs" />
     <Compile Include="Ships\PlayerShip.cs" />
