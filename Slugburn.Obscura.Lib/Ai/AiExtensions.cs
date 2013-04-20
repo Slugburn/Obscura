@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ai.Actions;
+using Slugburn.Obscura.Lib.Ai.StateMachine;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
@@ -20,7 +20,7 @@ namespace Slugburn.Obscura.Lib.Ai
             return player.ValidActions.SingleOrDefault(a => a is T);
         }
 
-        public static bool FleetCanConquer(this PlayerFaction faction, Sector targetSector)
+        public static bool FleetCanConquer(this Faction faction, Sector targetSector)
         {
             if (faction.GetShortestPath(faction.HomeSector, targetSector) == null)
                 return false;
@@ -31,12 +31,12 @@ namespace Slugburn.Obscura.Lib.Ai
             return fleetCombatRatio;
         }
 
-        private static bool IsShipAvailableToFightAt(PlayerShip ship, PlayerFaction faction, Sector targetSector)
+        private static bool IsShipAvailableToFightAt(PlayerShip ship, Faction faction, Sector targetSector)
         {
             return ship.Sector == targetSector || !ship.Sector.GetEnemyShips(faction).Any();
         }
 
-        public static decimal GetEnemySectorRating(this PlayerFaction faction, Sector sector)
+        public static decimal GetEnemySectorRating(this Faction faction, Sector sector)
         {
             decimal value = sector.GetSectorRating() ^ 2;
             var distance = faction.Sectors.Min(x =>
@@ -60,34 +60,34 @@ namespace Slugburn.Obscura.Lib.Ai
             return rating;
         }
 
-        public static decimal CombatSuccessRatio(this PlayerFaction playerFaction, Sector mySector, IEnumerable<Sector> enemySectors)
+        public static decimal CombatSuccessRatio(this Faction faction, Sector mySector, IEnumerable<Sector> enemySectors)
         {
-            var friendlyRating = mySector.GetFriendlyShips(playerFaction).GetTotalRating();
-            var enemyRating = enemySectors.Sum(sector => playerFaction.GetEnemyRatingFor(sector));
+            var friendlyRating = mySector.GetFriendlyShips(faction).GetTotalRating();
+            var enemyRating = enemySectors.Sum(sector => faction.GetEnemyRatingFor(sector));
             return friendlyRating/enemyRating;
         }
 
-        public static decimal CombatSuccessRatio(this PlayerFaction playerFaction, Sector sector)
+        public static decimal CombatSuccessRatio(this Faction faction, Sector sector)
         {
-            return CombatSuccessRatio(playerFaction, sector, new[] {sector});
+            return CombatSuccessRatio(faction, sector, new[] {sector});
         }
 
-        public static decimal GetEnemyRatingFor(this PlayerFaction faction, Sector sector)
+        public static decimal GetEnemyRatingFor(this Faction faction, Sector sector)
         {
             var rating = sector.GetEnemyShips(faction).GetTotalRating();
             return rating > 1 ? rating : 1;
         }
 
-        public static DecisionResult<IAction> ChooseBest(this IEnumerable<ActionRating> actionRatings, ILog log)
+        public static IAction ChooseBest(this IEnumerable<ActionRating> actionRatings, decimal ratingMinimum, ILog log)
         {
-            var possibleActions = actionRatings.Where(x => x.Action != null && x.Rating > 0).ToList();
+            var possibleActions = actionRatings.Where(x => x.Action != null && x.Rating > ratingMinimum).ToList();
             if (!possibleActions.Any())
-                return new ActionDecisionResult(new ExploreDecision());
+                return null;
 
             possibleActions.Each(x => log.Log("\t\t{0} [{1:n2}]", x.Action, x.Rating));
             var bestRating = possibleActions.Max(x => x.Rating);
-            var action = possibleActions.Where(x=>x.Rating==bestRating).PickRandom().Action;
-            return new ActionDecisionResult(action);
+            var bestAction = possibleActions.Where(x=>x.Rating==bestRating).PickRandom().Action;
+            return bestAction;
         }
 
         public static bool SpendingInfluenceWillBankrupt(this IAiPlayer player)
@@ -132,5 +132,28 @@ namespace Slugburn.Obscura.Lib.Ai
         {
             return x is PartTech || Equals(x, Tech.NeutronBombs) || Equals(x, Tech.WormholeGenerator);
         }
+
+        public static Tech PickBest(this IEnumerable<Tech> available, Faction faction)
+        {
+            var techs = available.ToArray();
+            if (techs.Length == 0)
+                return null;
+            var highestLevel = (from tech in techs let maxCost = techs.Max(x => x.Cost) where tech.Cost == maxCost select tech).ToArray();
+            var best = (from tech in highestLevel let minCost = highestLevel.Min(x => faction.CostFor(x)) where faction.CostFor(tech) == minCost select tech).ToArray();
+            return best.PickRandom();
+        }
+
+        public static IAction DecideAction(this IEnumerable<IAiDecision> decisions, IAiPlayer player)
+        {
+            var state = new AiState(player.Faction);
+            foreach (var decision in decisions)
+            {
+                var action = decision.Decide(state);
+                if (action != null)
+                    return action;
+            }
+            return player.GetAction<PassAction>();
+        }
+
     }
 }

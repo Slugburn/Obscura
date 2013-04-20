@@ -10,13 +10,13 @@ namespace Slugburn.Obscura.Test.Builders
     public class CruiserBuilderTest
     {
         private CruiserBuilder _builder;
-        private PlayerFaction _faction;
+        private Faction _faction;
 
         [SetUp]
         public void BeforeEach()
         {
             _builder = new CruiserBuilder();
-            _faction = Substitute.For<PlayerFaction>();
+            _faction = Substitute.For<Faction>();
             _faction.Material = 100;
             _faction.Cruiser = new ShipBlueprint {Cost = 5};
         }

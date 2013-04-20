@@ -7,7 +7,7 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public Sector Sector { get; set; }
 
-        public IFaction Faction { get; set; }
+        public IShipOwner Faction { get; set; }
 
         public abstract ShipProfile Profile { get; }
 

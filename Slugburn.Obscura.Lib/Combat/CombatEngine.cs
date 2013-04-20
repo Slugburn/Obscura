@@ -43,7 +43,7 @@ namespace Slugburn.Obscura.Lib.Combat
             sectors.Where(x => x.Owner == null && x.Ships.Any(ship => ship is PlayerShip))
                 .Each(x =>
                           {
-                              var faction = x.Ships.Select(ship => ship.Faction).Cast<PlayerFaction>().First();
+                              var faction = x.Ships.Select(ship => ship.Faction).Cast<Faction>().First();
                               if (faction.Player.ChooseToClaimSector(x))
                                   faction.ClaimSector(x);
                           });
@@ -70,7 +70,7 @@ namespace Slugburn.Obscura.Lib.Combat
         {
             if (sector.Owner == null || sector.Ships.All(x => x.Faction == sector.Owner)) 
                 return;
-            var attacker = sector.Ships.Select(x => x.Faction).Cast<PlayerFaction>().Distinct().Single();
+            var attacker = sector.Ships.Select(x => x.Faction).Cast<Faction>().Distinct().Single();
             var populatedSquares = sector.Squares.Where(x => x.Owner != null).ToArray();
             if (!populatedSquares.Any())
             {
@@ -170,7 +170,7 @@ namespace Slugburn.Obscura.Lib.Combat
                         // Remove from map
                         ship.Sector.Ships.Remove(ship);
                         // Remove from faction list
-                        var playerFaction = ship.Faction as PlayerFaction;
+                        var playerFaction = ship.Faction as Faction;
                         if (playerFaction != null)
                             playerFaction.Ships.Remove((PlayerShip) ship);
                     }
@@ -218,7 +218,7 @@ namespace Slugburn.Obscura.Lib.Combat
             };
         }
 
-        private static int GetFactionPriority(Sector sector, IFaction faction, IEnumerable<Ship> ships)
+        private static int GetFactionPriority(Sector sector, IShipOwner faction, IEnumerable<Ship> ships)
         {
             return sector.Owner == faction ? -1 : ships.Min(ship => sector.Ships.IndexOf(ship));
         }
@@ -236,7 +236,7 @@ namespace Slugburn.Obscura.Lib.Combat
 
         public int Initiative { get; set; }
 
-        public IFaction Faction { get; set; }
+        public IShipOwner Faction { get; set; }
 
         public int[] Cannons
         {
@@ -256,12 +256,12 @@ namespace Slugburn.Obscura.Lib.Combat
 
     internal class CombatFaction
     {
-        public IFaction Faction { get; set; }
+        public IShipOwner Faction { get; set; }
         public List<Ship> Ships { get; set; }
         public int Priority { get; set; }
         public bool HasInitiative { get; set; }
 
-        public CombatFaction(IFaction faction, IEnumerable<Ship> ships, int priority)
+        public CombatFaction(IShipOwner faction, IEnumerable<Ship> ships, int priority)
         {
             Faction = faction;
             Ships = ships.ToList();

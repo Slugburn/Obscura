@@ -10,13 +10,13 @@ namespace Slugburn.Obscura.Test.Builders
     public class InterceptorBuilderTest
     {
         private InterceptorBuilder _builder;
-        private PlayerFaction _faction;
+        private Faction _faction;
 
         [SetUp]
         public void BeforeEach()
         {
             _builder = new InterceptorBuilder();
-            _faction = Substitute.For<PlayerFaction>();
+            _faction = Substitute.For<Faction>();
             _faction.Material = 100;
             _faction.Interceptor = new ShipBlueprint {Cost = 3};
         }

@@ -17,7 +17,7 @@ namespace Slugburn.Obscura.Test
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
             var game = kernel.Get<Game>();
-            var factions = Enumerable.Range(0, 6).Select(x => kernel.Get<PlayerFaction>()).ToArray();
+            var factions = Enumerable.Range(0, 6).Select(x => kernel.Get<Faction>()).ToArray();
             
             // Act
             game.Setup(factions);

@@ -9,7 +9,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
     public class CostForTechTest
     {
         private Tech _tech;
-        private PlayerFaction _faction;
+        private Faction _faction;
 
         [SetUp]
         public void BeforeEach()
@@ -17,7 +17,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
             _tech = new Tech("Test", 6, 4, TechCategory.Grid);
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
-            _faction = kernel.Get<PlayerFaction>();
+            _faction = kernel.Get<Faction>();
         }
 
         [Test]

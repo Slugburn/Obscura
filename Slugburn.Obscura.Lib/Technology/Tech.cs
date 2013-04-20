@@ -160,7 +160,7 @@ namespace Slugburn.Obscura.Lib.Technology
             get { return new EffectTech("Artifact Key", 14, 7, TechCategory.Nano, faction=>UseArtifactKey(faction)); }
         }
 
-        private static void UseArtifactKey(PlayerFaction faction)
+        private static void UseArtifactKey(Faction faction)
         {
             // TODO: Give choices
             faction.Money += faction.Sectors.Count(s=>s.HasArtifact) * 5;

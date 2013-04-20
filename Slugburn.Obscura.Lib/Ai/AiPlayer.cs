@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Ai.Generators;
+using Slugburn.Obscura.Lib.Ai.StateMachine;
 using Slugburn.Obscura.Lib.Builders;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
@@ -17,22 +17,23 @@ namespace Slugburn.Obscura.Lib.Ai
 {
     public class AiPlayer : IAiPlayer
     {
+        public UpgradeListGenerator UpgradeListGenerator { get; private set; }
         private readonly BlueprintGenerator _blueprintGenerator;
-        private readonly UpgradeListGenerator _upgradeListGenerator;
-        private readonly IActionDecision _actionDecision;
         private readonly ILog _log;
         private readonly IEnumerable<IMessageHandler<AiPlayer>> _messageHandlers;
 
         public AiPlayer(
             BlueprintGenerator blueprintGenerator, 
+            BuildListGenerator buildListGenerator,
+            MoveListGenerator moveListGenerator,
             UpgradeListGenerator upgradeListGenerator, 
-            ShouldPassDecision actionDecision, 
             ILog log,
             IEnumerable<IMessageHandler<AiPlayer>> messageHandlers)
         {
+            BuildListGenerator = buildListGenerator;
+            MoveListGenerator = moveListGenerator;
+            UpgradeListGenerator = upgradeListGenerator;
             _blueprintGenerator = blueprintGenerator;
-            _upgradeListGenerator = upgradeListGenerator;
-            _actionDecision = actionDecision;
             _log = log;
             _messageHandlers = messageHandlers;
         }
@@ -40,7 +41,7 @@ namespace Slugburn.Obscura.Lib.Ai
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
         private Sector _stagingPoint;
 
-        public PlayerFaction Faction { get; set; }
+        public Faction Faction { get; set; }
 
         public bool ChooseToClaimSector(Sector sector)
         {
@@ -67,7 +68,7 @@ namespace Slugburn.Obscura.Lib.Ai
         public IAction ChooseAction(IEnumerable<IAction> validActions)
         {
             ValidActions = validActions;
-            return _actionDecision.GetResult(this);
+            return AiState.Decisions.DecideAction(this);
         }
 
         public Sector ThreatPoint { get; set; }
@@ -84,7 +85,7 @@ namespace Slugburn.Obscura.Lib.Ai
             set
             {
                 if (value != null && value.Owner != Faction)
-                    throw new ArgumentException(string.Format("{0} is not a valid staging point for {1}", value, Faction));
+                    throw new ArgumentException(String.Format("{0} is not a valid staging point for {1}", value, Faction));
                 _stagingPoint = value;
             }
         }
@@ -113,7 +114,7 @@ namespace Slugburn.Obscura.Lib.Ai
         public Tech ChooseResearch(IEnumerable<Tech> availableTech)
         {
             if (!availableTech.Any(x => x.Equals(TechToResearch)))
-                throw new InvalidOperationException(string.Format("Researching {0} is not valid.", TechToResearch));
+                throw new InvalidOperationException(String.Format("Researching {0} is not valid.", TechToResearch));
             return TechToResearch;
         }
 
@@ -123,13 +124,13 @@ namespace Slugburn.Obscura.Lib.Ai
                 return null;
             var builder = BuildList.First().Builder;
             if (!validBuilders.Any(x=>x.Equals(builder)))
-                throw new InvalidOperationException(string.Format("Building {0} is not valid.", builder.Name));
+                throw new InvalidOperationException(String.Format("Building {0} is not valid.", builder.Name));
             return builder;
         }
 
         public Sector ChoosePlacementLocation(IBuildable built, List<Sector> validPlacementLocations)
         {
-            if (BuildList.Count == 0)
+            if (BuildList== null || BuildList.Count == 0)
                 return StagingPoint;
             var location = BuildList[0].Location;
             BuildList.RemoveAt(0);
@@ -138,7 +139,7 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public ShipBlueprint ChooseBlueprintToUpgrade(IEnumerable<ShipBlueprint> blueprints)
         {
-            if (UpgradeList.Count == 0)
+            if (UpgradeList == null || UpgradeList.Count == 0)
                 return null;
             return UpgradeList[0].Blueprint;
         }
@@ -149,7 +150,7 @@ namespace Slugburn.Obscura.Lib.Ai
             var partsPool = Faction.GetAvailableShipParts().ToList();
             _idealBlueprints = blueprints.ToDictionary(x=>x, x=>_blueprintGenerator.GetBestParts(x, partsPool));
 //            _log.Log("{0} updates ideal blueprints:", Faction);
-            _idealBlueprints.Each(kvp => _log.Log("\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
+//            _idealBlueprints.Each(kvp => _log.Log("\t\t{0}: {1}", kvp.Key.Name, kvp.Value.ListToString()));
         }
 
         public ShipPart ChoosePartToReplace(ShipBlueprint blueprint, IEnumerable<ShipPart> validReplacements)
@@ -202,7 +203,7 @@ namespace Slugburn.Obscura.Lib.Ai
             var moves = MoveList[0].Moves;
             MoveList.RemoveAt(0);
             if (moves.Except(validDestinations).Any())
-                throw new InvalidOperationException(string.Format("Moving {0} to {1} is not valid.", ship, moves));
+                throw new InvalidOperationException(String.Format("Moving {0} to {1} is not valid.", ship, moves));
             return moves;
         }
 
@@ -251,11 +252,6 @@ namespace Slugburn.Obscura.Lib.Ai
                 }
             }
             return myTargets.Where(x=>x.Damage > 0);
-        }
-
-        public void AfterUpgradeCompleted()
-        {
-            UpgradeList.RemoveAt(0);
         }
 
         public InfluenceDirection ChooseInfluenceDirection()
@@ -307,16 +303,23 @@ namespace Slugburn.Obscura.Lib.Ai
             return GetLeastIdlePopulationType(prodType);
         }
 
-        public void BeforeUpgradeWithDiscoveredPart(ShipPart upgrade)
-        {
-            UpdateIdealBlueprints();
-            UpgradeList = _upgradeListGenerator.GenerateForDiscoveredPart(this, upgrade);
-        }
-
-        public void SetFaction(PlayerFaction faction)
+        public void SetFaction(Faction faction)
         {
             Faction = faction;
             _messageHandlers.Configure(this, faction.MessagePipe);
         }
+
+        public int ActionRatingMinimum
+        {
+            get { return Faction.Game.Round; }
+        }
+
+        public ILog Log
+        {
+            get { return _log; }
+        }
+
+        public BuildListGenerator BuildListGenerator { get; set; }
+        public MoveListGenerator MoveListGenerator { get; private set; }
     }
 }

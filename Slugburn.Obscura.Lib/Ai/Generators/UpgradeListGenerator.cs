@@ -11,55 +11,33 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
     {
         public IList<BlueprintUpgrade> Generate(IAiPlayer player, IList<PlayerShip> shipsToUpgrade, int upgradeCount)
         {
+            return _Generate(player, shipsToUpgrade, upgradeCount, player.Faction.GetAvailableShipParts());
+        }
+
+        public IList<BlueprintUpgrade> GenerateForDiscoveredPart(IAiPlayer player, ShipPart discoveredPart)
+        {
+            return _Generate(player, player.Faction.Ships, 1, new[] {discoveredPart});
+        }
+
+        private IList<BlueprintUpgrade> _Generate(IAiPlayer player, IList<PlayerShip> shipsToUpgrade, int upgradeCount, IEnumerable<ShipPart> availableUpgrades)
+        {
             var faction = player.Faction;
-            var blueprintsToUpgrade = new List<ShipBlueprint> {faction.Interceptor, faction.Cruiser, faction.Dreadnought} ;
-            if(faction.HasTechnology(Tech.Starbase) && player.ThreatPoint.Owner == faction)
+            var blueprintsToUpgrade = new List<ShipBlueprint> {faction.Interceptor, faction.Cruiser, faction.Dreadnought};
+            if (faction.HasTechnology(Tech.Starbase) && player.ThreatPoint != null && player.ThreatPoint.Owner == faction)
                 blueprintsToUpgrade.Add(faction.Starbase);
 
-            var upgrades = GetAllPossibleUpgrades(player, shipsToUpgrade, blueprintsToUpgrade);
+            var upgrades = GetAllPossibleUpgrades(player, shipsToUpgrade, blueprintsToUpgrade)
+                .Where(x => availableUpgrades.Contains(x.Upgrade))
+                .ToList();
             var sets = GetPossibleUpgradeSets(upgradeCount, upgrades);
-            
+
             // Get the set with the best possible rating improvement
             return sets
                 .OrderByDescending(set => set.Sum(x => x.RatingImprovement))
                 .FirstOrDefault();
         }
 
-        public IList<BlueprintUpgrade> GenerateForDiscoveredPart(IAiPlayer player, ShipPart upgrade)
-        {
-            var faction = player.Faction;
-            var blueprintsToUpgrade = new List<ShipBlueprint> { faction.Interceptor, faction.Cruiser, faction.Dreadnought };
-            var upgrades = GetAllPossibleUpgrades(player, faction.Ships, blueprintsToUpgrade);
-            var sets = GetPossibleUpgradeSets(1, upgrades);
-            // Get the set with the best possible rating improvement
-            var bestSet = sets.OrderByDescending(set => set.Sum(x => x.RatingImprovement)).FirstOrDefault();
-            return bestSet != null && Equals(bestSet[0].Upgrade, upgrade) ? bestSet : null;
-        }
-
-        private static IEnumerable<List<BlueprintUpgrade>> GetPossibleUpgradeSets(int remainingPicks, List<BlueprintUpgrade> upgrades)
-        {
-            var sets = new List<List<BlueprintUpgrade>>();
-            var validPicks = upgrades.Where(u => u.Order == 0);
-            foreach (var upgrade in validPicks)
-            {
-                if (remainingPicks==1)
-                {
-                    sets.Add(new List<BlueprintUpgrade> {upgrade});
-                }
-                else
-                {
-                    var blueprintUpgrades = upgrades.Where(x => x.Blueprint == upgrade.Blueprint).ToArray();
-                    var remainingForBlueprint = blueprintUpgrades.Where(x => x.Order > 0)
-                        .Select(x => new BlueprintUpgrade {Blueprint = x.Blueprint, Upgrade = x.Upgrade, Replace = x.Replace, Order = x.Order - 1});
-                    var remainingUpgrades = upgrades.Except(blueprintUpgrades).Concat(remainingForBlueprint).ToList();
-                    var additional = GetPossibleUpgradeSets(remainingPicks - 1, remainingUpgrades);
-                    sets.AddRange(additional.Select(additionalSet => new[] {upgrade}.Concat(additionalSet).ToList()));
-                }
-            }
-            return sets;
-        }
-
-        private List<BlueprintUpgrade> GetAllPossibleUpgrades(IAiPlayer player, IList<PlayerShip> shipsToUpgrade, IEnumerable<ShipBlueprint> blueprintsToUpgrade)
+        private IEnumerable<BlueprintUpgrade> GetAllPossibleUpgrades(IAiPlayer player, IList<PlayerShip> shipsToUpgrade, IEnumerable<ShipBlueprint> blueprintsToUpgrade)
         {
             var upgrades = new List<BlueprintUpgrade>();
             foreach (var blueprint in blueprintsToUpgrade)
@@ -72,14 +50,15 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                     var upgrade = ChooseUpgrade(current, ideal);
                     if (upgrade == null) // current matches ideal
                         break;
-                    var item = new BlueprintUpgrade {Blueprint = blueprint, Before = current.ToList(), After = current.ToList(), Upgrade = upgrade, Order = i};
+                    var item = new BlueprintUpgrade { Blueprint = blueprint, Before = current.ToList(), After = current.ToList(), Upgrade = upgrade, Order = i };
                     item.After.Add(item.Upgrade);
-                    if (current.Count == blueprint.PartSpaces)
+                    if (item.After.Count > blueprint.PartSpaces)
                     {
                         item.Replace = ChoosePartToReplace(current, ideal);
-                        item.After.Remove(item.Replace);
+                        if (item.Replace != null)
+                            item.After.Remove(item.Replace);
                     }
-                    item.RatingImprovement = (shipCount+0.1m)*(ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
+                    item.RatingImprovement = (shipCount + 0.1m) * (ShipProfile.Create(blueprint, item.After).Rating - ShipProfile.Create(blueprint, item.Before).Rating);
                     upgrades.Add(item);
                     current = item.After;
                 }
@@ -87,7 +66,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             return upgrades;
         }
 
-        private ShipPart ChooseUpgrade(IEnumerable<ShipPart> current, IEnumerable<ShipPart> ideal)
+        private static ShipPart ChooseUpgrade(IEnumerable<ShipPart> current, IEnumerable<ShipPart> ideal)
         {
             // Get a part that is in the ideal template but not the current
             return ideal.Less(current)
@@ -97,14 +76,38 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
         }
 
 
-        private ShipPart ChoosePartToReplace(IEnumerable<ShipPart> current, IEnumerable<ShipPart> ideal)
+        private static ShipPart ChoosePartToReplace(IEnumerable<ShipPart> current, IEnumerable<ShipPart> ideal)
         {
             // Get a part that is not in the ideal template
             return current.Less(ideal)
                 // replace drives last so that ship always has a drive
                 .OrderBy(x => x.Move)
                 .ThenBy(x => x.Energy)
-                .First();
+                .FirstOrDefault();
+        }
+
+        private static IEnumerable<List<BlueprintUpgrade>> GetPossibleUpgradeSets(int remainingPicks, List<BlueprintUpgrade> upgrades)
+        {
+            var sets = new List<List<BlueprintUpgrade>>();
+            var validPicks = upgrades.Where(u => u.Order == 0);
+            foreach (var upgrade in validPicks)
+            {
+                if (remainingPicks == 1)
+                {
+                    sets.Add(new List<BlueprintUpgrade> { upgrade });
+                }
+                else
+                {
+                    var blueprintUpgrades = upgrades.Where(x => x.Blueprint == upgrade.Blueprint).ToArray();
+                    var remainingForBlueprint = blueprintUpgrades.Where(x => x.Order > 0)
+                        .Select(x => new BlueprintUpgrade { Blueprint = x.Blueprint, Upgrade = x.Upgrade, Replace = x.Replace, Order = x.Order - 1 });
+                    var remainingUpgrades = upgrades.Except(blueprintUpgrades).Concat(remainingForBlueprint).ToList();
+                    var additional = GetPossibleUpgradeSets(remainingPicks - 1, remainingUpgrades);
+                    var localUpgrade = upgrade;
+                    sets.AddRange(additional.Select(additionalSet => new[] { localUpgrade }.Concat(additionalSet).ToList()));
+                }
+            }
+            return sets;
         }
 
         public decimal RateRallyPoint(IAiPlayer player)

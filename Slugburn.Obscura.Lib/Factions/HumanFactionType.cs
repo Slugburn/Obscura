@@ -8,7 +8,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
         }
 
-        public override void Setup(PlayerFaction faction)
+        public override void Setup(Faction faction)
         {
             base.Setup(faction);
             faction.Technologies.Add(Tech.Starbase);

@@ -64,7 +64,10 @@
     <Compile Include="Factions\Behavior\ClaimSectorTest.cs" />
     <Compile Include="Factions\Behavior\CostForTechTest.cs" />
     <Compile Include="GameSetupTest.cs" />
+    <Compile Include="ConsoleMapVisualizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Ships\ShipBlueprintTest.cs" />
+    <Compile Include="TestExtensions.cs" />
     <Compile Include="TestModule.cs" />
   </ItemGroup>
   <ItemGroup>

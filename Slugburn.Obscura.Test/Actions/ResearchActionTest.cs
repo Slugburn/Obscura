@@ -12,19 +12,19 @@ namespace Slugburn.Obscura.Test.Actions
     public class ResearchActionTest
     {
         private ResearchAction _action;
-        private PlayerFaction _faction;
+        private Faction _faction;
         private Tech _tech;
         private Tech[] _availableTech;
         private Game _game;
 
         [SetUp]
-        public void BeforeAch()
+        public void BeforeEach()
         {
             _action = new ResearchAction(new ConsoleLog());
             _tech = new Tech("Test", 4, 3, TechCategory.Grid);
             _game = Substitute.For<Game>();
             _game.AvailableTechTiles = new List<Tech> {_tech};
-            _faction = Substitute.For<PlayerFaction>();
+            _faction = Substitute.For<Faction>();
             _faction.Game = _game;
             _availableTech = new[] { _tech };
             _faction.AvailableResearchTech().Returns(_availableTech);

@@ -25,20 +25,20 @@ namespace Slugburn.Obscura.Lib.Builders
         }
 
         public string Name { get { return _name; } }
-        public abstract IBuildable Create(PlayerFaction faction);
-        public abstract int CostFor(PlayerFaction faction);
+        public abstract IBuildable Create(Faction faction);
+        public abstract int CostFor(Faction faction);
 
-        public decimal CombatEfficiencyFor(PlayerFaction faction)
+        public decimal CombatEfficiencyFor(Faction faction)
         {
             return CombatRatingFor(faction)/CostFor(faction);
         }
 
-        public virtual decimal CombatRatingFor(PlayerFaction faction)
+        public virtual decimal CombatRatingFor(Faction faction)
         {
             return 0;
         }
 
-        public bool IsBuildAvailable(PlayerFaction faction)
+        public bool IsBuildAvailable(Faction faction)
         {
             if (RequiredTech != null && !faction.HasTechnology(RequiredTech))
                 return false;

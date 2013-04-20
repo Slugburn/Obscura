@@ -19,31 +19,31 @@ namespace Slugburn.Obscura.Lib
 
         public Game(
             IEnumerable<IFactionType> factionTypes, 
-            IEnumerable<IAction> actions, 
             ILog log, 
             CombatEngine combatEngine,
-            IMessagePipe messagePipe)
+            IMessagePipe messagePipe,
+            IMapVisualizer mapVisualizer)
         {
             MessagePipe = messagePipe;
             _factionTypes = factionTypes;
-            _actions = actions;
             _log = log;
             _combatEngine = combatEngine;
-            Ancients = new AncientFaction();
+            _mapVisualizer = mapVisualizer;
+            Ancients = new Ancients();
         }
 
-        public AncientFaction Ancients { get; private set; }
+        public Ancients Ancients { get; private set; }
 
         protected Game()
         {
         }
 
         private readonly IEnumerable<IFactionType> _factionTypes;
-        private readonly IEnumerable<IAction> _actions;
         private readonly ILog _log;
         private readonly CombatEngine _combatEngine;
+        private readonly IMapVisualizer _mapVisualizer;
 
-        public void Setup(IList<PlayerFaction> factions)
+        public void Setup(IList<Faction> factions)
         {
             _log.Log("-- Setup --");
             Factions = factions.Shuffle();
@@ -68,7 +68,7 @@ namespace Slugburn.Obscura.Lib
             factions.Each(f => f.Setup(this));
         }
 
-        public PlayerFaction StartingFaction { get; set; }
+        public Faction StartingFaction { get; set; }
 
         protected MapLocation[] StartingLocations { get; set; }
 
@@ -90,7 +90,7 @@ namespace Slugburn.Obscura.Lib
             return 8 + playerCount * 2;
         }
 
-        public List<PlayerFaction> Factions { get; set; }
+        public List<Faction> Factions { get; set; }
 
         public List<Sector> OuterSectors { get; set; }
 
@@ -147,7 +147,7 @@ namespace Slugburn.Obscura.Lib
                     var currentFaction = StartingFaction;
                     while (Factions.Any(f=>!f.Passed))
                     {
-                        currentFaction.TakeAction(_actions);
+                        currentFaction.TakeAction();
                         currentFaction = GetNextFaction(currentFaction);
                     }
                     StartCombatPhase();
@@ -157,29 +157,29 @@ namespace Slugburn.Obscura.Lib
             }
             finally
             {
-                new MapVisualizer(_log).Display(Map);
+                _mapVisualizer.Display(Map);
             }
         }
-
-        private void TakeAction(PlayerFaction faction)
-        {
-            faction.TakeAction(_actions);
-            ActionDone(faction);
-        }
-
-        private void ActionDone(PlayerFaction faction)
-        {
-            // Have all players passed?
-            if (Factions.All(f => f.Passed))
-            {
-                StartCombatPhase();
-                return;
-            }
-            var nextFaction = GetNextFaction(faction);
-            TakeAction(nextFaction);
-        }
-
-        private PlayerFaction GetNextFaction(PlayerFaction faction)
+//
+//        private void TakeAction(Faction faction)
+//        {
+//            faction.TakeAction();
+//            ActionDone(faction);
+//        }
+//
+//        private void ActionDone(Faction faction)
+//        {
+//            // Have all players passed?
+//            if (Factions.All(f => f.Passed))
+//            {
+//                StartCombatPhase();
+//                return;
+//            }
+//            var nextFaction = GetNextFaction(faction);
+//            TakeAction(nextFaction);
+//        }
+//
+        private Faction GetNextFaction(Faction faction)
         {
             var nextIndex = Factions.IndexOf(faction) + 1;
             if (nextIndex >= Factions.Count)
@@ -240,10 +240,6 @@ namespace Slugburn.Obscura.Lib
             return Sectors[sectorId];
         }
 
-        public T GetAction<T>() where T : IAction
-        {
-            return (T) _actions.Single(x => x is T);
-        }
     }
 
 }

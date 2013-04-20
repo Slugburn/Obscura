@@ -1,6 +1,6 @@
 using Slugburn.Obscura.Lib.Actions;
 
-namespace Slugburn.Obscura.Lib.Ai.Actions
+namespace Slugburn.Obscura.Lib.Ai
 {
     public class ActionRating
     {

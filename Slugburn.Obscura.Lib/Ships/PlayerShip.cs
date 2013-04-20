@@ -7,7 +7,7 @@ namespace Slugburn.Obscura.Lib.Ships
 {
     public class PlayerShip : Ship, IBuildable
     {
-        public PlayerShip(PlayerFaction faction, ShipBlueprint blueprint)
+        public PlayerShip(Faction faction, ShipBlueprint blueprint)
         {
             Faction = faction;
             Blueprint = blueprint;

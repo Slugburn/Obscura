@@ -7,12 +7,12 @@ namespace Slugburn.Obscura.Lib.Builders
     public interface IBuilder
     {
         string Name { get; }
-        bool IsBuildAvailable(PlayerFaction faction);
-        IBuildable Create(PlayerFaction faction);
+        bool IsBuildAvailable(Faction faction);
+        IBuildable Create(Faction faction);
         bool IsValidPlacementLocation(Sector sector);
-        int CostFor(PlayerFaction faction);
-        decimal CombatRatingFor(PlayerFaction faction);
-        decimal CombatEfficiencyFor(PlayerFaction faction);
+        int CostFor(Faction faction);
+        decimal CombatRatingFor(Faction faction);
+        decimal CombatEfficiencyFor(Faction faction);
         bool OnePerSector { get; }
         Tech RequiredTech { get; }
     }

@@ -19,5 +19,6 @@ namespace Slugburn.Obscura.Lib.Ai
         IList<BlueprintUpgrade> UpgradeList { get; set; }
         IList<InfluenceLocation> InfluenceList { get; set; }
         IList<ShipPart> GetIdealPartList(ShipBlueprint blueprint);
+        int ActionRatingMinimum { get; }
     }
 }

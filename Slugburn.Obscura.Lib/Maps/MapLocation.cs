@@ -69,7 +69,7 @@ namespace Slugburn.Obscura.Lib.Maps
             return Equals((MapLocation) obj);
         }
 
-        public virtual IEnumerable<int> AdjacentWormholesFor(PlayerFaction faction)
+        public virtual IEnumerable<int> AdjacentWormholesFor(Faction faction)
         {
             return Facing.All.Select(facing => new {facing, sector = Map.GetSector(Coord.Go(facing, 1))})
                 .Where(x => x.sector != null 

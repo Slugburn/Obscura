@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Factions;
+using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Messages;
 using Slugburn.Obscura.Lib.Ships;
 
@@ -9,18 +10,18 @@ namespace Slugburn.Obscura.Lib
 {
     public class Discovery
     {
-        private readonly Action<PlayerFaction> _onUse;
+        private readonly Action<DiscoveryUsage> _onUse;
         public string Name { get; set; }
 
-        public Discovery(string name, Action<PlayerFaction> onUse)
+        public Discovery(string name, Action<DiscoveryUsage> onUse)
         {
             _onUse = onUse;
             Name = name;
         }
 
-        public void Use(PlayerFaction faction)
+        public void Use(DiscoveryUsage discoveryUsage)
         {
-            _onUse(faction);
+            _onUse(discoveryUsage);
         }
 
         public override string ToString()
@@ -32,10 +33,10 @@ namespace Slugburn.Obscura.Lib
         {
             get
             {
-                return new Discovery("+8 Money", f =>
+                return new Discovery("+8 Money", x =>
                     {
-                        f.Money += 8;
-                        f.Log("\t+8 Money gained");
+                        x.Faction.Money += 8;
+                        x.Faction.Log("\t+8 Money gained");
                     });
             }
         }
@@ -44,10 +45,10 @@ namespace Slugburn.Obscura.Lib
         {
             get
             {
-                return new Discovery("+5 Science", f =>
+                return new Discovery("+5 Science", x =>
                     {
-                        f.Science += 5;
-                        f.Log("\t+5 Science gained");
+                        x.Faction.Science += 5;
+                        x.Faction.Log("\t+5 Science gained");
                     });
             }
         }
@@ -56,10 +57,10 @@ namespace Slugburn.Obscura.Lib
         {
             get
             {
-                return new Discovery("+6 Materials", f =>
+                return new Discovery("+6 Materials", x =>
                     {
-                        f.Material += 6;
-                        f.Log("+6 Materials gained");
+                        x.Faction.Material += 6;
+                        x.Faction.Log("+6 Materials gained");
                     });
             }
         }
@@ -69,8 +70,9 @@ namespace Slugburn.Obscura.Lib
             get { return new Discovery("Ancient Technology", ChooseLowestCostTech); }
         }
 
-        private static void ChooseLowestCostTech(PlayerFaction faction)
+        private static void ChooseLowestCostTech(DiscoveryUsage usage)
         {
+            var faction = usage.Faction;
             // choose lowest cost unknown tech
             var available = faction.UnknownTech().ToArray();
             var minCost = available.Min(x => x.Cost);
@@ -78,7 +80,7 @@ namespace Slugburn.Obscura.Lib
                         where tech.Cost == minCost
                         select tech;
             var chosen = faction.Player.ChooseDiscoveredTech(techs);
-            var research = faction.Game.GetAction<ResearchAction>();
+            var research = faction.GetAction<ResearchAction>();
             research.ClaimTech(faction, chosen);
             faction.Log("\t{0} claimed", chosen);
         }
@@ -92,15 +94,16 @@ namespace Slugburn.Obscura.Lib
             }
         }
 
-        private static void MakeAncientCruiser(PlayerFaction faction)
+        private static void MakeAncientCruiser(DiscoveryUsage usage)
         {
+            var faction = usage.Faction;
             var cruiser = faction.CreateShip(faction.Cruiser);
-            var sector = faction.Player.ChoosePlacementLocation(cruiser, faction.Sectors);
+            var sector = usage.DiscoveredIn;
             cruiser.Place(sector);
-            faction.Log("\tDiscovered cruiser placed at {0}", sector);
+            faction.Log("\tAncient cruiser discovered in {0}", sector);
         }
 
-        private static void UseDiscoveredPart(PlayerFaction faction, ShipPart part)
+        private static void UseDiscoveredPart(Faction faction, ShipPart part)
         {
             faction.SendMessage(new PartDiscovered(part));
 //            faction.Game.GetAction<UpgradeAction>().UpgradeUsingDiscoveredPart(faction, part);
@@ -111,7 +114,7 @@ namespace Slugburn.Obscura.Lib
             get
             {
                 // +3 accuracy
-                return new Discovery("Axiom Computer", f => UseDiscoveredPart(f, new AncientShipPart {Name = "Axiom Computer", Accuracy = 3}));
+                return new Discovery("Axiom Computer", x => UseDiscoveredPart(x.Faction, new AncientShipPart {Name = "Axiom Computer", Accuracy = 3}));
             }
         }
 
@@ -120,7 +123,7 @@ namespace Slugburn.Obscura.Lib
             get
             {
                 // +11 energy
-                return new Discovery("Hypergrid Source", f => UseDiscoveredPart(f, new AncientShipPart { Name = "Hypergrid Source", Energy = 11 }));
+                return new Discovery("Hypergrid Source", x => UseDiscoveredPart(x.Faction, new AncientShipPart { Name = "Hypergrid Source", Energy = 11 }));
             }
         }
 
@@ -129,7 +132,7 @@ namespace Slugburn.Obscura.Lib
             get
             {
                 // 3 structure
-                return new Discovery("Shard Hull", f => UseDiscoveredPart(f, new AncientShipPart { Name = "Shard Hull", Structure = 3 }));
+                return new Discovery("Shard Hull", x => UseDiscoveredPart(x.Faction, new AncientShipPart { Name = "Shard Hull", Structure = 3 }));
             }
         }
 
@@ -138,7 +141,11 @@ namespace Slugburn.Obscura.Lib
             get
             {
                 // 2 x 1 damage, -1 energy
-                return new Discovery("Ion Turret", f => UseDiscoveredPart(f, new AncientShipPart { Name = "Ion Turret", Cannons = new[] { 1, 1 }, Energy = -1 }));
+                return new Discovery("Ion Turret", x =>
+                                                       {
+                                                           UseDiscoveredPart(x.Faction,
+                                                                             new AncientShipPart {Name = "Ion Turret", Cannons = new[] {1, 1}, Energy = -1});
+                                                       });
             }
         }
 
@@ -148,7 +155,10 @@ namespace Slugburn.Obscura.Lib
             {
                 // 4 move, 2 init, -2 energy
                 return new Discovery("Conformal Drive",
-                                     f => UseDiscoveredPart(f, new AncientShipPart { Name = "Conformal Drive", Move = 4, Initiative = 2, Energy = -2 }));
+                                     x =>
+                                         {
+                                             UseDiscoveredPart(x.Faction, new AncientShipPart {Name = "Conformal Drive", Move = 4, Initiative = 2, Energy = -2});
+                                         });
             }
         }
 
@@ -157,7 +167,11 @@ namespace Slugburn.Obscura.Lib
             get
             {
                 // -3 deflection, -2 energy
-                return new Discovery("Flux Shield", f => UseDiscoveredPart(f, new AncientShipPart { Name = "Flux Shield", Deflection = -3, Energy = -2 }));
+                return new Discovery("Flux Shield", x =>
+                                                        {
+                                                            UseDiscoveredPart(x.Faction,
+                                                                              new AncientShipPart {Name = "Flux Shield", Deflection = -3, Energy = -2});
+                                                        });
             }
         }
     }

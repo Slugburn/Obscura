@@ -26,7 +26,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public int HomeSectorId { get; private set; }
 
-        public virtual void Setup(PlayerFaction faction)
+        public virtual void Setup(Faction faction)
         {
             faction.Money = _startingMoney;
             faction.Science = _startingScience;

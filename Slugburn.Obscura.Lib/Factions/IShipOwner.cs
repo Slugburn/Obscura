@@ -3,7 +3,7 @@ using Slugburn.Obscura.Lib.Combat;
 
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public interface IFaction
+    public interface IShipOwner
     {
         IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> hits, IEnumerable<Target> targets);
     }

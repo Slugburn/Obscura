@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
@@ -38,7 +37,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             return toUpgrade.Count()*tech.Cost;
         }
 
-        public Tech GeneratePartTech(PlayerFaction faction)
+        public Tech GeneratePartTech(Faction faction)
         {
             var bestPartTechCost = faction.Technologies
                 .Where(tech => tech is PartTech)
@@ -51,7 +50,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                 .Select(tech => new {tech, rating = bestPartTechCost.ContainsKey(tech.PartType) ? tech.Cost - bestPartTechCost[tech.PartType] : tech.Cost})
                 .Where(x => x.rating > 0)
                 .ToArray();
-            return EconomicResearchDecision.PickBestAvailableTech(faction, improvedPartTechs.Select(x => x.tech));
+            return improvedPartTechs.Select(x => x.tech).PickBest(faction);
         }
     }
 }

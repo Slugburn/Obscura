@@ -18,7 +18,7 @@ namespace Slugburn.Obscura.Lib.Actions
             _log = log;
         }
 
-        public void Do(PlayerFaction faction)
+        public void Do(Faction faction)
         {
             var buildsCompleted = 0;
             while (buildsCompleted < faction.BuildCount)
@@ -40,7 +40,7 @@ namespace Slugburn.Obscura.Lib.Actions
             }
         }
 
-        public bool IsValid(PlayerFaction faction)
+        public bool IsValid(Faction faction)
         {
             return faction.Influence > 0 && _builders.Any(builder => builder.IsBuildAvailable(faction));
         }

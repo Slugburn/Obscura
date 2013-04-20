@@ -22,7 +22,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
             kernel.Load(new TestModule());
             var pipe = new MessagePipe();
             kernel.Rebind<IMessagePipe>().ToConstant(pipe);
-            var faction = kernel.Get<PlayerFaction>();
+            var faction = kernel.Get<Faction>();
 
             var player = Substitute.For<IPlayer>();
             player.ChooseToUseDiscovery(Arg.Any<Discovery>()).Returns(true);

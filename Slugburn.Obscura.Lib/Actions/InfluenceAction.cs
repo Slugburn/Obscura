@@ -7,7 +7,7 @@ namespace Slugburn.Obscura.Lib.Actions
 {
     public class InfluenceAction : IAction
     {
-        public void Do(PlayerFaction faction)
+        public void Do(Faction faction)
         {
             // recover two colony ships
             faction.ColonyShips = Math.Min(faction.ColonyShips+2, faction.MaxColonyShips);
@@ -35,7 +35,7 @@ namespace Slugburn.Obscura.Lib.Actions
             }
         }
 
-        public bool IsValid(PlayerFaction faction)
+        public bool IsValid(Faction faction)
         {
             return true;
         }

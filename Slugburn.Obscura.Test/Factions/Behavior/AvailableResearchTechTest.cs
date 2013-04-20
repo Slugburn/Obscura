@@ -12,7 +12,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
     public class AvailableResearchTechTest
     {
         private Game _game;
-        private PlayerFaction _faction;
+        private Faction _faction;
         private Tech _tech;
 
         [SetUp]
@@ -24,7 +24,7 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
 
             var kernel = new StandardKernel();
             kernel.Load(new TestModule());
-            _faction = kernel.Get<PlayerFaction>();
+            _faction = kernel.Get<Faction>();
             _faction.Game = _game;
             _faction.Science = 4;
         }

@@ -18,7 +18,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             _builders = builders;
         }
 
-        public IList<BuildLocation> Generate(IAiPlayer player, IEnumerable<Sector> validLocations, Func<PlayerFaction, IBuilder, decimal> builderRating )
+        public IList<BuildLocation> Generate(IAiPlayer player, IEnumerable<Sector> validLocations, Func<Faction, IBuilder, decimal> builderRating )
         {
             var faction = player.Faction;
             var builders = _builders.Where(b => b.IsBuildAvailable(faction)).ToList();
@@ -60,7 +60,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             return lists;
         }
 
-        private static BuilderState CreateBuilderState(PlayerFaction faction, IEnumerable<Sector> validLocations, IBuilder b)
+        private static BuilderState CreateBuilderState(Faction faction, IEnumerable<Sector> validLocations, IBuilder b)
         {
             var locations = validLocations.ToArray();
             if (locations.Any(x=>x==null))
@@ -85,7 +85,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             public int NumberAvailable { get; set; }
         }
 
-        public static Func<PlayerFaction, IBuilder, decimal> RateCombatEfficiency
+        public static Func<Faction, IBuilder, decimal> RateCombatEfficiency
         {
             get { return (f, b) =>
                              {
@@ -94,7 +94,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                              }; }
         }
 
-        public static Func<PlayerFaction, IBuilder, decimal> RateAttackEfficency
+        public static Func<Faction, IBuilder, decimal> RateAttackEfficency
         {
             get
             {
@@ -107,7 +107,7 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             }
         }
 
-        public static Func<PlayerFaction, IBuilder, decimal> RateEconomicEfficiency
+        public static Func<Faction, IBuilder, decimal> RateEconomicEfficiency
         {
             get
             {
@@ -120,11 +120,21 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             }
         }
 
-        public decimal Rate(IAiPlayer player, Func<PlayerFaction, IBuilder, decimal> rateEfficiency)
+        public decimal RateStagingPoint(IAiPlayer player, Func<Faction, IBuilder, decimal> rateEfficiency)
         {
             if (player.GetAction<BuildAction>() == null) 
                 return 0;
             player.BuildList = Generate(player, new[] {player.StagingPoint}, rateEfficiency);
+            if (player.BuildList == null)
+                return 0;
+            return player.BuildList.Sum(x => x.Rating)*((decimal) player.BuildList.Count/player.Faction.BuildCount);
+        }
+
+        public decimal RateAllSectors(IAiPlayer player, Func<Faction, IBuilder, decimal> rateEfficiency)
+        {
+            if (player.GetAction<BuildAction>() == null) 
+                return 0;
+            player.BuildList = Generate(player, player.Faction.Sectors, rateEfficiency);
             if (player.BuildList == null)
                 return 0;
             return player.BuildList.Sum(x => x.Rating)*((decimal) player.BuildList.Count/player.Faction.BuildCount);

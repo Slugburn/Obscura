@@ -4,7 +4,7 @@ namespace Slugburn.Obscura.Lib.Ships
 {
     public class AncientShip : Ship
     {
-        public AncientShip(AncientFaction faction)
+        public AncientShip(Ancients faction)
         {
             Faction = faction;
         }

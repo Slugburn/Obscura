@@ -13,33 +13,41 @@ using Slugburn.Obscura.Lib.Technology;
 
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public class PlayerFaction : IFaction
+    public class Faction : IShipOwner
     {
         private readonly ILog _log;
-        private readonly IEnumerable<IMessageHandler<PlayerFaction>> _messageHandlers;
+        private readonly IEnumerable<IMessageHandler<Faction>> _messageHandlers;
+        private readonly IEnumerable<IAction> _actions;
 
-        public PlayerFaction(
+        public Faction(
             IMessagePipe messagePipe,
             ILog log, 
             IPlayer player, 
-            IEnumerable<IMessageHandler<PlayerFaction>> messageHandlers
+            IEnumerable<IMessageHandler<Faction>> messageHandlers,
+            IEnumerable<IAction> actions
             ) : this()
         {
             _log = log;
             _messageHandlers = messageHandlers;
+            _actions = actions;
             MessagePipe = messagePipe;
             Player = player;
             _messageHandlers.Configure(this, MessagePipe);
         }
 
-        protected PlayerFaction()
+        protected Faction()
         {
+            Influence = 13;
             IdlePopulation = new ProductionQuantity();
             Graveyard = new ProductionQuantity();
             Sectors = new List<Sector>();
             Ships = new List<PlayerShip>();
             Technologies = new List<Tech>();
             DiscoveredParts = new List<ShipPart>();
+            Interceptor = new ShipBlueprint();
+            Cruiser = new ShipBlueprint();
+            Dreadnought = new ShipBlueprint();
+            Starbase = new ShipBlueprint();
         }
 
         public override string ToString()
@@ -56,6 +64,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         private IFactionType _factionType;
         private int _buildCount;
+        private int _influence;
 
         public string Name { get { return _factionType != null ? _factionType.Name : null; } }
 
@@ -135,19 +144,30 @@ namespace Slugburn.Obscura.Lib.Factions
 
             if (Player.ChooseToUseDiscovery(tile))
             {
-                tile.Use(this);
+                tile.Use(new DiscoveryUsage(this, sector));
             }
             else
             {
                 this.Vp += 2;
             }
+
+            SendMessage(new SectorClaimed());
         }
 
         protected int Vp { get; set; }
 
         public Game Game { get; set; }
 
-        public int Influence { get; set; }
+        public int Influence
+        {
+            get { return _influence; }
+            set
+            {
+                if (value < 0 || value > 16)
+                    throw new ArgumentOutOfRangeException("Influence", value, String.Format("Influence {0} is not valid.", value));
+                _influence = value;
+            }
+        }
 
         public bool HasFaction
         {
@@ -158,9 +178,9 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual IPlayer Player { get; set; }
 
-        public void TakeAction(IEnumerable<IAction> actions)
+        public void TakeAction()
         {
-            var validActions = actions.Where(action => action.IsValid(this));
+            var validActions = _actions.Where(action => action.IsValid(this));
             var chosenAction = Player.ChooseAction(validActions);
             _log.Log("{0} chooses to {1}", this, chosenAction);
             if (!(chosenAction is PassAction))
@@ -300,7 +320,7 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             square.Owner = this;
             IdlePopulation[productionType]--;
-            _log.Log("{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
+            _log.Log("\t{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
         }
 
         private bool CanColonize(PopulationSquare square)
@@ -333,8 +353,8 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public static int GetUpkeep(int influence)
         {
-            if (influence < 0 || influence > 16)
-                throw new Exception(String.Format("Influence {0} is not valid.", influence));
+            if (influence < 0)
+                return int.MaxValue;
             var influenceTrack = new[] {-30, -25, -21, -17, -13, -10, -7, -5, -3, -2, -1, 0, 0, 0, 0, 0, 0};
             return influenceTrack[influence];
         }
@@ -402,9 +422,10 @@ namespace Slugburn.Obscura.Lib.Factions
                 Money += 1;
             if (tradeFor == ProductionType.Science)
                 Science += 1;
+            _log.Log("\t*{0} trades {1} {2} for 1 {3}", this, TradeRatio, trade, tradeFor);
         }
 
-        private static IList<Sector> GetShortestPath(PlayerFaction faction, Sector start, Sector destination, IEnumerable<Sector> path, ref int shortest)
+        private static IList<Sector> GetShortestPath(Faction faction, Sector start, Sector destination, IEnumerable<Sector> path, ref int shortest)
         {
             path = path.Concat(new[]{start}).ToArray();
             if (path.Count() > 10)
@@ -464,6 +485,11 @@ namespace Slugburn.Obscura.Lib.Factions
         public virtual void SendMessage<T>(T message)
         {
             MessagePipe.Publish(message);
+        }
+
+        public T GetAction<T>() where T: IAction
+        {
+            return (T) _actions.SingleOrDefault(x => x is T);
         }
     }
 }

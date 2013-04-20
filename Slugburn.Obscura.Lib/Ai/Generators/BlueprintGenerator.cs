@@ -9,8 +9,9 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
     {
         public IList<ShipPart> GetBestParts(ShipBlueprint blueprint, IList<ShipPart> partsPool)
         {
+            var possibleParts = partsPool.Concat(new ShipPart[] {null}).ToArray();
             return Enumerable.Range(0, 1000)
-                .Select(x => CreatePossiblePartList(blueprint, partsPool))
+                .Select(x => CreatePossiblePartList(blueprint, possibleParts))
                 .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts.ToArray()), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
                 .OrderByDescending(x => x.Profile.Rating)
@@ -20,12 +21,17 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                 .ToList();
         }
 
-        private IList<ShipPart> CreatePossiblePartList(ShipBlueprint blueprint, IEnumerable<ShipPart> partsPool)
+        private static IList<ShipPart> CreatePossiblePartList(ShipBlueprint blueprint, IList<ShipPart> partsPool)
         {
             // Unique parts should not be replaced, so keep them constant
-            var existingUniqueParts = blueprint.Parts.Where(x => x.IsUnique).ToArray();
-            var additional = CreateRandomPartList(blueprint.PartSpaces - existingUniqueParts.Length, partsPool);
-            return existingUniqueParts.Concat(additional).ToArray();
+            // Also prioritize unique parts
+            var staticParts =
+                blueprint.Parts.Where(x => x.IsUnique)
+                    .Concat(partsPool.Where(x => x!=null && x.IsUnique && blueprint.CanUsePartToUpgrade(x)))
+                    .ToArray();
+
+            var additional = CreateRandomPartList(blueprint.PartSpaces - staticParts.Length, partsPool);
+            return staticParts.Concat(additional.Where(x => x != null)).ToArray();
         }
 
         private static IEnumerable<ShipPart> CreateRandomPartList(int partCount, IEnumerable<ShipPart> partsPool)

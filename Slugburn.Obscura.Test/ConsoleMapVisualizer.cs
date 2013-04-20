@@ -1,15 +1,11 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
+using Slugburn.Obscura.Lib.Maps;
 
-namespace Slugburn.Obscura.Lib.Maps
+namespace Slugburn.Obscura.Test
 {
-    public class MapVisualizer
+    public class ConsoleMapVisualizer : IMapVisualizer
     {
-        private readonly ILog _log;
-
-        public MapVisualizer(ILog log)
-        {
-            _log = log;
-        }
 
         public void Display(SectorMap map)
         {
@@ -29,46 +25,50 @@ namespace Slugburn.Obscura.Lib.Maps
 
         private void WriteRow(SectorMap map, int y, int minY, int row, int minX, int maxX)
         {
-            var line = "".PadRight((y-minY)*5);
+            Console.Write("".PadRight((y - minY) * 5)); 
             for (var x = maxX; x >= minX; x--)
             {
                 var sector = map.GetSector(new MapCoord(x,y));
                 if (sector == null)
-                    line += "          ";
+                {
+                    Console.BackgroundColor = 0;
+                    Console.Write("".PadRight(10));
+                }
                 else
                 {
+                    Console.ForegroundColor = sector.Owner == null ? 0 : sector.Owner.Color.ToConsoleColor();
                     switch (row)
                     {
                         case 1:
                             var two = GetWormholeSymbol(sector, 2, "/");
                             var four = GetWormholeSymbol(sector,4,@"\");
-                            line += string.Format(@"   {0}  {1}   ", two, four);
+                            Console.Write(@"   {0}  {1}   ", two, four);
                             break;
                         case 2:
                             var ownerLabel = sector.Owner != null ? sector.Owner.Color.ToString().Substring(0, 3) : "   ";
-                            line += string.Format("|   {0}  |", ownerLabel);
+                            Console.Write("|   {0}  |", ownerLabel);
                             break;
                         case 3:
                             var twelve = GetWormholeSymbol(sector, 12, "|");
                             var six = GetWormholeSymbol(sector,6,"|");
                             var coords = string.Format("{0},{1}", x, y).PadRight(4).PadLeft(5);
-                            line += string.Format("{1}  {0} {2}", coords, twelve,six);
+                            Console.Write("{1}  {0} {2}", coords, twelve,six);
                             break;
                         case 4:
-                            line += "|        |";
+                            Console.Write("|        |");
                             break;
                         case 5:
                             var eight = GetWormholeSymbol(sector, 8, "/");
                             var ten = GetWormholeSymbol(sector,10,@"\");
-                            line += string.Format(@"   {0}  {1}   ", ten, eight);
+                            Console.Write(@"   {0}  {1}   ", ten, eight);
                             break;
                         default:
-                            line += "          ";
+                            Console.Write("          ");
                             break;
                     }
                 }
             }
-            _log.Log(line);
+            Console.WriteLine();
         }
 
         private static string GetWormholeSymbol(Sector sector, int facing, string noWormholdSymbol)

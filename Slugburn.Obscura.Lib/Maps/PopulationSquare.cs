@@ -14,7 +14,7 @@ namespace Slugburn.Obscura.Lib.Maps
         public ProductionType ProductionType { get; set; }
         public bool Advanced { get; set; }
 
-        public PlayerFaction Owner { get; set; }
+        public Faction Owner { get; set; }
 
         public override string ToString()
         {

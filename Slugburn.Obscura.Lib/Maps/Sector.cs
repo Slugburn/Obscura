@@ -55,7 +55,7 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public MapLocation Location { get; set; }
 
-        public PlayerFaction Owner { get; set; }
+        public Faction Owner { get; set; }
 
         public bool HasOrbital { get; set; }
 
@@ -80,12 +80,12 @@ namespace Slugburn.Obscura.Lib.Maps
             return String.Format("{0} {1}", Name, Location);
         }
 
-        public IEnumerable<Ship> GetEnemyShips(PlayerFaction faction)
+        public IEnumerable<Ship> GetEnemyShips(Faction faction)
         {
             return Ships.Where(ship => ship.Faction != faction);
         }
 
-        public IEnumerable<PlayerShip> GetFriendlyShips(PlayerFaction faction)
+        public IEnumerable<PlayerShip> GetFriendlyShips(Faction faction)
         {
             return Ships.Where(ship => ship.Faction == faction).Cast<PlayerShip>();
         }

@@ -4,7 +4,7 @@ namespace Slugburn.Obscura.Lib.Builders
 {
     public interface IShipBuilder : IBuilder
     {
-        int MaximumBuildableFor(PlayerFaction faction);
+        int MaximumBuildableFor(Faction faction);
         bool CanMove { get; }
     }
 }

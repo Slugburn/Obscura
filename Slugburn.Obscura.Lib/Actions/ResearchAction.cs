@@ -20,7 +20,7 @@ namespace Slugburn.Obscura.Lib.Actions
             return "Research";
         }
 
-        public void Do(PlayerFaction faction)
+        public void Do(Faction faction)
         {
             var tech = faction.Player.ChooseResearch(faction.AvailableResearchTech());
             
@@ -32,7 +32,7 @@ namespace Slugburn.Obscura.Lib.Actions
             _log.Log("\t{0} obtained ({1} Science)", tech, cost);
         }
 
-        public void ClaimTech(PlayerFaction faction, Tech tech)
+        public void ClaimTech(Faction faction, Tech tech)
         {
             faction.Game.AvailableTechTiles.Remove(tech);
             faction.Technologies.Add(tech);
@@ -42,7 +42,7 @@ namespace Slugburn.Obscura.Lib.Actions
             faction.SendMessage(new TechGained(tech));
         }
 
-        public bool IsValid(PlayerFaction faction)
+        public bool IsValid(Faction faction)
         {
             return !faction.Passed && faction.Influence > 0 && faction.AvailableResearchTech().Any();
         }

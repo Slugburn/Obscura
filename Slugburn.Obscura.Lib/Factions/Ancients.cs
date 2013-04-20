@@ -2,12 +2,11 @@
 using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Maps;
-using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Factions
 {
-    public class AncientFaction : IFaction
+    public class Ancients : IShipOwner
     {
         public override string ToString()
         {

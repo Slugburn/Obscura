@@ -11,8 +11,8 @@ namespace Slugburn.Obscura.Lib.Players
 {
     public interface IPlayer
     {
-        void SetFaction(PlayerFaction faction);
-        PlayerFaction Faction { get; set; }
+        void SetFaction(Faction faction);
+        Faction Faction { get; set; }
 
         bool ChooseToClaimSector(Sector sector);
         bool ChooseToUseDiscovery(Discovery discoveryTile);
@@ -33,14 +33,11 @@ namespace Slugburn.Obscura.Lib.Players
         PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
         IList<Sector> ChooseShipPath(PlayerShip ship, IList<Sector> validDestinations);
         IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets);
-        void AfterUpgradeCompleted();
         InfluenceDirection ChooseInfluenceDirection();
         Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations);
         IEnumerable<PopulationSquare> ChoosePopulationToDestroy(Sector sector, PopulationSquare[] populatedSquares, int damage);
         ProductionType ChooseProductionToAbandon(ProductionType prodType);
         ProductionType ChooseGraveyard(ProductionType prodType);
         Tech ChooseDiscoveredTech(IEnumerable<Tech> techs);
-        ShipBlueprint ChooseBlueprintToUpgradeWithDiscoveredPart(IEnumerable<ShipBlueprint> upgradeableBlueprints);
-        void BeforeUpgradeWithDiscoveredPart(ShipPart part);
     }
 }
