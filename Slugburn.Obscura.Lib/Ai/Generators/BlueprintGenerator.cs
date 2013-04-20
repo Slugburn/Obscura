@@ -9,8 +9,9 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
     {
         public IList<ShipPart> GetBestParts(ShipBlueprint blueprint, IList<ShipPart> partsPool)
         {
-            return Enumerable.Range(0, 1000).Select(x => CreateRandomPartList(blueprint.PartSpaces, partsPool))
-                .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts), Parts = parts})
+            return Enumerable.Range(0, 1000)
+                .Select(x => CreatePossiblePartList(blueprint, partsPool))
+                .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts.ToArray()), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
                 .OrderByDescending(x => x.Profile.Rating)
                 .First()
@@ -19,19 +20,17 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
                 .ToList();
         }
 
-        public IList<ShipPart> CreateRandomPartList(int partCount, IList<ShipPart> partsPool)
+        private IList<ShipPart> CreatePossiblePartList(ShipBlueprint blueprint, IEnumerable<ShipPart> partsPool)
+        {
+            // Unique parts should not be replaced, so keep them constant
+            var existingUniqueParts = blueprint.Parts.Where(x => x.IsUnique).ToArray();
+            var additional = CreateRandomPartList(blueprint.PartSpaces - existingUniqueParts.Length, partsPool);
+            return existingUniqueParts.Concat(additional).ToArray();
+        }
+
+        private static IEnumerable<ShipPart> CreateRandomPartList(int partCount, IEnumerable<ShipPart> partsPool)
         {
             return Enumerable.Range(0, partCount).Select(x => partsPool.PickRandom()).ToList();
-        }
-
-        public decimal RateBlueprint(ShipBlueprint blueprint)
-        {
-            return blueprint.Rating; 
-        }
-
-        public decimal RateBlueprint(ShipBlueprint blueprint, IList<ShipPart> parts)
-        {
-            return ShipProfile.Create(blueprint, parts).Rating;
         }
     }
 }

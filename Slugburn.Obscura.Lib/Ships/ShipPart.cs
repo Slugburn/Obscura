@@ -32,6 +32,11 @@ namespace Slugburn.Obscura.Lib.Ships
 
         public int Move { get; set; }
 
+        public virtual bool IsUnique
+        {
+            get { return false; }
+        }
+
         public override string ToString()
         {
             return Name;

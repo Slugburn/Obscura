@@ -12,7 +12,7 @@ namespace Slugburn.Obscura.Lib.Technology
             _effect = effect;
         }
 
-        public void OnDiscovery(PlayerFaction faction)
+        public void OnResearch(PlayerFaction faction)
         {
             _effect(faction);
         }

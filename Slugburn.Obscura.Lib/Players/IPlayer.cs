@@ -11,6 +11,7 @@ namespace Slugburn.Obscura.Lib.Players
 {
     public interface IPlayer
     {
+        void SetFaction(PlayerFaction faction);
         PlayerFaction Faction { get; set; }
 
         bool ChooseToClaimSector(Sector sector);
@@ -32,7 +33,6 @@ namespace Slugburn.Obscura.Lib.Players
         PlayerShip ChooseShipToMove(IEnumerable<PlayerShip> ships);
         IList<Sector> ChooseShipPath(PlayerShip ship, IList<Sector> validDestinations);
         IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> damageRolls, IEnumerable<Target> targets);
-        void AfterAction(IAction chosenAction);
         void AfterUpgradeCompleted();
         InfluenceDirection ChooseInfluenceDirection();
         Sector ChooseInfluencePlacementLocation(IEnumerable<Sector> validLocations);

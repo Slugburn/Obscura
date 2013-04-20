@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using Ninject;
 using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Technology;
@@ -21,7 +22,11 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
             _tech = new Tech("Test", 4, 3, TechCategory.Grid);
             _game.AvailableTechTiles = new List<Tech> { _tech };
 
-            _faction = new PlayerFaction(new ConsoleLog(), null) { Game = _game, Science = 4 };
+            var kernel = new StandardKernel();
+            kernel.Load(new TestModule());
+            _faction = kernel.Get<PlayerFaction>();
+            _faction.Game = _game;
+            _faction.Science = 4;
         }
 
         [Test]

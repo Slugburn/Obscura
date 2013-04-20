@@ -5,6 +5,8 @@ using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Messages;
+using Slugburn.Obscura.Lib.Messaging;
 using Slugburn.Obscura.Lib.Players;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
@@ -14,11 +16,20 @@ namespace Slugburn.Obscura.Lib.Factions
     public class PlayerFaction : IFaction
     {
         private readonly ILog _log;
+        private readonly IEnumerable<IMessageHandler<PlayerFaction>> _messageHandlers;
 
-        public PlayerFaction(ILog log, IPlayer player) : this()
+        public PlayerFaction(
+            IMessagePipe messagePipe,
+            ILog log, 
+            IPlayer player, 
+            IEnumerable<IMessageHandler<PlayerFaction>> messageHandlers
+            ) : this()
         {
             _log = log;
+            _messageHandlers = messageHandlers;
+            MessagePipe = messagePipe;
             Player = player;
+            _messageHandlers.Configure(this, MessagePipe);
         }
 
         protected PlayerFaction()
@@ -76,7 +87,8 @@ namespace Slugburn.Obscura.Lib.Factions
         public void Setup(Game game)
         {
             Game = game;
-            Player.Faction = this;
+            Player.SetFaction(this);
+
             _factionType = Player.ChooseFaction(game.GetAvailableFactions());
             _factionType.Setup(this);
             var startingLocation = Player.ChooseStartingLocation(Game.GetAvailableStartingLocations());
@@ -97,6 +109,7 @@ namespace Slugburn.Obscura.Lib.Factions
                 IdlePopulation[square.ProductionType]--;
                 square.Owner = this;
             }
+
         }
 
         public PlayerShip CreateShip(ShipBlueprint blueprint)
@@ -156,7 +169,7 @@ namespace Slugburn.Obscura.Lib.Factions
                 ActionsTaken++;
             }
             chosenAction.Do(this);
-            Player.AfterAction(chosenAction);
+            SendMessage(new ActionComplete(chosenAction));
         }
 
         protected int ActionsTaken { get; set; }
@@ -230,6 +243,8 @@ namespace Slugburn.Obscura.Lib.Factions
         public ProductionQuantity Graveyard { get; private set; }
 
         public List<ShipPart> DiscoveredParts { get; private set; }
+
+        public IMessagePipe MessagePipe { get; private set; }
 
         public virtual int CostFor(Tech tech)
         {
@@ -444,6 +459,11 @@ namespace Slugburn.Obscura.Lib.Factions
         public void Log(string messageFormat, params object[] args)
         {
             _log.Log(messageFormat, args);
+        }
+
+        public virtual void SendMessage<T>(T message)
+        {
+            MessagePipe.Publish(message);
         }
     }
 }

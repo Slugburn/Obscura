@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using Ninject;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Technology;
 
@@ -14,7 +15,9 @@ namespace Slugburn.Obscura.Test.Factions.Behavior
         public void BeforeEach()
         {
             _tech = new Tech("Test", 6, 4, TechCategory.Grid);
-            _faction = new PlayerFaction(new ConsoleLog(), null);
+            var kernel = new StandardKernel();
+            kernel.Load(new TestModule());
+            _faction = kernel.Get<PlayerFaction>();
         }
 
         [Test]

@@ -61,6 +61,7 @@
     <Compile Include="Builders\StarbaseBuilderTest.cs" />
     <Compile Include="ConsoleLog.cs" />
     <Compile Include="Factions\Behavior\AvailableResearchTechTest.cs" />
+    <Compile Include="Factions\Behavior\ClaimSectorTest.cs" />
     <Compile Include="Factions\Behavior\CostForTechTest.cs" />
     <Compile Include="GameSetupTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

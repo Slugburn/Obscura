@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
-using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Ai.Actions;
 using Slugburn.Obscura.Lib.Ai.Generators;
 using Slugburn.Obscura.Lib.Builders;
@@ -10,24 +9,32 @@ using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Messaging;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
-namespace Slugburn.Obscura.Lib.Players
+namespace Slugburn.Obscura.Lib.Ai
 {
-    public class RandomPlayer : IAiPlayer
+    public class AiPlayer : IAiPlayer
     {
         private readonly BlueprintGenerator _blueprintGenerator;
         private readonly UpgradeListGenerator _upgradeListGenerator;
         private readonly IActionDecision _actionDecision;
         private readonly ILog _log;
+        private readonly IEnumerable<IMessageHandler<AiPlayer>> _messageHandlers;
 
-        public RandomPlayer(BlueprintGenerator blueprintGenerator, UpgradeListGenerator upgradeListGenerator, ShouldPassDecision actionDecision, ILog log)
+        public AiPlayer(
+            BlueprintGenerator blueprintGenerator, 
+            UpgradeListGenerator upgradeListGenerator, 
+            ShouldPassDecision actionDecision, 
+            ILog log,
+            IEnumerable<IMessageHandler<AiPlayer>> messageHandlers)
         {
             _blueprintGenerator = blueprintGenerator;
             _upgradeListGenerator = upgradeListGenerator;
             _actionDecision = actionDecision;
             _log = log;
+            _messageHandlers = messageHandlers;
         }
 
         private Dictionary<ShipBlueprint, IList<ShipPart>> _idealBlueprints;
@@ -136,7 +143,7 @@ namespace Slugburn.Obscura.Lib.Players
             return UpgradeList[0].Blueprint;
         }
 
-        private void UpdateIdealBlueprints()
+        public void UpdateIdealBlueprints()
         {
             var blueprints = new[] {Faction.Interceptor, Faction.Cruiser, Faction.Dreadnought, Faction.Starbase};
             var partsPool = Faction.GetAvailableShipParts().ToList();
@@ -208,7 +215,7 @@ namespace Slugburn.Obscura.Lib.Players
         {
             var rolls = hits.ToList();
             var myTargets = targets.ToArray();
-            var liveTargets = targets.ToList();
+            var liveTargets = myTargets.ToList();
             while (rolls.Any())
             {
                 // find largest target that can be destroyed
@@ -244,12 +251,6 @@ namespace Slugburn.Obscura.Lib.Players
                 }
             }
             return myTargets.Where(x=>x.Damage > 0);
-        }
-
-        public void AfterAction(IAction chosenAction)
-        {
-            if (chosenAction is ResearchAction)
-                UpdateIdealBlueprints();
         }
 
         public void AfterUpgradeCompleted()
@@ -312,5 +313,10 @@ namespace Slugburn.Obscura.Lib.Players
             UpgradeList = _upgradeListGenerator.GenerateForDiscoveredPart(this, upgrade);
         }
 
+        public void SetFaction(PlayerFaction faction)
+        {
+            Faction = faction;
+            _messageHandlers.Configure(this, faction.MessagePipe);
+        }
     }
 }

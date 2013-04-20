@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Slugburn.Obscura.Lib.Ai;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Maps;
 using Slugburn.Obscura.Lib.Players;
@@ -15,7 +16,7 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> hits, IEnumerable<Target> targets)
         {
-            return RandomPlayer.PickDamageDistribution(hits,targets);
+            return AiPlayer.PickDamageDistribution(hits,targets);
         }
 
         public virtual void CreateShipsFor(Sector sector)

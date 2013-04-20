@@ -7,6 +7,7 @@ using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Messaging;
 using Slugburn.Obscura.Lib.Ships;
 using Slugburn.Obscura.Lib.Technology;
 
@@ -14,12 +15,19 @@ namespace Slugburn.Obscura.Lib
 {
     public class Game
     {
-        public Game(IEnumerable<IFactionType> factionTypes, IEnumerable<IAction> actions, ILog log, Random random, CombatEngine combatEngine)
+        public IMessagePipe MessagePipe { get; set; }
+
+        public Game(
+            IEnumerable<IFactionType> factionTypes, 
+            IEnumerable<IAction> actions, 
+            ILog log, 
+            CombatEngine combatEngine,
+            IMessagePipe messagePipe)
         {
+            MessagePipe = messagePipe;
             _factionTypes = factionTypes;
             _actions = actions;
             _log = log;
-            _random = random;
             _combatEngine = combatEngine;
             Ancients = new AncientFaction();
         }
@@ -33,7 +41,6 @@ namespace Slugburn.Obscura.Lib
         private readonly IEnumerable<IFactionType> _factionTypes;
         private readonly IEnumerable<IAction> _actions;
         private readonly ILog _log;
-        private readonly Random _random;
         private readonly CombatEngine _combatEngine;
 
         public void Setup(IList<PlayerFaction> factions)
@@ -58,7 +65,7 @@ namespace Slugburn.Obscura.Lib
             OuterSectors = Sectors.Values.Where(s => s.IsOuter).Shuffle().Draw(GetOuterSectorCount(Factions.Count));
             StartingLocations = Map.GetStartingLayout(Factions.Count);
 
-            factions.Each(p=>p.Setup(this));
+            factions.Each(f => f.Setup(this));
         }
 
         public PlayerFaction StartingFaction { get; set; }
