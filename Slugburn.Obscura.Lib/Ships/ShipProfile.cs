@@ -6,6 +6,12 @@ namespace Slugburn.Obscura.Lib.Ships
 {
     public class ShipProfile
     {
+        public ShipProfile()
+        {
+            Cannons=new int[0];
+            Missiles =new int[0];
+        }
+
         public int[] Cannons { get; set; }
 
         public int[] Missiles { get; set; }

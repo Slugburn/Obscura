@@ -23,7 +23,10 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
                 if (mostNeedsDefending == null)
                     return null;
 
-                var threatPoint = mostNeedsDefending.AdjacentSectors().OrderByDescending(x => x.GetEnemyShips(faction).GetTotalRating()).First();
+                var threatPoint = mostNeedsDefending.AdjacentSectors()
+                    .Where(x => SectorThreatRating(x, faction) > 0)
+                    .OrderByDescending(x => SectorThreatRating(x, faction))
+                    .First();
 
                 faction.Log("{0} feels threatened by {1} in {2}", faction, threatPoint.Owner, mostNeedsDefending);
 
@@ -33,7 +36,8 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
 
                 var actionRatings = new List<ActionRating>
                                       {
-                                          new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player)),
+                                        // undervalue move to encourage building and upgrading
+                                          new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player)/2),
                                           new ActionRating(player.GetAction<UpgradeAction>(), player.UpgradeListGenerator.RateRallyPoint(player)),
                                           new ActionRating(player.GetAction<BuildAction>(), player.BuildListGenerator.RateStagingPoint(player, BuildListGenerator.RateCombatEfficiency))
                                       };
@@ -42,12 +46,17 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
             }
         }
 
+        private static decimal SectorThreatRating(Sector x, Faction faction)
+        {
+            return x.GetEnemyShips(faction).Where(s=> s.Owner is Faction && s.Move > 0).GetTotalRating();
+        }
+
         public static Sector MostNeedsDefending(Faction faction)
         {
             var threatenedSectors = from sector in faction.Sectors
                                     let adjacent = (
                                                        from adj in sector.AdjacentSectors()
-                                                       where adj.GetEnemyShips(faction).Any(s => s.Faction is Faction)
+                                                       where SectorThreatRating(adj, faction) > 0
                                                        select adj
                                                    )
                                     where adjacent.Any()

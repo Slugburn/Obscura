@@ -111,12 +111,11 @@ namespace Slugburn.Obscura.Lib.Factions
             var interceptor = CreateShip(Interceptor);
             homeSector.AddShip(interceptor);
 
-            ClaimSector(homeSector);
+            InfluenceSector(homeSector);
 
             foreach (var square in homeSector.Squares.Where(x=>!x.Advanced))
             {
-                IdlePopulation[square.ProductionType]--;
-                square.Owner = this;
+                ColonizePopulationSquare(square, square.ProductionType);
             }
 
         }
@@ -130,15 +129,24 @@ namespace Slugburn.Obscura.Lib.Factions
 
         public virtual void ClaimSector(Sector sector)
         {
+            InfluenceSector(sector);
+            if (sector.DiscoveryTile != null)
+                ClaimDiscoveryTile(sector);
+            SendMessage(new SectorClaimed());
+        }
+
+        private void InfluenceSector(Sector sector)
+        {
             _log.Log("\t{0} claims {1}", this, sector);
             Sectors.Add(sector);
             sector.Owner = this;
             Influence--;
-            if (sector.DiscoveryTile == null) 
-                return;
-            
+        }
+
+        private void ClaimDiscoveryTile(Sector sector)
+        {
             var tile = sector.DiscoveryTile;
-            _log.Log("{0} discovers {1}", this, tile);
+            _log.Log("\t{0} discovers {1}", this, tile);
 
             sector.DiscoveryTile = null;
 
@@ -150,8 +158,6 @@ namespace Slugburn.Obscura.Lib.Factions
             {
                 this.Vp += 2;
             }
-
-            SendMessage(new SectorClaimed());
         }
 
         protected int Vp { get; set; }
@@ -306,6 +312,8 @@ namespace Slugburn.Obscura.Lib.Factions
                 var square = Player.ChooseColonizationLocation(opportunities);
                 if (square == null)
                     break;
+                if (opportunities.All(x=>square != x))
+                    throw new InvalidOperationException(string.Format("{0} can not colonize {1} square in {2}", this, square, square.Owner));
                 var productionType = square.ProductionType;
                 if (productionType == ProductionType.Orbital || productionType == ProductionType.Any)
                     productionType = Player.ChooseColonizationType(productionType);
@@ -320,7 +328,10 @@ namespace Slugburn.Obscura.Lib.Factions
         {
             square.Owner = this;
             IdlePopulation[productionType]--;
-            _log.Log("\t{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
+            if (productionType != square.ProductionType)
+                _log.Log("\t{0} colonizes {1} planet in {2} to produce {3}", this, square, square.Sector, productionType);
+            else
+                _log.Log("\t{0} colonizes {1} planet in {2}", this, square, square.Sector);
         }
 
         private bool CanColonize(PopulationSquare square)

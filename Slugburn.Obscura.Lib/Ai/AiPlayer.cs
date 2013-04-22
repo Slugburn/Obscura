@@ -45,9 +45,9 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public bool ChooseToClaimSector(Sector sector)
         {
-            var sectoryProducesMoney = sector.Squares.Any(x => x.ProductionType == ProductionType.Money
+            var sectorProducesMoney = sector.Squares.Any(x => x.ProductionType == ProductionType.Money
                                                                && (!x.Advanced || Faction.HasTechnology(Tech.AdvancedEconomy)));
-            return sectoryProducesMoney || !this.SpendingInfluenceWillBankrupt();
+            return sectorProducesMoney || sector.DiscoveryTile != null || !this.SpendingInfluenceWillBankrupt();
         }
 
         public bool ChooseToUseDiscovery(Discovery discoveryTile)
@@ -68,7 +68,17 @@ namespace Slugburn.Obscura.Lib.Ai
         public IAction ChooseAction(IEnumerable<IAction> validActions)
         {
             ValidActions = validActions;
-            return AiState.Decisions.DecideAction(this);
+            var strategy = ChooseStrategy();
+            return strategy.DecideAction(this);
+        }
+
+        private IEnumerable<IAiDecision> ChooseStrategy()
+        {
+            // if under attack or nowhere to explore, use military strategy
+            if (SectorsUnderAttack.Any() || this.GetAction<ExploreAction>() == null)
+                return AiState.MilitaryStrategy;
+
+            return AiState.EconomicStrategy;
         }
 
         public Sector ThreatPoint { get; set; }
@@ -321,5 +331,15 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public BuildListGenerator BuildListGenerator { get; set; }
         public MoveListGenerator MoveListGenerator { get; private set; }
+
+        public IEnumerable<Sector> SectorsUnderAttack
+        {
+            get
+            {
+                var sectors = Faction.Sectors;
+                var sectorsUnderAttack = sectors.Where(s => s.GetEnemyShips(Faction).Any());
+                return sectorsUnderAttack;
+            }
+        }
     }
 }

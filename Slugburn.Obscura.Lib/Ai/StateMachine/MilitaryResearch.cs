@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Technology;
@@ -8,8 +9,13 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
     {
         public IAction Decide(AiState state)
         {
+            if (state.SavingForTech)
+                return null;
+
             var faction = state.Faction;
-            var milTech = faction.AvailableResearchTech().Where(tech => tech.IsMilitary()).ToArray();
+            var maxToSpend = Math.Max(faction.Science, state.RoundSpendingLimit);
+
+            var milTech = faction.UnknownTech().Where(tech => tech.IsMilitary() && faction.CostFor(tech) <= maxToSpend).ToArray();
             if (!milTech.Any())
                 return null;
 
@@ -27,9 +33,10 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
                 .Select(x => x.tech)
                 .FirstOrDefault();
 
-            state.Player.TechToResearch = biggestImprovement ?? milTech.OrderByDescending(tech => tech.Cost).FirstOrDefault();
+            var bestTech = biggestImprovement ?? milTech.OrderByDescending(tech => tech.Cost).FirstOrDefault();
+            state.Player.TechToResearch = bestTech;
 
-            return faction.GetAction<ResearchAction>();
+            return state.ResearchOrSaveFor(bestTech);
         }
     }
 }

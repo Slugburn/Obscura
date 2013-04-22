@@ -87,7 +87,7 @@
     <Compile Include="Ai\StateMachine\Influence.cs" />
     <Compile Include="Ai\StateMachine\MilitaryResearch.cs" />
     <Compile Include="Ai\StateMachine\ReinforceAttack.cs" />
-    <Compile Include="Ai\StateMachine\UnderAttack.cs" />
+    <Compile Include="Ai\StateMachine\DefendSector.cs" />
     <Compile Include="Ai\StateMachine\UnderThreat.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\BuildExtensions.cs" />
@@ -151,7 +151,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Ships\AncientShip.cs" />
     <Compile Include="Ships\AncientShipPart.cs" />
-    <Compile Include="Ships\GalacticCenterDefenseSystem.cs" />
+    <Compile Include="Ships\GalacticCoreDefenseSystem.cs" />
     <Compile Include="Ships\PartFactory.cs" />
     <Compile Include="Ships\PlayerShip.cs" />
     <Compile Include="Ships\Ship.cs" />

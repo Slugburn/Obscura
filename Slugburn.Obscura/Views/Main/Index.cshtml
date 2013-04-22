@@ -1,0 +1,215 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<canvas id ="canvas" width="1200" height="800"  />
+
+@section scripts{
+    <script type="text/javascript">
+        var background = 'lightgray';
+        
+        $(document).ready(function () {
+
+            $.getJSON("Main/Test",
+                function(data) {
+                    drawSectors(data);
+                });
+
+        });
+        
+        function drawSectors(sectors) {
+            $("canvas").drawRect({
+                fillStyle: background,
+                width: 2000,
+                height: 2000
+            });
+            $.each(sectors, function (x, s) {
+                drawSector(s);
+            });
+        }
+        
+        function drawSector(s) {
+            x = -s.x * 86 + s.y * 43 + 500;
+            y = -s.y * 75 + 400;
+            if (s.color) {
+                fillStyle =
+                    $("canvas").createGradient({
+                        x1: x,
+                        y1: y,
+                        x2: x,
+                        y2: y,
+                        r1: 20,
+                        r2: 40,
+                        c1: background,
+                        c2: s.color
+                    });
+            } else {
+                fillStyle = "transparent";
+            }
+            $("canvas").drawPolygon({
+                strokeStyle: 'black',
+                strokeWidth: 2,
+                fillStyle: fillStyle,
+                x: x,
+                y: y,
+                radius: 50,
+                sides: 6,
+                rotate: 90
+            });
+//            $("canvas").drawText({
+//                fillStyle: 'black',
+//                x: x,
+//                y: y,
+//                font: '10pt Arial',
+//                text: s.x + "," + s.y
+//            });
+            $("canvas").drawPolygon({
+                strokeStyle: 'black',
+                fillStyle: 'yellow',
+                x: x,
+                y: y,
+                radius: 10,
+                sides: 3,
+                rotate: 180,
+                concavity: -0.5
+            }).drawText({
+                fillStyle: 'black',
+                font: '8pt Arial',
+                x: x,
+                y: y,
+                text: s.vp
+            });
+            if (s.wormholes) {
+                $.each(s.wormholes, function (i, w) {
+                    $("canvas").drawArc({
+                        strokeStyle: 'black',
+                        strokeWidth: 1,
+                        fillStyle: 'white',
+                        x: x,
+                        y: y,
+                        start: 180,
+                        end: 0,
+                        translateX: 43,
+                        rotate: (w - 6) * 30,
+                        radius: 8
+                    });
+                });
+            }
+            if (s.planets) {
+                $.each(s.planets, function (i, p) {
+                    drawPlanet(p, i);
+                });
+            }
+        }
+        
+        function drawPlanet(planet, pIdx) {
+            var angle = (pIdx * 60 + 30) * Math.PI / 180;
+            var distance = -25;
+            var translateX = distance * Math.cos(angle);
+            var translateY = distance * Math.sin(angle);
+            if (planet.type === 'Orbital') {
+                $("canvas").drawArc({
+                    fillStyle: 'black',
+                    x: x,
+                    y: y,
+                    radius: 12,
+                    translateX: translateX,
+                    translateY: translateY
+                }).drawEllipse({
+                    strokeStyle: 'white',
+                    strokeWidth: 2,
+                    x: x + translateX,
+                    y: y + translateY,
+                    width: 15,
+                    height: 20,
+                    rotate: -30
+                });
+            } else {
+                switch (planet.type) {
+                    case 'Material':
+                        var color = 'saddlebrown';
+                        break;
+                    case 'Money':
+                        color = 'darkorange';
+                        break;
+                    case 'Science':
+                        color = 'salmon';
+                        break;
+                    case 'Any':
+                        color = 'lightgray';
+                        break;
+                    default:
+                        color = null;
+                        break;
+                }
+                var fillStyle = $("canvas").createGradient({
+                    x1: x,
+                    y1: y,
+                    x2: x,
+                    y2: y,
+                    r1: 0,
+                    r2: 12,
+                    c1: 'white',
+                    c2: color
+                });
+                $("canvas").drawArc({
+                    fillStyle: fillStyle,
+                    strokeStyle: 'black',
+                    x: x,
+                    y: y,
+                    radius: 12,
+                    translateX: translateX,
+                    translateY: translateY
+                });
+            }
+            if (planet.squares.length === 1) {
+                drawSquare(planet.squares[0], pIdx, 0);
+            } else {
+                drawSquare(planet.squares[0], pIdx, -6);
+                drawSquare(planet.squares[1], pIdx, 6);
+            }
+        }
+        
+        function drawSquare(square, pIdx, sTrans) {
+            var angle = (pIdx * 60 + 30) * Math.PI / 180;
+            var distance = -25;
+            var translateX = distance * Math.cos(angle) + sTrans;
+            var translateY = distance * Math.sin(angle);
+            if (square.color) {
+                $('canvas').drawRect({
+                    strokeStyle: square.color.toLowerCase() === 'black' ? 'white' : 'black',
+                    fillStyle: square.color,
+                    width: 10,
+                    height: 10,
+                    x: x,
+                    y: y,
+                    translateX: translateX,
+                    translateY: translateY
+                });
+            } else {
+                $('canvas').drawRect({
+                    fillStyle: 'white',
+                    width: 10,
+                    height: 10,
+                    x: x,
+                    y: y,
+                    translateX: translateX,
+                    translateY: translateY
+                });
+                if (square.advanced) {
+                    $('canvas').drawPolygon({
+                        fillStyle: 'black',
+                        x: x,
+                        y: y,
+                        radius: 4,
+                        sides: 5,
+                        concavity: 0.5,
+                        translateX: translateX,
+                        translateY: translateY
+                    });
+                }
+            }
+        }
+        
+    </script>
+}

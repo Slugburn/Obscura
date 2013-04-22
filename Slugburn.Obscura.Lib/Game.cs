@@ -58,7 +58,7 @@ namespace Slugburn.Obscura.Lib
             var galacticCenter = Sectors[1];
             Map.Place(galacticCenter, Map.Coord(0, 0));
             galacticCenter.DiscoveryTile = DiscoveryTiles.Draw();
-            var gcds = new GalacticCenterDefenseSystem();
+            var gcds = new GalacticCoreDefenseSystem();
             galacticCenter.AddShip(gcds);
             InnerSectors = Sectors.Values.Where(s => s.IsInner).Shuffle();
             MiddleSectors = Sectors.Values.Where(s => s.IsMiddle).Shuffle();

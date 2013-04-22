@@ -157,7 +157,7 @@ namespace Slugburn.Obscura.Lib.Technology
 
         public static Tech ArtifactKey
         {
-            get { return new EffectTech("Artifact Key", 14, 7, TechCategory.Nano, faction=>UseArtifactKey(faction)); }
+            get { return new EffectTech("Artifact Key", 14, 7, TechCategory.Nano, UseArtifactKey); }
         }
 
         private static void UseArtifactKey(Faction faction)

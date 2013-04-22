@@ -82,12 +82,12 @@ namespace Slugburn.Obscura.Lib.Maps
 
         public IEnumerable<Ship> GetEnemyShips(Faction faction)
         {
-            return Ships.Where(ship => ship.Faction != faction);
+            return Ships.Where(ship => ship.Owner != faction);
         }
 
         public IEnumerable<PlayerShip> GetFriendlyShips(Faction faction)
         {
-            return Ships.Where(ship => ship.Faction == faction).Cast<PlayerShip>();
+            return Ships.Where(ship => ship.Owner == faction).Cast<PlayerShip>();
         }
 
         public IEnumerable<Sector> AdjacentSectors()

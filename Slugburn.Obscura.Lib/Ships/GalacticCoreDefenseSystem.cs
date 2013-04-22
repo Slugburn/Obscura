@@ -5,11 +5,11 @@ using Slugburn.Obscura.Lib.Factions;
 
 namespace Slugburn.Obscura.Lib.Ships
 {
-    public class GalacticCenterDefenseSystem : Ship
+    public class GalacticCoreDefenseSystem : Ship
     {
-        public GalacticCenterDefenseSystem()
+        public GalacticCoreDefenseSystem()
         {
-            Faction = new Owner();
+            Owner = new GalacticCore();
         }
 
         private static readonly ShipProfile _profile = new ShipProfile
@@ -28,11 +28,16 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return ShipType.GCDS; }
         }
 
-        private class Owner : IShipOwner
+        protected override string Name
+        {
+            get { return "Defense System"; }
+        }
+
+        private class GalacticCore : IShipOwner
         {
             public override string ToString()
             {
-                return "Galactic Core Defense";
+                return "Galactic Core";
             }
 
             public IEnumerable<Target> ChooseDamageDistribution(IEnumerable<DamageRoll> hits, IEnumerable<Target> targets)

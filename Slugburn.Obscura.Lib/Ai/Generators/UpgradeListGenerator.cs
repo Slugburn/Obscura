@@ -26,6 +26,9 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
             if (faction.HasTechnology(Tech.Starbase) && player.ThreatPoint != null && player.ThreatPoint.Owner == faction)
                 blueprintsToUpgrade.Add(faction.Starbase);
 
+            // Limit to where there is an ideal blueprint available
+            blueprintsToUpgrade = blueprintsToUpgrade.Where(bp => player.GetIdealPartList(bp) != null).ToList();
+
             var upgrades = GetAllPossibleUpgrades(player, shipsToUpgrade, blueprintsToUpgrade)
                 .Where(x => availableUpgrades.Contains(x.Upgrade))
                 .ToList();

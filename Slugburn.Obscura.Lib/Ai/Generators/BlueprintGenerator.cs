@@ -10,15 +10,16 @@ namespace Slugburn.Obscura.Lib.Ai.Generators
         public IList<ShipPart> GetBestParts(ShipBlueprint blueprint, IList<ShipPart> partsPool)
         {
             var possibleParts = partsPool.Concat(new ShipPart[] {null}).ToArray();
-            return Enumerable.Range(0, 1000)
+            var best = Enumerable.Range(0, 1000)
                 .Select(x => CreatePossiblePartList(blueprint, possibleParts))
                 .Select(parts => new {Profile = ShipProfile.Create(blueprint, parts.ToArray()), Parts = parts})
                 .Where(x => blueprint.IsProfileValid(x.Profile))
+                .Where(x => x.Profile.Cannons.Concat(x.Profile.Missiles).Sum() > 0)
                 .OrderByDescending(x => x.Profile.Rating)
-                .First()
-                .Parts
-                .OrderBy(x=>x.Name)
-                .ToList();
+                .FirstOrDefault();
+            if (best == null)
+                return null;
+            return best.Parts.ToList();
         }
 
         private static IList<ShipPart> CreatePossiblePartList(ShipBlueprint blueprint, IList<ShipPart> partsPool)

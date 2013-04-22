@@ -6,7 +6,7 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public AncientShip(Ancients faction)
         {
-            Faction = faction;
+            Owner = faction;
         }
 
         private static readonly ShipProfile _profile = new ShipProfile
@@ -27,9 +27,10 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return ShipType.AncientShip; }
         }
 
-        public override string ToString()
+        protected override string Name
         {
-            return "Ancient Ship";
+            get { return "Ship"; }
         }
+
     }
 }

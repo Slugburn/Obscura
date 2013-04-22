@@ -7,7 +7,7 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public Sector Sector { get; set; }
 
-        public IShipOwner Faction { get; set; }
+        public IShipOwner Owner { get; set; }
 
         public abstract ShipProfile Profile { get; }
 
@@ -34,5 +34,17 @@ namespace Slugburn.Obscura.Lib.Ships
         {
             get { return Profile.Cannons; }
         }
+
+        public int Move
+        {
+            get { return Profile.Move; }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} - {2}", Owner, Name, Profile);
+        }
+
+        protected abstract string Name { get; }
     }
 }

@@ -42,7 +42,7 @@ namespace Slugburn.Obscura.Test.Builders
             var ship = (PlayerShip)_builder.Create(_faction);
 
             // Assert
-            Assert.That(ship.Faction, Is.SameAs(_faction));
+            Assert.That(ship.Owner, Is.SameAs(_faction));
             Assert.That(ship.Blueprint, Is.SameAs(_faction.Starbase));
             Assert.That(_faction.Material, Is.EqualTo(startingMaterials - _faction.Starbase.Cost));
         }

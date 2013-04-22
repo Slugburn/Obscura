@@ -24,13 +24,13 @@ namespace Slugburn.Obscura.Lib.Combat
         public void ResolveCombatPhase(IList<Sector> sectors)
         {
             var combatSectors = sectors
-                .Where(s => s.Ships.GroupBy(ship => ship.Faction).Count() > 1)
+                .Where(s => s.Ships.GroupBy(ship => ship.Owner).Count() > 1)
                 .OrderByDescending(sector => sector.Id)
                 .ToList();
             foreach (var sector in combatSectors)
             {
                 ResolveSectorCombat(sector);
-                var winner = sector.Ships.Select(ship => ship.Faction).Distinct().SingleOrDefault();
+                var winner = sector.Ships.Select(ship => ship.Owner).Distinct().SingleOrDefault();
                 if (winner != null)
                     _log.Log("{0} wins combat.", winner);
             }
@@ -43,8 +43,8 @@ namespace Slugburn.Obscura.Lib.Combat
             sectors.Where(x => x.Owner == null && x.Ships.Any(ship => ship is PlayerShip))
                 .Each(x =>
                           {
-                              var faction = x.Ships.Select(ship => ship.Faction).Cast<Faction>().First();
-                              if (faction.Player.ChooseToClaimSector(x))
+                              var faction = x.Ships.Select(ship => ship.Owner).Cast<Faction>().First();
+                              if (faction.Influence > 0 && faction.Player.ChooseToClaimSector(x))
                                   faction.ClaimSector(x);
                           });
         }
@@ -54,7 +54,7 @@ namespace Slugburn.Obscura.Lib.Combat
             _log.Log("Combat begins in {0}", sector);
             while (true)
             {
-                var combatFactions = sector.Ships.GroupBy(s => s.Faction).Select(g => new CombatFaction(g.Key, g, GetFactionPriority(sector, g.Key, g))).ToList();
+                var combatFactions = sector.Ships.GroupBy(s => s.Owner).Select(g => new CombatFaction(g.Key, g, GetFactionPriority(sector, g.Key, g))).ToList();
                 // continue until sector is uncontested
                 if (combatFactions.Count < 2)
                     break;
@@ -68,9 +68,9 @@ namespace Slugburn.Obscura.Lib.Combat
 
         public void ResolveBombing(Sector sector)
         {
-            if (sector.Owner == null || sector.Ships.All(x => x.Faction == sector.Owner)) 
+            if (sector.Owner == null || sector.Ships.All(x => x.Owner == sector.Owner)) 
                 return;
-            var attacker = sector.Ships.Select(x => x.Faction).Cast<Faction>().Distinct().Single();
+            var attacker = sector.Ships.Select(x => x.Owner).Cast<Faction>().Distinct().Single();
             var populatedSquares = sector.Squares.Where(x => x.Owner != null).ToArray();
             if (!populatedSquares.Any())
             {
@@ -170,7 +170,7 @@ namespace Slugburn.Obscura.Lib.Combat
                         // Remove from map
                         ship.Sector.Ships.Remove(ship);
                         // Remove from faction list
-                        var playerFaction = ship.Faction as Faction;
+                        var playerFaction = ship.Owner as Faction;
                         if (playerFaction != null)
                             playerFaction.Ships.Remove((PlayerShip) ship);
                     }
@@ -250,7 +250,7 @@ namespace Slugburn.Obscura.Lib.Combat
 
         public int[] Missiles
         {
-            get { return Ships.First().Profile.Missiles ?? new int[0]; }
+            get { return Ships.SelectMany(x=>x.Profile.Missiles).ToArray(); }
         }
     }
 

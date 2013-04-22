@@ -5,15 +5,14 @@ using Slugburn.Obscura.Lib.Ai.Generators;
 
 namespace Slugburn.Obscura.Lib.Ai.StateMachine
 {
-    class UnderAttack : IAiDecision
+    class DefendSector : IAiDecision
     {
         public IAction Decide(AiState state)
         {
             var faction = state.Faction;
             var player = state.Player;
 
-            var sectors = faction.Sectors;
-            var sectorsUnderAttack = sectors.Where(s => s.GetEnemyShips(faction).Any());
+            var sectorsUnderAttack = player.SectorsUnderAttack;
             var mostNeedsDefending = (from sector in sectorsUnderAttack
                                       let ratio = faction.CombatSuccessRatio(sector)
                                       where ratio < 2
@@ -30,11 +29,13 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
                 faction.Trade(ProductionType.Money, ProductionType.Material);
 
             var actionRatings = new List<ActionRating>
-                                      {
-                                          new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player)),
-                                          new ActionRating(player.GetAction<UpgradeAction>(), player.UpgradeListGenerator.RateRallyPoint(player)),
-                                          new ActionRating(player.GetAction<BuildAction>(), player.BuildListGenerator.RateStagingPoint(player, BuildListGenerator.RateCombatEfficiency))
-                                      };
+                                    {
+                                        // undervalue move to encourage building and upgrading
+                                        new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player)/2),
+                                        new ActionRating(player.GetAction<UpgradeAction>(), player.UpgradeListGenerator.RateRallyPoint(player)),
+                                        new ActionRating(player.GetAction<BuildAction>(),
+                                                         player.BuildListGenerator.RateStagingPoint(player, BuildListGenerator.RateCombatEfficiency))
+                                    };
 
             return actionRatings.ChooseBest(player.ActionRatingMinimum, player.Log);
         }

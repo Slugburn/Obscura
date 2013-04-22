@@ -9,7 +9,7 @@ namespace Slugburn.Obscura.Lib.Ships
     {
         public PlayerShip(Faction faction, ShipBlueprint blueprint)
         {
-            Faction = faction;
+            Owner = faction;
             Blueprint = blueprint;
         }
 
@@ -22,18 +22,13 @@ namespace Slugburn.Obscura.Lib.Ships
         {
             get
             {
-                var friendlyShipCount = Sector.Ships.Where(ship=>ship is PlayerShip).Cast<PlayerShip>().Count(ship => ship.Faction == Faction);
+                var friendlyShipCount = Sector.Ships.Where(ship=>ship is PlayerShip).Cast<PlayerShip>().Count(ship => ship.Owner == Owner);
                 var enemyShipCount = Sector.Ships.Count() - friendlyShipCount;
                 return friendlyShipCount <= enemyShipCount;
             }
         }
 
         public ShipBlueprint Blueprint { get; private set; }
-
-        public int Move
-        {
-            get { return Blueprint.Profile.Move; }
-        }
 
         public override ShipProfile Profile
         {
@@ -45,9 +40,9 @@ namespace Slugburn.Obscura.Lib.Ships
             get { return Blueprint.ShipType; }
         }
 
-        public override string ToString()
+        protected override string Name
         {
-            return string.Format("{0} - {1}", Blueprint, Profile);
+            get { return Blueprint.Name; }
         }
 
     }

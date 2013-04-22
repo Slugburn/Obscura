@@ -60,7 +60,7 @@ namespace Slugburn.Obscura.Lib
                 return new Discovery("+6 Materials", x =>
                     {
                         x.Faction.Material += 6;
-                        x.Faction.Log("+6 Materials gained");
+                        x.Faction.Log("\t+6 Materials gained");
                     });
             }
         }
@@ -106,7 +106,6 @@ namespace Slugburn.Obscura.Lib
         private static void UseDiscoveredPart(Faction faction, ShipPart part)
         {
             faction.SendMessage(new PartDiscovered(part));
-//            faction.Game.GetAction<UpgradeAction>().UpgradeUsingDiscoveredPart(faction, part);
         }
 
         public static Discovery AxiomComputer

@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Ai.Generators;
+using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Ai.StateMachine
 {
@@ -16,6 +18,11 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
             var targets = faction.Game.Map.GetSectors().Where(s => s.Owner != faction & faction.Sectors.Any(x => faction.GetShortestPath(x, s) != null)).ToArray();
             if (targets.Length == 0)
                 return null;
+
+            // if any targets are ancients, then ignore players
+            var neutralTargets = targets.Where(x => x.Ships.Any(s => s.Owner is Ancients || s is GalacticCoreDefenseSystem)).ToArray();
+            if (neutralTargets.Any())
+                targets = neutralTargets;
 
             var conquerable = targets.Where(faction.FleetCanConquer).ToArray();
             if (conquerable.Any())

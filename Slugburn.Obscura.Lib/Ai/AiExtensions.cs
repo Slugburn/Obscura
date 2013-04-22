@@ -54,7 +54,7 @@ namespace Slugburn.Obscura.Lib.Ai
             var rating = sector.Vp 
                 + sector.Squares.Count 
                 + (sector.DiscoveryTile != null ? 2 : 0) 
-                + sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCenterDefenseSystem ? 3 : 0);
+                + sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCoreDefenseSystem ? 3 : 0);
             if (rating < 3)
                 return 1;
             return rating;

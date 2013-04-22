@@ -73,7 +73,7 @@ namespace Slugburn.Obscura.Lib.Maps
         {
             return Facing.All.Select(facing => new {facing, sector = Map.GetSector(Coord.Go(facing, 1))})
                 .Where(x => x.sector != null 
-                    && (x.sector.Owner == faction || x.sector.Ships.Any(ship=>ship.Faction==faction)) 
+                    && (x.sector.Owner == faction || x.sector.Ships.Any(ship=>ship.Owner==faction)) 
                     && x.sector.Wormholes.Contains(Facing.Reverse(x.facing)))
                 .Select(x=>x.facing);
         }
