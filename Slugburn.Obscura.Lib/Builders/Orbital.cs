@@ -9,6 +9,7 @@ namespace Slugburn.Obscura.Lib.Builders
         {
             sector.HasOrbital = true;
             sector.Squares.Add(new PopulationSquare(ProductionType.Orbital, false) {Sector = sector});
+            sector.Owner.Colonize();
         }
 
         public override string ToString()

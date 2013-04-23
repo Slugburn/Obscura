@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
+﻿using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Microsoft.AspNet.SignalR;
+using Ninject;
 using Slugburn.Obscura.App_Start;
 
 namespace Slugburn.Obscura
@@ -17,13 +15,18 @@ namespace Slugburn.Obscura
     {
         protected void Application_Start()
         {
+            var kernel = new StandardKernel();
+            kernel.Load(new WebModule());
+            GlobalHost.DependencyResolver = new NinjectSignalrDependencyResolver(kernel);
+            DependencyResolver.SetResolver(new NinjectMvcDependencyResolver(kernel));
+
             AreaRegistration.RegisterAllAreas();
 
             WebApiConfig.Register(GlobalConfiguration.Configuration);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            DependencyResolver.SetResolver(new NinjectDependencyResolver());
+
         }
     }
 }

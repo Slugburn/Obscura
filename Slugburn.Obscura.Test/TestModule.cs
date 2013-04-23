@@ -10,7 +10,7 @@ namespace Slugburn.Obscura.Test
         public override void Load()
         {
             Bind<ILog>().To<ConsoleLog>().InSingletonScope();
-            Bind<IMapVisualizer>().To<ConsoleMapVisualizer>().InSingletonScope();
+            Bind<IGameView>().To<ConsoleGameView>().InSingletonScope();
             Kernel.Bind(x => x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
         }
     }

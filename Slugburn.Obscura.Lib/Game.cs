@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Slugburn.Obscura.Lib.Actions;
 using Slugburn.Obscura.Lib.Combat;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
@@ -22,14 +20,18 @@ namespace Slugburn.Obscura.Lib
             ILog log, 
             CombatEngine combatEngine,
             IMessagePipe messagePipe,
-            IMapVisualizer mapVisualizer)
+            IEnumerable<IMessageHandler<Game>> messageHandlers,
+            IGameView gameView)
         {
             MessagePipe = messagePipe;
             _factionTypes = factionTypes;
             _log = log;
             _combatEngine = combatEngine;
-            _mapVisualizer = mapVisualizer;
+            _messageHandlers = messageHandlers;
+            View = gameView;
             Ancients = new Ancients();
+
+            _messageHandlers.Configure(this, messagePipe);
         }
 
         public Ancients Ancients { get; private set; }
@@ -41,7 +43,8 @@ namespace Slugburn.Obscura.Lib
         private readonly IEnumerable<IFactionType> _factionTypes;
         private readonly ILog _log;
         private readonly CombatEngine _combatEngine;
-        private readonly IMapVisualizer _mapVisualizer;
+        private readonly IEnumerable<IMessageHandler<Game>> _messageHandlers;
+        public IGameView View { get; private set; }
 
         public void Setup(IList<Faction> factions)
         {
@@ -143,6 +146,8 @@ namespace Slugburn.Obscura.Lib
             {
                 while (Round <= 10)
                 {
+                    View.Display(this);
+
                     _log.Log("-- Round {0} --", Round);
                     var currentFaction = StartingFaction;
                     while (Factions.Any(f=>!f.Passed))
@@ -157,7 +162,7 @@ namespace Slugburn.Obscura.Lib
             }
             finally
             {
-                _mapVisualizer.Display(Map);
+                View.Display(this);
             }
         }
 //
@@ -240,6 +245,10 @@ namespace Slugburn.Obscura.Lib
             return Sectors[sectorId];
         }
 
+        public void SendMessage<T>(T message)
+        {
+            MessagePipe.Publish(message);
+        }
     }
 
 }

@@ -13,6 +13,9 @@ namespace Slugburn.Obscura
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            // SignalR hub routes must be mapped first
+            routes.MapHubs();
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

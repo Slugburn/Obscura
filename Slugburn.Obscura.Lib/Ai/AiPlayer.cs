@@ -76,9 +76,9 @@ namespace Slugburn.Obscura.Lib.Ai
         {
             // if under attack or nowhere to explore, use military strategy
             if (SectorsUnderAttack.Any() || this.GetAction<ExploreAction>() == null)
-                return AiState.MilitaryStrategy;
+                return Strategy.Military;
 
-            return AiState.EconomicStrategy;
+            return Strategy.Economic;
         }
 
         public Sector ThreatPoint { get; set; }

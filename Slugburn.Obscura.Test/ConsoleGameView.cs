@@ -1,14 +1,16 @@
 using System;
 using System.Linq;
+using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Maps;
 
 namespace Slugburn.Obscura.Test
 {
-    public class ConsoleMapVisualizer : IMapVisualizer
+    public class ConsoleGameView : IGameView
     {
 
-        public void Display(SectorMap map)
+        public void Display(Game game)
         {
+            var map = game.Map;
             var sectors = map.GetSectors().ToArray();
             var minX = sectors.Min(s => s.Location.Coord.X);
             var minY = sectors.Min(s => s.Location.Coord.Y);
@@ -21,6 +23,10 @@ namespace Slugburn.Obscura.Test
                     WriteRow(map, y, minY, row, minX, maxX);
                 }
             }
+        }
+
+        public void UpdateSector(Sector sector)
+        {
         }
 
         private void WriteRow(SectorMap map, int y, int minY, int row, int minX, int maxX)

@@ -132,7 +132,7 @@ namespace Slugburn.Obscura.Lib.Factions
             InfluenceSector(sector);
             if (sector.DiscoveryTile != null)
                 ClaimDiscoveryTile(sector);
-            SendMessage(new SectorClaimed());
+            SendMessage(new SectorClaimed(sector));
         }
 
         private void InfluenceSector(Sector sector)
@@ -321,6 +321,7 @@ namespace Slugburn.Obscura.Lib.Factions
                     throw new InvalidOperationException(String.Format("{0} square cannot produce {1}", square.ProductionType, productionType));
                 ColonizePopulationSquare(square, productionType);
                 ColonyShips--;
+                Game.SendMessage(new SectorUpdated(square.Sector));
             }
         }
 

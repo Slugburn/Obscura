@@ -42,7 +42,7 @@ namespace Slugburn.Obscura.Lib.Ai
             var distance = faction.Sectors.Min(x =>
                 {
                     var shortest = faction.GetShortestPath(x, sector);
-                    return shortest == null ? Int32.MinValue : shortest.Count;
+                    return shortest == null ? int.MaxValue : shortest.Count;
                 });
             if (distance > 3) return 0;
             var defenseRating = faction.GetEnemyRatingFor(sector);
@@ -51,9 +51,9 @@ namespace Slugburn.Obscura.Lib.Ai
 
         public static int GetSectorRating(this Sector sector)
         {
-            var rating = sector.Vp 
+            var rating = (sector.Vp 
+                + (sector.DiscoveryTile != null ? 2 : 0))*2
                 + sector.Squares.Count 
-                + (sector.DiscoveryTile != null ? 2 : 0) 
                 + sector.Ships.Sum(x => x is AncientShip ? 1 : x is GalacticCoreDefenseSystem ? 3 : 0);
             if (rating < 3)
                 return 1;

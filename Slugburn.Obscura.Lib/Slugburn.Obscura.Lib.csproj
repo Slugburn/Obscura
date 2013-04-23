@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Slugburn.Obscura.Lib</RootNamespace>
     <AssemblyName>Slugburn.Obscura.Lib</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,16 +36,16 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Net45\System.Reactive.Core.dll</HintPath>
+      <HintPath>..\packages\Rx-Core.2.1.30214.0\lib\Net40\System.Reactive.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\Net45\System.Reactive.Interfaces.dll</HintPath>
+      <HintPath>..\packages\Rx-Interfaces.2.1.30214.0\lib\Net40\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\Net45\System.Reactive.Linq.dll</HintPath>
+      <HintPath>..\packages\Rx-Linq.2.1.30214.0\lib\Net40\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net45\System.Reactive.PlatformServices.dll</HintPath>
+      <HintPath>..\packages\Rx-PlatformServices.2.1.30214.0\lib\Net40\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -88,6 +89,7 @@
     <Compile Include="Ai\StateMachine\MilitaryResearch.cs" />
     <Compile Include="Ai\StateMachine\ReinforceAttack.cs" />
     <Compile Include="Ai\StateMachine\DefendSector.cs" />
+    <Compile Include="Ai\StateMachine\Strategy.cs" />
     <Compile Include="Ai\StateMachine\UnderThreat.cs" />
     <Compile Include="Builders\BuilderBase.cs" />
     <Compile Include="Builders\BuildExtensions.cs" />
@@ -111,9 +113,9 @@
     <Compile Include="Factions\Ancients.cs" />
     <Compile Include="Factions\FactionExtensions.cs" />
     <Compile Include="Factions\IShipOwner.cs" />
+    <Compile Include="IGameView.cs" />
     <Compile Include="ILog.cs" />
     <Compile Include="Maps\Facing.cs" />
-    <Compile Include="Maps\IMapVisualizer.cs" />
     <Compile Include="Maps\MapCoord.cs" />
     <Compile Include="Maps\MapExtensions.cs" />
     <Compile Include="Maps\MapLocation.cs" />
@@ -127,6 +129,7 @@
     <Compile Include="Messages\PartListChanged.cs" />
     <Compile Include="Messages\PartDiscovered.cs" />
     <Compile Include="Messages\SectorClaimed.cs" />
+    <Compile Include="Messages\SectorUpdated.cs" />
     <Compile Include="Messages\TechGained.cs" />
     <Compile Include="Messages\UpgradeComplete.cs" />
     <Compile Include="Messaging\IMessageHandler.cs" />

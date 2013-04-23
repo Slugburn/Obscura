@@ -3,6 +3,7 @@ using System.Linq;
 using Slugburn.Obscura.Lib.Extensions;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Messages;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Actions
@@ -36,6 +37,7 @@ namespace Slugburn.Obscura.Lib.Actions
             location.Sector = sector;
             _log.Log("\t{0} found", sector);
             RotateToMatchWormholes(faction, sector);
+            faction.Game.SendMessage(new SectorUpdated(sector));
 
             if (sector.Ancients == 0 && faction.Player.ChooseToClaimSector(sector))
             {

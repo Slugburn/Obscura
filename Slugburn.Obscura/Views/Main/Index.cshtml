@@ -10,12 +10,50 @@
         
         $(document).ready(function () {
 
-            $.getJSON("Main/Test",
-                function(data) {
-                    drawSectors(data);
+            var mainHub = $.connection.main;
+
+            mainHub.client.displayMap = function (model) {
+                drawSectors(model);
+            };
+
+            mainHub.client.updateRound = updateRound;
+            
+            mainHub.client.updateSector = drawSector;
+
+
+            $.connection.hub.error(function (err) {
+                console.log(err.responseText);
+            });
+
+            $.connection.hub.start()
+                .done(function() {
+                    mainHub.server.start();
+                })
+                .fail(function(err) {
+                    alert(err);
                 });
 
+//            $.getJSON("Main/Test",
+//                function(data) {
+//                    drawSectors(data);
+//                });
+
         });
+        
+        function updateRound(round) {
+            $("canvas").drawRect({
+                strokeStyle: 'black',
+                fillStyle: 'white',
+                x: 60, y: 20,
+                height: 30, width : 100,
+            }).drawText({
+                fillStyle: 'black',
+                font: '12pt Arial',
+                x: 60, y: 20,
+                height: 30, width: 100,
+                text: round <= 10 ? "Round " + round : "Game Over"
+            });
+        }
         
         function drawSectors(sectors) {
             $("canvas").drawRect({
@@ -56,13 +94,6 @@
                 sides: 6,
                 rotate: 90
             });
-//            $("canvas").drawText({
-//                fillStyle: 'black',
-//                x: x,
-//                y: y,
-//                font: '10pt Arial',
-//                text: s.x + "," + s.y
-//            });
             $("canvas").drawPolygon({
                 strokeStyle: 'black',
                 fillStyle: 'yellow',
@@ -83,7 +114,6 @@
                 $.each(s.wormholes, function (i, w) {
                     $("canvas").drawArc({
                         strokeStyle: 'black',
-                        strokeWidth: 1,
                         fillStyle: 'white',
                         x: x,
                         y: y,
@@ -209,6 +239,80 @@
                     });
                 }
             }
+        }
+        
+        function shipShapes() {
+            $("canvas").drawVector({
+                strokeStyle: "black",
+                fillStyle: "red",
+                x: 50, y: 50,
+                a1: 0, l1: 4,
+                a2: 90, l2: 4,
+                a3: 0, l3: 3,
+                a4: 90, l4: 4,
+                a5: 180, l5: 3,
+                a6: 90, l6: 4,
+                a7: 180, l7: 4,
+                a8: 270, l8: 4,
+                a9: 180, l9: 1,
+                a10: 270, l10: 4,
+                a11: 0, l11: 1,
+                closed: true
+            });
+
+            $("canvas").drawVector({
+                strokeStyle: "black",
+                fillStyle: "red",
+                x: 100, y: 50,
+                a1: 0, l1: 8,
+                a2: 90, l2: 4,
+                a3: 0, l3: 2,
+                a4: 90, l4: 4,
+                a5: 180, l5: 2,
+                a6: 90, l6: 4,
+                a7: 180, l7: 8,
+                a8: 270, l8: 4,
+                a9: 0, l9: 2,
+                a10: 270, l10: 4,
+                a11: 180, l11: 2,
+                closed: true
+            });
+
+            $("canvas").drawVector({
+                strokeStyle: "black",
+                fillStyle: "red",
+                x: 150, y: 50,
+                a1: 0, l1: 12,
+                a2: 90, l2: 4,
+                a3: 180, l3: 2,
+                a4: 90, l4: 4,
+                a5: 0, l5: 2,
+                a6: 90, l6: 4,
+                a7: 180, l7: 12,
+                a8: 270, l8: 4,
+                a9: 0, l9: 2,
+                a10: 270, l10: 4,
+                a11: 180, l11: 2,
+                closed: true
+            });
+
+            $("canvas").drawVector({
+                strokeStyle: "black",
+                fillStyle: "red",
+                x: 200, y: 50,
+                a1: 0, l1: 4,
+                a2: 90, l2: 4,
+                a3: 0, l3: 4,
+                a4: 90, l4: 4,
+                a5: 180, l5: 4,
+                a6: 90, l6: 4,
+                a7: 180, l7: 4,
+                a8: 270, l8: 4,
+                a9: 180, l9: 4,
+                a10: 270, l10: 4,
+                a11: 0, l11: 4,
+                closed: true
+            });
         }
         
     </script>

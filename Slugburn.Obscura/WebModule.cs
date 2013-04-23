@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web;
-using Ninject;
+﻿using System.Collections.Generic;
 using Ninject.Modules;
 using Ninject.Extensions.Conventions;
-using Ninject.Web.Common;
 using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Views.Main;
 
 namespace Slugburn.Obscura
 {
@@ -16,19 +13,9 @@ namespace Slugburn.Obscura
         public override void Load()
         {
             Bind<ILog>().To<CaptureLog>().InSingletonScope();
-            Bind<IMapVisualizer>().To<CaptureMapVisualizer>().InSingletonScope();
+            Bind<IGameView>().To<GameView>().InSingletonScope();
             Kernel.Bind(x => x.FromAssemblyContaining<Game>().SelectAllClasses().BindAllInterfaces());
         }
-    }
-
-    public class CaptureMapVisualizer : IMapVisualizer
-    {
-        public void Display(SectorMap map)
-        {
-            Map= map;
-        }
-
-        public SectorMap Map { get; set; }
     }
 
     public class CaptureLog :ILog
@@ -42,7 +29,8 @@ namespace Slugburn.Obscura
 
         public void Log(string messageFormat, params object[] args)
         {
-            Messages.Add(string.Format(messageFormat, args));
+            var message = string.Format(messageFormat, args);
+            Messages.Add(message);
         }
     }
 }

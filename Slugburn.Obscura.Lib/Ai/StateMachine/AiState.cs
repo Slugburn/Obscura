@@ -31,39 +31,6 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
             return Player.GetAction<T>();
         }
 
-        public static IAiDecision[] EconomicStrategy =
-            new IAiDecision[]
-                {
-                    new Bankrupt(),
-                    new EconomicResearch(),
-                    new MilitaryResearch(),
-                    new DefendSector(),
-                    new Influence(),
-                    new UnderThreat(), 
-                    new ReinforceAttack(),
-                    new BuildOrbital(),
-                    new BuildMonolith(),
-                    new Explore(),
-                    new Attack(),
-                    new ImproveFleet(), 
-                };
-
-        public static IEnumerable<IAiDecision> MilitaryStrategy =
-            new IAiDecision[]
-                {
-                    new Bankrupt(), 
-                    new DefendSector(), 
-                    new Attack(),
-                    new MilitaryResearch(),
-                    new Influence(), 
-                    new ReinforceAttack(),
-                    new EconomicResearch(), 
-                    new UnderThreat(),
-                    new ImproveFleet(), 
-                    new BuildOrbital(),
-                    new BuildMonolith(),
-                };
-
         public int RoundSpendingLimit
         {
             get { return Round == 10 ? 0 : Round + 5; }

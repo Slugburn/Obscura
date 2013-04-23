@@ -58,23 +58,23 @@ namespace Slugburn.Obscura.Lib.Ai.StateMachine
                 return oneActionRatings.ChooseBest(player.ActionRatingMinimum, player.Log);
             }
 
-            var twoActionRatings = new[]
-                                       {
-                                           // Move + Move
-                                           new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player, faction.MoveCount*2)),
+            var twoActionRatings
+                = new[]
+                    {
+                        // Move + Move
+                        new ActionRating(player.GetAction<MoveAction>(), player.MoveListGenerator.Rate(player, faction.MoveCount*2)),
 
-                                           // Upgrade + Upgrade
-                                           new ActionRating(player.GetAction<UpgradeAction>(),
-                                                            player.UpgradeListGenerator.RateRallyPoint(player, faction.UpgradeCount*2)),
+                        // Upgrade + Upgrade
+                        new ActionRating(player.GetAction<UpgradeAction>(),
+                                         player.UpgradeListGenerator.RateRallyPoint(player, faction.UpgradeCount*2)),
                                            
-                                           // Upgrade + Move
-                                           new ActionRating(player.GetAction<UpgradeAction>(), player.UpgradeListGenerator.RateForMove(player, player.MoveListGenerator))
-                                           ,
+                        // Upgrade + Move
+                        new ActionRating(player.GetAction<UpgradeAction>(), player.UpgradeListGenerator.RateForMove(player, player.MoveListGenerator)),
 
-                                           // Build + Move
-                                           new ActionRating(player.GetAction<BuildAction>(),
-                                                            player.BuildListGenerator.RateStagingPoint(player, BuildListGenerator.RateAttackEfficency)),
-                                       };
+                        // Build + Move
+                        new ActionRating(player.GetAction<BuildAction>(),
+                                         player.BuildListGenerator.RateStagingPoint(player, BuildListGenerator.RateAttackEfficency)),
+                    };
             return twoActionRatings.ChooseBest(player.ActionRatingMinimum, player.Log);
         }
 
