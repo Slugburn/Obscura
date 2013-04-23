@@ -130,6 +130,12 @@
                     drawPlanet(p, i);
                 });
             }
+
+            $.each(s.ships, function(ownerIdx, shipOwner) {
+                $.each(shipOwner.types, function (typeIdx, shipType) {
+                    drawShip(shipOwner.owner, shipType.type, shipType.count, x + typeIdx * 16 - 8 * shipOwner.types.length, y + ownerIdx * 16 + 20);
+                });
+            });
         }
         
         function drawPlanet(planet, pIdx) {
@@ -155,23 +161,12 @@
                     rotate: -30
                 });
             } else {
-                switch (planet.type) {
-                    case 'Material':
-                        var color = 'saddlebrown';
-                        break;
-                    case 'Money':
-                        color = 'darkorange';
-                        break;
-                    case 'Science':
-                        color = 'salmon';
-                        break;
-                    case 'Any':
-                        color = 'lightgray';
-                        break;
-                    default:
-                        color = null;
-                        break;
-                }
+                var planetColor = {
+                    material: 'saddlebrown',
+                    money: 'darkorange',
+                    science: 'salmon',
+                    any: 'lightgray'
+                };
                 var fillStyle = $("canvas").createGradient({
                     x1: x,
                     y1: y,
@@ -180,7 +175,7 @@
                     r1: 0,
                     r2: 12,
                     c1: 'white',
-                    c2: color
+                    c2: planetColor[planet.type.toLowerCase()]
                 });
                 $("canvas").drawArc({
                     fillStyle: fillStyle,
@@ -241,11 +236,20 @@
             }
         }
         
-        function shipShapes() {
-            $("canvas").drawVector({
+        function drawShip(shipOwner, shipType, count, x, y) {
+            var spec = shipSpec[shipType.toLowerCase()];
+            var d = $.extend(spec, {
+                x: x,
+                y: y,
                 strokeStyle: "black",
-                fillStyle: "red",
-                x: 50, y: 50,
+                fillStyle: shipOwner,
+                closed: true
+            });
+            $("canvas").drawVector(d);
+        }
+        
+        var shipSpec = {
+            interceptor: {
                 a1: 0, l1: 4,
                 a2: 90, l2: 4,
                 a3: 0, l3: 3,
@@ -257,13 +261,8 @@
                 a9: 180, l9: 1,
                 a10: 270, l10: 4,
                 a11: 0, l11: 1,
-                closed: true
-            });
-
-            $("canvas").drawVector({
-                strokeStyle: "black",
-                fillStyle: "red",
-                x: 100, y: 50,
+            },
+            cruiser: {
                 a1: 0, l1: 8,
                 a2: 90, l2: 4,
                 a3: 0, l3: 2,
@@ -275,13 +274,8 @@
                 a9: 0, l9: 2,
                 a10: 270, l10: 4,
                 a11: 180, l11: 2,
-                closed: true
-            });
-
-            $("canvas").drawVector({
-                strokeStyle: "black",
-                fillStyle: "red",
-                x: 150, y: 50,
+            },
+            dreadnought: {
                 a1: 0, l1: 12,
                 a2: 90, l2: 4,
                 a3: 180, l3: 2,
@@ -293,13 +287,8 @@
                 a9: 0, l9: 2,
                 a10: 270, l10: 4,
                 a11: 180, l11: 2,
-                closed: true
-            });
-
-            $("canvas").drawVector({
-                strokeStyle: "black",
-                fillStyle: "red",
-                x: 200, y: 50,
+            },
+            starbase: {
                 a1: 0, l1: 4,
                 a2: 90, l2: 4,
                 a3: 0, l3: 4,
@@ -311,9 +300,14 @@
                 a9: 180, l9: 4,
                 a10: 270, l10: 4,
                 a11: 0, l11: 4,
-                closed: true
-            });
-        }
+            },
+            ancientship: {
+                
+            },
+            gcds: {
+                
+            }
+        };
         
     </script>
 }

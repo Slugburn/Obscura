@@ -31,8 +31,21 @@ namespace Slugburn.Obscura.Views.Main
                 vp = s.Vp,
                 color = s.Owner != null ? s.Owner.Color.ToString() : null,
                 wormholes = s.Wormholes,
-                planets = CreatePlanets(s)
+                planets = CreatePlanets(s),
+                ships = CreateShips(s)
             };
+        }
+
+        private static object CreateShips(Sector sector)
+        {
+            return sector.Ships.GroupBy(s => s.Owner.ToString())
+                         .Select(
+                             og => new
+                                       {
+                                           owner = og.Key,
+                                           types = og.GroupBy(x => x.ShipType.ToString())
+                                                     .Select(tg => new {type = tg.Key, count = tg.Count()})
+                                       });
         }
 
         private static object CreatePlanets(Sector s)
