@@ -1,0 +1,374 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="container" style="background: lightgray"></div>
+
+@section scripts{
+    <script type="text/javascript">
+        var background = 'lightgray';
+
+        var stage;
+        var backLayer;
+        var animLayer;
+        var roundText;
+        
+        $(document).ready(function () {
+
+            stage = new Kinetic.Stage({
+                container: 'container',
+                width: 1200,
+                height: 800
+            });
+
+            backLayer = new Kinetic.Layer();
+            animLayer = new Kinetic.Layer();
+
+            var rect = new Kinetic.Rect({
+                stroke: 'black',
+                fill: 'white',
+                x: 60,
+                y: 20,
+                height: 30,
+                width: 100,
+            });
+            roundText = new Kinetic.Text({
+                fill: 'black',
+                font: '12pt Arial',
+                x: 60, y: 20,
+            });
+
+//            backLayer.add(rect);
+            backLayer.add(roundText);
+            stage.add(backLayer);
+//            stage.add(animLayer);
+
+
+            var mainHub = $.connection.main;
+
+            mainHub.client.displayMap = function (model) {
+//                drawSectors(model);
+            };
+
+            mainHub.client.updateRound = updateRound;
+            
+            mainHub.client.updateSector = drawSector;
+
+//            mainHub.client.moveShip = moveShip;
+
+            $.connection.hub.error(function (err) {
+                console.log(err.responseText);
+            });
+
+            $.connection.hub.start()
+                .done(function() {
+                    mainHub.server.start();
+                })
+                .fail(function(err) {
+                    alert(err);
+                });
+
+        });
+        
+        function updateRound(round) {
+            roundText.setText(round <= 10 ? "Round " + round : "Game Over");
+            backLayer.drawScene();
+        }
+        
+        function drawSectors(sectors) {
+            $.each(sectors, function (x, s) {
+                drawSector(s);
+            });
+        }
+        
+        function translateCoord(o) {
+            return {
+                x: -o.x * 86 + o.y * 43 + 500, 
+                y: -o.y * 75 + 400
+            };
+        }
+        
+        function drawSector(s) {
+            var coord = translateCoord(s);
+            var x = coord.x;
+            var y = coord.y;
+            var color = s.color ? s.color : background;
+            var config = {
+                stroke: 'black',
+                strokeWidth: 1,
+                x: x,
+                y: y,
+                radius: 50,
+                sides: 6,
+                rotate: 90,
+            };
+            if (s.color) {
+                $.extend(config, {
+                    fillRadialGradientStartPoint: 0,
+                    fillRadialGradientStartRadius: 20,
+                    fillRadialGradientEndPoint: 0,
+                    fillRadialGradientEndRadius: 40,
+                    fillRadialGradientColorStops: [0, background, 1, color]
+                });
+            }
+
+            var poly = new Kinetic.RegularPolygon(config);
+            backLayer.clear();
+            backLayer.add(poly);
+
+            backLayer.drawScene();
+
+//            $("canvas").drawPolygon({
+//                stroke: 'black',
+//                fill: 'yellow',
+//                x: x,
+//                y: y,
+//                radius: 10,
+//                sides: 3,
+//                rotate: 180,
+//                concavity: -0.5
+//            }).drawText({
+//                fill: 'black',
+//                font: '8pt Arial',
+//                x: x,
+//                y: y,
+//                text: s.vp
+//            });
+//            if (s.wormholes) {
+//                $.each(s.wormholes, function (i, w) {
+//                    $("canvas").drawArc({
+//                        stroke: 'black',
+//                        fill: 'white',
+//                        x: x,
+//                        y: y,
+//                        start: 180,
+//                        end: 0,
+//                        translateX: 43,
+//                        rotate: (w - 6) * 30,
+//                        radius: 8
+//                    });
+//                });
+//            }
+//            if (s.planets) {
+//                $.each(s.planets, function (i, p) {
+//                    drawPlanet(p, i);
+//                });
+//            }
+//
+//            $.each(s.ships, function(ownerIdx, shipOwner) {
+//                $.each(shipOwner.types, function (typeIdx, shipType) {
+//                    drawShip(shipOwner.owner, shipType.type, shipType.count, x + typeIdx * 20 - 10 * (shipOwner.types.length-0.5), y + ownerIdx * 16 + 15);
+//                });
+//            });
+        }
+        
+        //function drawPlanet(planet, pIdx) {
+        //    var angle = (pIdx * 60 + 30) * Math.PI / 180;
+        //    var distance = -25;
+        //    var translateX = distance * Math.cos(angle);
+        //    var translateY = distance * Math.sin(angle);
+        //    if (planet.type === 'Orbital') {
+        //        $("canvas").drawArc({
+        //            fill: 'black',
+        //            x: x,
+        //            y: y,
+        //            radius: 12,
+        //            translateX: translateX,
+        //            translateY: translateY
+        //        }).drawEllipse({
+        //            stroke: 'white',
+        //            strokeWidth: 2,
+        //            x: x + translateX,
+        //            y: y + translateY,
+        //            width: 15,
+        //            height: 20,
+        //            rotate: -30
+        //        });
+        //    } else {
+        //        var planetColor = {
+        //            material: 'saddlebrown',
+        //            money: 'darkorange',
+        //            science: 'salmon',
+        //            any: 'lightgray'
+        //        };
+        //        var fill = $("canvas").createGradient({
+        //            x1: x,
+        //            y1: y,
+        //            x2: x,
+        //            y2: y,
+        //            r1: 0,
+        //            r2: 12,
+        //            c1: 'white',
+        //            c2: planetColor[planet.type.toLowerCase()]
+        //        });
+        //        $("canvas").drawArc({
+        //            fill: fill,
+        //            stroke: 'black',
+        //            x: x,
+        //            y: y,
+        //            radius: 12,
+        //            translateX: translateX,
+        //            translateY: translateY
+        //        });
+        //    }
+        //    if (planet.squares.length === 1) {
+        //        drawSquare(planet.squares[0], pIdx, 0);
+        //    } else {
+        //        drawSquare(planet.squares[0], pIdx, -6);
+        //        drawSquare(planet.squares[1], pIdx, 6);
+        //    }
+        //}
+        
+        //function drawSquare(square, pIdx, sTrans) {
+        //    var angle = (pIdx * 60 + 30) * Math.PI / 180;
+        //    var distance = -25;
+        //    var translateX = distance * Math.cos(angle) + sTrans;
+        //    var translateY = distance * Math.sin(angle);
+        //    if (square.color) {
+        //        $('canvas').drawRect({
+        //            stroke: square.color.toLowerCase() === 'black' ? 'white' : 'black',
+        //            fill: square.color,
+        //            width: 10,
+        //            height: 10,
+        //            x: x,
+        //            y: y,
+        //            translateX: translateX,
+        //            translateY: translateY
+        //        });
+        //    } else {
+        //        $('canvas').drawRect({
+        //            fill: 'white',
+        //            width: 10,
+        //            height: 10,
+        //            x: x,
+        //            y: y,
+        //            translateX: translateX,
+        //            translateY: translateY
+        //        });
+        //        if (square.advanced) {
+        //            $('canvas').drawPolygon({
+        //                fill: 'black',
+        //                x: x,
+        //                y: y,
+        //                radius: 4,
+        //                sides: 5,
+        //                concavity: 0.5,
+        //                translateX: translateX,
+        //                translateY: translateY
+        //            });
+        //        }
+        //    }
+        //}
+        
+        //function moveShip(o) {
+        //    var start = translateCoord(o.start);
+        //    var end = translateCoord(o.end);
+        //    var spec = shipSpec[o.type.toLowerCase()];
+        //    var d = $.extend(spec, {
+        //        layer: true,
+        //        name: "ship",
+        //        x: start.x,
+        //        y: start.y + 15,
+        //        stroke: "black",
+        //        fill: o.owner,
+        //        closed: true
+        //    });
+        //    $("canvas")
+        //        .clearCanvas()
+        //        .drawVector(d)
+        //        .animateLayer("ship", { x: end.x, y: end.y + 20 }, 1000, "swing")
+        //        .removeLayer("ship")
+        //        .clearCanvas();
+        //}
+        
+        //function drawShip(shipOwner, shipType, count, x, y) {
+        //    var spec = shipSpec[shipType.toLowerCase()];
+        //    var d = $.extend(spec, {
+        //        x: x,
+        //        y: y,
+        //        stroke: "black",
+        //        fill: shipOwner,
+        //        closed: true
+        //    });
+        //    $("canvas")
+        //        .drawVector(d)
+        //        .drawText({
+        //            fill: 'black',
+        //            font: '8pt Arial',
+        //            x: x,
+        //            y: y,
+        //            text: count
+        //        });
+        //}
+        
+        //var shipSpec = {
+        //    interceptor: {
+        //        a1: 0, l1: 4,
+        //        a2: 90, l2: 4,
+        //        a3: 0, l3: 3,
+        //        a4: 90, l4: 4,
+        //        a5: 180, l5: 3,
+        //        a6: 90, l6: 4,
+        //        a7: 180, l7: 4,
+        //        a8: 270, l8: 4,
+        //        a9: 180, l9: 1,
+        //        a10: 270, l10: 4,
+        //        a11: 0, l11: 1,
+        //        translateX: -6,
+        //        translateY: 5,
+        //    },
+        //    cruiser: {
+        //        a1: 0, l1: 8,
+        //        a2: 90, l2: 4,
+        //        a3: 0, l3: 2,
+        //        a4: 90, l4: 4,
+        //        a5: 180, l5: 2,
+        //        a6: 90, l6: 4,
+        //        a7: 180, l7: 8,
+        //        a8: 270, l8: 4,
+        //        a9: 0, l9: 2,
+        //        a10: 270, l10: 4,
+        //        a11: 180, l11: 2,
+        //        translateX: -6,
+        //        translateY: 6,
+        //    },
+        //    dreadnought: {
+        //        a1: 0, l1: 12,
+        //        a2: 90, l2: 4,
+        //        a3: 180, l3: 2,
+        //        a4: 90, l4: 4,
+        //        a5: 0, l5: 2,
+        //        a6: 90, l6: 4,
+        //        a7: 180, l7: 12,
+        //        a8: 270, l8: 4,
+        //        a9: 0, l9: 2,
+        //        a10: 270, l10: 4,
+        //        a11: 180, l11: 2,
+        //        translateX: -6,
+        //        translateY: 6,
+        //    },
+        //    starbase: {
+        //        a1: 0, l1: 4,
+        //        a2: 90, l2: 4,
+        //        a3: 0, l3: 4,
+        //        a4: 90, l4: 4,
+        //        a5: 180, l5: 4,
+        //        a6: 90, l6: 4,
+        //        a7: 180, l7: 4,
+        //        a8: 270, l8: 4,
+        //        a9: 180, l9: 4,
+        //        a10: 270, l10: 4,
+        //        a11: 0, l11: 4,
+        //        translateX: -6,
+        //        translateY: 2
+        //    },
+        //    ancientship: {
+                
+        //    },
+        //    gcds: {
+                
+        //    }
+        //};
+        
+    </script>
+}

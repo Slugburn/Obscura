@@ -2,10 +2,10 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<canvas id ="canvas" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 0" />
-<canvas id ="foreground" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 1" />
+<canvas id ="canvas" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 0; visibility: hidden" />
+<canvas id ="foreground" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 1; visibility: hidden" />
 
-<div id="container" style="position: absolute; left:0; top: 0; z-index: 2" ></div>
+<div id="container"></div>
 
 @section scripts{
     <script type="text/javascript">
@@ -20,11 +20,29 @@
         var backLayer = new Kinetic.Layer();
         var animLayer = new Kinetic.Layer();
 
+
+        var rect = new Kinetic.Rect({
+            stroke: 'black',
+            fill: 'white',
+            x: 60,
+            y: 20,
+            height: 30,
+            width: 100,
+        });
+        var roundText = new Kinetic.Text({
+            fill: 'black',
+            font: '12pt Arial',
+            x: 60, y: 20,
+            height: 30, width: 100,
+        });
+
+        
+        backLayer.add(rect);
+        backLayer.add(roundText);
         stage.add(backLayer);
         stage.add(animLayer);
 
         $(document).ready(function () {
-
             
             var mainHub = $.connection.main;
 
@@ -58,23 +76,8 @@
         });
         
         function updateRound(round) {
-            var text = new Kinetic.Text({
-                fill: 'black',
-                font: '12pt Arial',
-                x: 60, y: 20,
-                height: 30, width: 100,
-                text: round <= 10 ? "Round " + round : "Game Over"
-            });
-            var rect = new Kinetic.Rect({
-                stroke: 'black',
-                fill: 'white',
-                x: 60,
-                y: 20,
-                height: 30,
-                width: 100,
-            });
-            backLayer.add(rect);
-            backLayer.add(text);
+            roundText.setText(round <= 10 ? "Round " + round : "Game Over");
+            backLayer.drawScene();
         }
         
         function drawSectors(sectors) {

@@ -27,17 +27,17 @@ namespace Slugburn.Obscura.Views.Main
 
         public void MoveShip(Ship ship, Sector start, Sector end)
         {
-            var context = GlobalHost.ConnectionManager.GetHubContext<MainHub>();
-            context.Clients.All.updateSector(CreateSectorModel(start));
-            context.Clients.All.moveShip(new
-                {
-                    owner = ship.Owner.ToString(),
-                    type = ship.ShipType.ToString(),
-                    start = new {x = start.Location.Coord.X, y = start.Location.Coord.Y},
-                    end = new {x = end.Location.Coord.X, y = end.Location.Coord.Y},
-                });
-            Thread.Sleep(TimeSpan.FromMilliseconds(1000));
-            context.Clients.All.updateSector(CreateSectorModel(end));
+//            var context = GlobalHost.ConnectionManager.GetHubContext<MainHub>();
+//            context.Clients.All.updateSector(CreateSectorModel(start));
+//            context.Clients.All.moveShip(new
+//                {
+//                    owner = ship.Owner.ToString(),
+//                    type = ship.ShipType.ToString(),
+//                    start = new {x = start.Location.Coord.X, y = start.Location.Coord.Y},
+//                    end = new {x = end.Location.Coord.X, y = end.Location.Coord.Y},
+//                });
+//            Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+//            context.Clients.All.updateSector(CreateSectorModel(end));
         }
 
         private static object CreateSectorModel(Sector s)

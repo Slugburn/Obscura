@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewBag.Title = "title";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>title</h2>
+
+<div id="container" style="position: absolute; left:0; top: 0; z-index: 2" ></div>
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        var stage = new Kinetic.Stage({
+            container: 'container',
+            width: 1200,
+            height: 800
+        });
+
+        var backLayer = new Kinetic.Layer();
+        var animLayer = new Kinetic.Layer();
+
+        stage.add(backLayer);
+        stage.add(animLayer);
+
+        var background = "lightgray";
+        var s = { color: "red" };
+
+        var config = {
+            x: 100,
+            y: 100,
+            radius: 50,
+            sides: 6,
+            stroke: 'black',
+            strokeWidth: 2,
+            rotate: 90,
+            fillRadialGradientStartPoint: 20,
+            fillRadialGradientEndPoint: 40,
+            fillRadialGradientColorStops: [0, background, 1, s.color]
+        };
+
+        $(document).ready(function () {
+
+            var poly = new Kinetic.RegularPolygon(config);
+            backLayer.add(poly);
+            backLayer.drawScene();
+
+        });
+
+    </script>
+}

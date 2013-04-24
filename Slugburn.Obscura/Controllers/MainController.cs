@@ -5,13 +5,8 @@ namespace Slugburn.Obscura.Controllers
 {
     public class MainController : Controller
     {
-        private readonly GameFactory _gameFactory;
-        private readonly ILog _log;
-
         public MainController(GameFactory gameFactory, ILog log)
         {
-            _gameFactory = gameFactory;
-            _log = log;
         }
 
         //
@@ -25,13 +20,20 @@ namespace Slugburn.Obscura.Controllers
         //
         // GET: /Main/Test
 
-        public JsonResult Test()
+        public ActionResult Test()
         {
-            var game = _gameFactory.Create();
-            game.Start();
-
-            return Json(null, JsonRequestBehavior.AllowGet);
+            return View();
         }
+
+        //
+        // GET: /Main/Game
+
+        public ActionResult Game()
+        {
+            return View();
+        }
+
+
 
     }
 }
