@@ -2,14 +2,30 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<canvas id ="canvas" width="1200" height="800"  />
+<canvas id ="canvas" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 0" />
+<canvas id ="foreground" width="1200" height="800" style="position: absolute; left:0; top: 0; z-index: 1" />
+
+<div id="container" style="position: absolute; left:0; top: 0; z-index: 2" ></div>
 
 @section scripts{
     <script type="text/javascript">
         var background = 'lightgray';
-        
+
+        var stage = new Kinetic.Stage({
+            container: 'container',
+            width: 1200,
+            height: 800
+        });
+
+        var backLayer = new Kinetic.Layer();
+        var animLayer = new Kinetic.Layer();
+
+        stage.add(backLayer);
+        stage.add(animLayer);
+
         $(document).ready(function () {
 
+            
             var mainHub = $.connection.main;
 
             mainHub.client.displayMap = function (model) {
@@ -20,6 +36,7 @@
             
             mainHub.client.updateSector = drawSector;
 
+            mainHub.client.moveShip = moveShip;
 
             $.connection.hub.error(function (err) {
                 console.log(err.responseText);
@@ -41,34 +58,50 @@
         });
         
         function updateRound(round) {
-            $("canvas").drawRect({
-                strokeStyle: 'black',
-                fillStyle: 'white',
-                x: 60, y: 20,
-                height: 30, width : 100,
-            }).drawText({
-                fillStyle: 'black',
+            var text = new Kinetic.Text({
+                fill: 'black',
                 font: '12pt Arial',
                 x: 60, y: 20,
                 height: 30, width: 100,
                 text: round <= 10 ? "Round " + round : "Game Over"
             });
+            var rect = new Kinetic.Rect({
+                stroke: 'black',
+                fill: 'white',
+                x: 60,
+                y: 20,
+                height: 30,
+                width: 100,
+            });
+            backLayer.add(rect);
+            backLayer.add(text);
         }
         
         function drawSectors(sectors) {
-            $("canvas").drawRect({
-                fillStyle: background,
-                width: 2000,
-                height: 2000
-            });
+            $("canvas")
+                .clearCanvas()
+                .removeLayers()
+                .drawRect({
+                    fillStyle: background,
+                    width: 2000,
+                    height: 2000
+                });
             $.each(sectors, function (x, s) {
                 drawSector(s);
             });
         }
         
+        function translateCoord(o) {
+            return {
+                x: -o.x * 86 + o.y * 43 + 500, 
+                y: -o.y * 75 + 400
+            };
+        }
+        
         function drawSector(s) {
-            x = -s.x * 86 + s.y * 43 + 500;
-            y = -s.y * 75 + 400;
+            var coord = translateCoord(s);
+            x = coord.x;
+            y = coord.y;
             if (s.color) {
                 fillStyle =
                     $("canvas").createGradient({
@@ -133,7 +166,7 @@
 
             $.each(s.ships, function(ownerIdx, shipOwner) {
                 $.each(shipOwner.types, function (typeIdx, shipType) {
-                    drawShip(shipOwner.owner, shipType.type, shipType.count, x + typeIdx * 16 - 8 * shipOwner.types.length, y + ownerIdx * 16 + 20);
+                    drawShip(shipOwner.owner, shipType.type, shipType.count, x + typeIdx * 20 - 10 * (shipOwner.types.length-0.5), y + ownerIdx * 16 + 15);
                 });
             });
         }
@@ -236,6 +269,27 @@
             }
         }
         
+        function moveShip(o) {
+            var start = translateCoord(o.start);
+            var end = translateCoord(o.end);
+            var spec = shipSpec[o.type.toLowerCase()];
+            var d = $.extend(spec, {
+                layer: true,
+                name: "ship",
+                x: start.x,
+                y: start.y + 15,
+                strokeStyle: "black",
+                fillStyle: o.owner,
+                closed: true
+            });
+            $("canvas")
+                .clearCanvas()
+                .drawVector(d)
+                .animateLayer("ship", { x: end.x, y: end.y + 20 }, 1000, "swing")
+                .removeLayer("ship")
+                .clearCanvas();
+        }
+        
         function drawShip(shipOwner, shipType, count, x, y) {
             var spec = shipSpec[shipType.toLowerCase()];
             var d = $.extend(spec, {
@@ -245,7 +299,15 @@
                 fillStyle: shipOwner,
                 closed: true
             });
-            $("canvas").drawVector(d);
+            $("canvas")
+                .drawVector(d)
+                .drawText({
+                    fillStyle: 'black',
+                    font: '8pt Arial',
+                    x: x,
+                    y: y,
+                    text: count
+                });
         }
         
         var shipSpec = {
@@ -261,6 +323,8 @@
                 a9: 180, l9: 1,
                 a10: 270, l10: 4,
                 a11: 0, l11: 1,
+                translateX: -6,
+                translateY: 5,
             },
             cruiser: {
                 a1: 0, l1: 8,
@@ -274,6 +338,8 @@
                 a9: 0, l9: 2,
                 a10: 270, l10: 4,
                 a11: 180, l11: 2,
+                translateX: -6,
+                translateY: 6,
             },
             dreadnought: {
                 a1: 0, l1: 12,
@@ -287,6 +353,8 @@
                 a9: 0, l9: 2,
                 a10: 270, l10: 4,
                 a11: 180, l11: 2,
+                translateX: -6,
+                translateY: 6,
             },
             starbase: {
                 a1: 0, l1: 4,
@@ -300,6 +368,8 @@
                 a9: 180, l9: 4,
                 a10: 270, l10: 4,
                 a11: 0, l11: 4,
+                translateX: -6,
+                translateY: 2
             },
             ancientship: {
                 

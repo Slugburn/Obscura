@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Test
 {
@@ -26,6 +27,10 @@ namespace Slugburn.Obscura.Test
         }
 
         public void UpdateSector(Sector sector)
+        {
+        }
+
+        public void MoveShip(Ship ship, Sector start, Sector end)
         {
         }
 

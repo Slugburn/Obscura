@@ -29,8 +29,8 @@ namespace Slugburn.Obscura
 
         public void Log(string messageFormat, params object[] args)
         {
-            var message = string.Format(messageFormat, args);
-            Messages.Add(message);
+//            var message = string.Format(messageFormat, args);
+//            Messages.Add(message);
         }
     }
 }

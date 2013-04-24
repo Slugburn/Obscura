@@ -130,6 +130,7 @@
     <Compile Include="Messages\PartDiscovered.cs" />
     <Compile Include="Messages\SectorClaimed.cs" />
     <Compile Include="Messages\SectorUpdated.cs" />
+    <Compile Include="Messages\ShipMoved.cs" />
     <Compile Include="Messages\TechGained.cs" />
     <Compile Include="Messages\UpgradeComplete.cs" />
     <Compile Include="Messaging\IMessageHandler.cs" />

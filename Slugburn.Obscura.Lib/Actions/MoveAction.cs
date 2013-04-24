@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Slugburn.Obscura.Lib.Factions;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Messages;
 using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Lib.Actions
@@ -42,10 +43,12 @@ namespace Slugburn.Obscura.Lib.Actions
                     throw new InvalidOperationException(string.Format("{0} is not capable of moving {1}", ship, path.Count));
                 foreach (var sector in path)
                 {
+                    var startSector = ship.Sector;
                     if (validDestinations.All(x => x != sector))
                         throw new InvalidOperationException(string.Format("Moving {0} in {1} to {2} is not valid", ship, ship.Sector, sector));
                     _log.Log("\t{0}: {1} => {2}", ship, ship.Sector, sector);
                     sector.AddShip(ship);
+                    faction.Game.SendMessage(new ShipMoved(ship, startSector, ship.Sector));
                 }
                 movesCompleted++;
             }

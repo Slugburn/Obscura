@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Threading;
 using Microsoft.AspNet.SignalR;
 using Slugburn.Obscura.Lib;
 using Slugburn.Obscura.Lib.Maps;
+using Slugburn.Obscura.Lib.Ships;
 
 namespace Slugburn.Obscura.Views.Main
 {
@@ -20,6 +23,21 @@ namespace Slugburn.Obscura.Views.Main
             var model = CreateSectorModel(sector);
             var context = GlobalHost.ConnectionManager.GetHubContext<MainHub>();
             context.Clients.All.updateSector(model);
+        }
+
+        public void MoveShip(Ship ship, Sector start, Sector end)
+        {
+            var context = GlobalHost.ConnectionManager.GetHubContext<MainHub>();
+            context.Clients.All.updateSector(CreateSectorModel(start));
+            context.Clients.All.moveShip(new
+                {
+                    owner = ship.Owner.ToString(),
+                    type = ship.ShipType.ToString(),
+                    start = new {x = start.Location.Coord.X, y = start.Location.Coord.Y},
+                    end = new {x = end.Location.Coord.X, y = end.Location.Coord.Y},
+                });
+            Thread.Sleep(TimeSpan.FromMilliseconds(1000));
+            context.Clients.All.updateSector(CreateSectorModel(end));
         }
 
         private static object CreateSectorModel(Sector s)
