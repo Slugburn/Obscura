@@ -24,28 +24,20 @@
         stage.add(backLayer);
         stage.add(animLayer);
 
-        var background = "lightgray";
-        var s = { color: "red" };
-
         var config = {
             x: 100,
             y: 100,
-            radius: 50,
-            sides: 6,
+            points: [-6,2,-6,-2,-2,-2,-2,-6,2,-6,2,-2,6,-2,6,2,2,2,2,6,-2,6,-2,2],
             stroke: 'black',
-            strokeWidth: 2,
-            rotate: 90,
-            fillRadialGradientStartPoint: 20,
-            fillRadialGradientEndPoint: 40,
-            fillRadialGradientColorStops: [0, background, 1, s.color]
+            strokeWidth: 1,
+            fill: 'red',
         };
 
         $(document).ready(function () {
 
-            var poly = new Kinetic.RegularPolygon(config);
-            backLayer.add(poly);
-            backLayer.drawScene();
-
+            var poly = new Kinetic.Polygon(config);
+            animLayer.add(poly);
+            animLayer.drawScene();
         });
 
     </script>

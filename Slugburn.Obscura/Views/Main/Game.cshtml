@@ -38,10 +38,10 @@
                 x: 60, y: 20,
             });
 
-//            backLayer.add(rect);
+            backLayer.add(rect);
             backLayer.add(roundText);
             stage.add(backLayer);
-//            stage.add(animLayer);
+            stage.add(animLayer);
 
 
             var mainHub = $.connection.main;
@@ -54,7 +54,7 @@
             
             mainHub.client.updateSector = drawSector;
 
-//            mainHub.client.moveShip = moveShip;
+            mainHub.client.moveShip = moveShip;
 
             $.connection.hub.error(function (err) {
                 console.log(err.responseText);
@@ -260,26 +260,35 @@
         //    }
         //}
         
-        //function moveShip(o) {
-        //    var start = translateCoord(o.start);
-        //    var end = translateCoord(o.end);
-        //    var spec = shipSpec[o.type.toLowerCase()];
-        //    var d = $.extend(spec, {
-        //        layer: true,
-        //        name: "ship",
-        //        x: start.x,
-        //        y: start.y + 15,
-        //        stroke: "black",
-        //        fill: o.owner,
-        //        closed: true
-        //    });
-        //    $("canvas")
-        //        .clearCanvas()
-        //        .drawVector(d)
-        //        .animateLayer("ship", { x: end.x, y: end.y + 20 }, 1000, "swing")
-        //        .removeLayer("ship")
-        //        .clearCanvas();
-        //}
+        function moveShip(o) {
+            backLayer.hide();
+            var start = translateCoord(o.start);
+            var end = translateCoord(o.end);
+            var config = {
+                x: start.x,
+                y: start.y,
+                points: shipSpec[o.type.toLowerCase()],
+                stroke: 'black',
+                strokeWidth: 1,
+                fill: o.owner,
+            };
+            var ship = new Kinetic.Polygon(config);
+            animLayer.add(ship);
+            var duration = 500;
+            var anim = new Kinetic.Animation(function (frame) {
+                if (frame.time >= duration) {
+                    anim.stop();
+                    animLayer.remove(ship);
+                    animLayer.drawScene();
+                    return;
+                }
+                var x = start.x + (end.x - start.x) * frame.time / duration;
+                var y = start.y + (end.y - start.y) * frame.time / duration;
+                ship.setX(x);
+                ship.setY(y);
+            }, animLayer);
+            anim.start();
+        }
         
         //function drawShip(shipOwner, shipType, count, x, y) {
         //    var spec = shipSpec[shipType.toLowerCase()];
@@ -301,74 +310,14 @@
         //        });
         //}
         
-        //var shipSpec = {
-        //    interceptor: {
-        //        a1: 0, l1: 4,
-        //        a2: 90, l2: 4,
-        //        a3: 0, l3: 3,
-        //        a4: 90, l4: 4,
-        //        a5: 180, l5: 3,
-        //        a6: 90, l6: 4,
-        //        a7: 180, l7: 4,
-        //        a8: 270, l8: 4,
-        //        a9: 180, l9: 1,
-        //        a10: 270, l10: 4,
-        //        a11: 0, l11: 1,
-        //        translateX: -6,
-        //        translateY: 5,
-        //    },
-        //    cruiser: {
-        //        a1: 0, l1: 8,
-        //        a2: 90, l2: 4,
-        //        a3: 0, l3: 2,
-        //        a4: 90, l4: 4,
-        //        a5: 180, l5: 2,
-        //        a6: 90, l6: 4,
-        //        a7: 180, l7: 8,
-        //        a8: 270, l8: 4,
-        //        a9: 0, l9: 2,
-        //        a10: 270, l10: 4,
-        //        a11: 180, l11: 2,
-        //        translateX: -6,
-        //        translateY: 6,
-        //    },
-        //    dreadnought: {
-        //        a1: 0, l1: 12,
-        //        a2: 90, l2: 4,
-        //        a3: 180, l3: 2,
-        //        a4: 90, l4: 4,
-        //        a5: 0, l5: 2,
-        //        a6: 90, l6: 4,
-        //        a7: 180, l7: 12,
-        //        a8: 270, l8: 4,
-        //        a9: 0, l9: 2,
-        //        a10: 270, l10: 4,
-        //        a11: 180, l11: 2,
-        //        translateX: -6,
-        //        translateY: 6,
-        //    },
-        //    starbase: {
-        //        a1: 0, l1: 4,
-        //        a2: 90, l2: 4,
-        //        a3: 0, l3: 4,
-        //        a4: 90, l4: 4,
-        //        a5: 180, l5: 4,
-        //        a6: 90, l6: 4,
-        //        a7: 180, l7: 4,
-        //        a8: 270, l8: 4,
-        //        a9: 180, l9: 4,
-        //        a10: 270, l10: 4,
-        //        a11: 0, l11: 4,
-        //        translateX: -6,
-        //        translateY: 2
-        //    },
-        //    ancientship: {
-                
-        //    },
-        //    gcds: {
-                
-        //    }
-        //};
+        var shipSpec = {
+            interceptor: [6, 5, 6, 1, 2, 1, 2, -3, -2, -3, -2, 1, -6, 1, -6, 5, -2, 5, -2, 6, 2, 6, 2, 5],
+            cruiser: [-6, 6, -6, -2, -2, -2, -2, -4, 2, -4, 2, -2, 6, -2, 6, 6, 2, 6, 2, 4, -2, 4, -2, 6],
+            dreadnought: [-6, 6, -6, -6, -2, -6, -2, -4, 2, -4, 2, -6, 6, -6, 6, 6, 2, 6, 2, 4, -2, 4, -2, 6],
+            starbase: [-6, 2, -6, -2, -2, -2, -2, -6, 2, -6, 2, -2, 6, -2, 6, 2, 2, 2, 2, 6, -2, 6, -2, 2],
+            ancientship: [],
+            gcds: []
+        };
         
     </script>
 }
